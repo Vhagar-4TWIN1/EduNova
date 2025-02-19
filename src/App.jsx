@@ -10,6 +10,7 @@ import Header from './components/header';
 import Home from './components/home'; 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import Footer from './components/footer';
 
 AOS.init();
 function App() {
@@ -19,6 +20,7 @@ function App() {
     <>
       <Header />
       <Home />
+      <Footer />
     </>
   );
 }
