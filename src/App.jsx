@@ -15,18 +15,20 @@ import trainer1 from './assets/img/trainers/trainer-1.jpg';
 import trainer2 from './assets/img/trainers/trainer-2.jpg';
 import trainer3 from './assets/img/trainers/trainer-3.jpg';
 import Footer from './components/footer';
+import Header from './components/header';
+import Home from './components/home'; 
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
+AOS.init();
 function App() {
   const [count, setCount] = useState(0);
 
   return (
-<div className="page-container">
-      <main className="content">
-        <img src={trainer1} alt="" />
-      </main>
-    <Footer />
-</div>
-    
+    <>
+      <Header />
+      <Home />
+    </>
   );
 }
 
