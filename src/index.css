@@ -34,7 +34,17 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
-
+main {
+  flex-grow: 1; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  margin-top: 80px; /* Compense la hauteur du header */
+  margin-bottom: 60px; /* Compense la hauteur du footer */
+  overflow-y: auto; /* Permet le défilement du contenu si nécessaire */
+}
 button {
   border-radius: 8px;
   border: 1px solid transparent;

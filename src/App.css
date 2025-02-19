@@ -11,6 +11,38 @@
   will-change: filter;
   transition: filter 300ms;
 }
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex-grow: 1; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  margin-top: 80px; /* Compense la hauteur du header */
+  margin-bottom: 60px; /* Compense la hauteur du footer */
+  overflow-y: auto; /* Permet le défilement du contenu si nécessaire */
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Ensure it stays above other content */
+  background-color: #fff; /* Add a background color if needed */
+}
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
