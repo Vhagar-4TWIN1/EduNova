@@ -20,6 +20,7 @@ import Home from './components/home';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
+
 AOS.init();
 function App() {
   const [count, setCount] = useState(0);
@@ -28,6 +29,7 @@ function App() {
     <>
       <Header />
       <Home />
+      <Footer />
     </>
   );
 }
