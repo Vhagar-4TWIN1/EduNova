@@ -1,40 +1,38 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { MaterialTailwindControllerProvider } from "./context"; // Import the context provider
 import Login from "./components/login";
 import Registration from "./components/registration";
 import Home from "./components/home";
 import Logs from "./components/logs";
 import Layout from "./components/layout";
+import LinkedInCallback from "./components/linkedInCallback";
+import DashboardLayout from "./components/dashboard/DashboardLayout"; // Importez le DashboardLayout
+import Dashboard from "./components/dashboard/dashboard";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-//import Dashboard from "./layouts/dashboard";
-import LinkedInCallback from "./components/linkedInCallback";
-import { Dashboard } from "@/layouts";
 
 AOS.init();
 
 function App() {
   return (
-    // Wrap the entire app with MaterialTailwindControllerProvider
-    <MaterialTailwindControllerProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/registration" element={<Registration />} />
-          <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
+    <Router>
+      <Routes>
+        {/* Routes publiques */}
+        <Route path="/" element={<Login />} />
+        <Route path="/registration" element={<Registration />} />
+        <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
 
-          {/* Dashboard route */}
-          <Route path="/dashboard/*" element={<Dashboard />} />
+        {/* Routes protégées avec Layout */}
+        <Route element={<Layout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/logs" element={<Logs />} />
+        </Route>
 
-          {/* Routes with Header and Footer */}
-          <Route element={<Layout />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/logs" element={<Logs />} />
-          </Route>
-        </Routes>
-      </Router>
-    </MaterialTailwindControllerProvider>
+        {/* Routes du tableau de bord */}
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
