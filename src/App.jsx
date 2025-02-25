@@ -12,6 +12,8 @@ import Dashboard from "./components/dashboard/dashboard";
 
 
 AOS.init();
+import Contact from "./components/Contact";
+import Message from "./components/messga";
 
 function App() {
   return (
@@ -20,7 +22,6 @@ function App() {
         {/* Public Routes */}
         {/* Routes publiques */}
         <Route path="/" element={<Login />} />
-        <Route path="/registration" element={<Registration />} />
         <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
 
         {/* Routes with Header & Footer (Layout) */}
@@ -33,6 +34,11 @@ function App() {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
+        <Route path="/" element={<Home />} />
+      
+        <Route path="/registration" element={<Contact />} />
+        
+        <Route path="/message" element={<Message />} />
       </Routes>
     </Router>
   );

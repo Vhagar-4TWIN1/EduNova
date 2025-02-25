@@ -1,132 +1,213 @@
-import React, { useState  , useEffect} from "react";
-import axios from "axios"; 
-import Image from "../assets/backkk.png";
-import Logo from "../assets/logo.png";
+import React, { useState } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
+import { styles } from "../styles";
+import { EarthCanvas } from "./canvas";
+import { SectionWrapper } from "../hoc";
+import { slideIn } from "../utils/motion";
 import GoogleSvg from "../assets/icons8-google.svg";
-import { FaEye, FaEyeSlash } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
-
+import FacebookSVG from "../assets/icons8-facebook.svg";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import backgroundImage from "../assets/backgroundlogin.jpg"; 
 const Login = () => {
-
-  const navigate = useNavigate();
-  const [rememberMe, setRememberMe] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    const savedEmail = localStorage.getItem("rememberedEmail");
-    const savedPassword = localStorage.getItem("rememberedPassword");
-  
-    if (savedEmail && savedPassword) {
-      setEmail(savedEmail);
-      setPassword(savedPassword);
-      setRememberMe(true);
-    }
-  }, []);
-  
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const handleLogin = async (event) => {
     event.preventDefault();
-    console.log("Login button clicked");
-  
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/signin", {
-        email,
-        password,
-      });
-  
-      console.log("Server Response:", response.data);
-      alert("Login successful!");
-  
+      const response = await axios.post("http://localhost:3000/api/auth/signin", formData);
+      console.log("Login successful:", response.data);
       localStorage.setItem("token", response.data.token);
-  
-      if (rememberMe) {
-        localStorage.setItem("rememberedEmail", email);
-        localStorage.setItem("rememberedPassword", password);
-      } else {
-        localStorage.removeItem("rememberedEmail");
-        localStorage.removeItem("rememberedPassword");
-      }
-  
-      navigate("/home");
+      // Rediriger après la connexion
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
     }
   };
   
 
+  const handleFacebookLogin = () => {
+    window.location.href = "http://localhost:3000/api/auth/facebook";
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:3000/api/auth/google";
+  };
+
   return (
-    <div className="login-main">
-      <div className="login-left">
-        <img src={Image} alt="Background" />
-      </div>
-      <div className="login-right">
-        <div className="login-right-container">
-          <div className="login-logo">
-            <img src={Logo} alt="Logo" />
-          </div>
-          <div className="login-center">
-            <h2>Welcome back!</h2>
-            <p>Please enter your details</p>
-            {error && <p className="error">{error}</p>} {/* Display error messages */}
-            
-            <form onSubmit={handleLogin}>
+   /* <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh", // Ensure the gradient covers the full height
+        width: "100vw", // Ensure the gradient covers the full width
+        background: "linear-gradient(135deg, #011733, #207bf0)", // Gradient background
+        padding: "20px", // Add some padding
+      }}
+    >*/
+
+
+   
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          width: "100vw",
+          backgroundImage: `url(${backgroundImage})`, // Ajout de l'image de fond
+          backgroundSize: "cover", // Pour couvrir tout l'écran
+          backgroundPosition: "center", // Centrage de l'image
+          backgroundRepeat: "no-repeat", // Empêcher la répétition
+          padding: "20px",
+        }}
+      >
+
+
+
+
+      <motion.div
+        variants={slideIn("left", "tween", 0.7, 1)}
+        style={{
+          flex: 1,
+          maxWidth: "600px",
+          backgroundColor: "#f2f2f2",
+          padding: "50px",
+          borderRadius: "16px",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <h3 className={styles.sectionHeadText} style={{ fontSize: "48px" }}>Connexion</h3>
+        
+        {/* Formulaire de connexion */}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <form
+          onSubmit={handleLogin}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "32px",
+            marginTop: "32px",
+          }}
+        >
+          {/* Email */}
+          <label style={{ fontSize: "20px" }}>
+            <span>Email</span>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+            />
+          </label>
+
+          {/* Password */}
+          <label style={{ fontSize: "20px" }}>
+            <span>Password</span>
+            <div style={{ position: "relative" }}>
               <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 required
+                style={inputStyle}
               />
-              <div className="pass-input-div">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                {showPassword ? (
-                  <FaEyeSlash onClick={() => setShowPassword(!showPassword)} />
-                ) : (
-                  <FaEye onClick={() => setShowPassword(!showPassword)} />
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  right: "10px",
+                  transform: "translateY(-50%)",
+                  background: "transparent",
+                  border: "none",
+                }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </label>
 
-              <div className="remember-div">
-  <input
-    type="checkbox"
-    id="remember-checkbox"
-    checked={rememberMe}
-    onChange={() => setRememberMe(!rememberMe)}
-  />
-  <label htmlFor="remember-checkbox">Remember</label>
-</div>
+          <button
+            type="submit"
+            style={{
+              backgroundColor: "#ff6b6b",
+              color: "white",
+              padding: "20px 40px",
+              borderRadius: "12px",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "22px",
+              fontWeight: "bold",
+              transition: "background-color 0.3s ease",
+            }}
+          >
+            Connexion
+          </button>
+        </form>
 
+        {/* Connexion via Facebook et Google */}
+        <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+          <button onClick={handleFacebookLogin} style={socialLoginButtonStyle}>
+            <img src={FacebookSVG} alt="Facebook" style={{ marginRight: "8px" }} />
+            Connexion with Facebook
+          </button>
 
-              <div className="login-center-buttons">
-                <button type="submit">Log In</button>
-
-                <button type="button">
-                  <img src={GoogleSvg} alt="Google Login" />
-                  Log In with Google
-                </button>
-              </div>
-          <br />
-                <button type="button">
-                  Log In with Linkedin
-                </button>
-            </form>
-          </div>  
-
-          <p className="login-bottom-p">
-            Don't have an account? <a href="/registration">Join now</a>
-          </p>
+          <button onClick={handleGoogleLogin} style={socialLoginButtonStyle}>
+            <img src={GoogleSvg} alt="Google" style={{ marginRight: "8px" }} />
+            Connexion with Google
+          </button>
         </div>
-      </div>
+      </motion.div>
+
+      {/* Earth Canvas Section */}
+      <motion.div
+        variants={slideIn("right", "tween", 0.2, 1)}
+        style={{
+          flex: 1,
+          maxWidth: "800px",
+          height: "800px",
+        }}
+      >
+        <EarthCanvas />
+      </motion.div>
     </div>
   );
 };
 
-export default Login;
+// Styles for inputs and social login buttons
+const inputStyle = {
+  backgroundColor: "#dbcece",
+  padding: "20px 24px",
+  borderRadius: "12px",
+  border: "none",
+  outline: "none",
+  fontSize: "18px",
+};
+
+const socialLoginButtonStyle = {
+  backgroundColor: "#dbdbdb",
+  color: "black",
+  padding: "10px 20px",
+  borderRadius: "12px",
+  border: "none",
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  cursor: "pointer",
+};
+
+export default SectionWrapper(Login, "login");

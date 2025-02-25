@@ -5,6 +5,8 @@
   text-align: center;
 }
 
+
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -41,6 +43,7 @@
   color: #888;
 }
 body, html {
+  
   height: 100%;
   margin: 0;
 }
