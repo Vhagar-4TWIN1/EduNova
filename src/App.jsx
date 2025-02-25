@@ -22,12 +22,13 @@ function App() {
        <Route path="/" element={<Login />} />
         <Route path="/registration" element={<Registration />} />
         <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
-        <Route path="/addModule" element={<AddModule />} />
-        <Route path="/listModules" element={<ListModules />} />
+        
         
         {/* Routes protégées avec Layout */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/addModule" element={<AddModule />} />
+        <Route path="/listModules" element={<ListModules />} />
           <Route path="/logs" element={<Logs />} />
         </Route>
 
