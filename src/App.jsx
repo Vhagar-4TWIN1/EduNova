@@ -11,7 +11,7 @@ import LinkedInCallback from "./components/linkedInCallback";
 import DashboardLayout from "./components/dashboard/dashboardLayout";
 import Dashboard from "./components/dashboard/dashboard";
 
-// Initialize AOS (once)
+
 AOS.init();
 
 function App() {
@@ -19,17 +19,20 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
+        {/* Routes publiques */}
         <Route path="/" element={<Login />} />
         <Route path="/registration" element={<Registration />} />
         <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
 
         {/* Routes with Header & Footer (Layout) */}
+        {/* Routes protégées avec Layout */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/logs" element={<Logs />} />
         </Route>
 
         {/* Dashboard Routes (Protected) */}
+        {/* Routes du tableau de bord */}
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>

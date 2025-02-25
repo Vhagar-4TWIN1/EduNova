@@ -6,20 +6,19 @@ import Logs from "./logs";
 import { Outlet } from 'react-router-dom'; // Outlet gère les routes enfants
 
 const DashboardLayout = ({ children }) => {
+
+
+const DashboardLayout = () => {
   return (
     <div className="app">
       <Header />
       <Sidebar />
-      <div className="dashboard-container">
-        <Sidebar />
-        <main className="app-content">
-          <Logs /> {/* Ajout de Logs ici */}
-          <Outlet /> {/* Permet d'afficher les routes enfants */}
-        </main>
-      </div>
+      <main className="app-content">
+        <Outlet /> {/* 👈 This renders the child routes */}
+      </main>
       <Footer />
-    </div>
+    </div>    
   );
 };
-
+}
 export default DashboardLayout;
