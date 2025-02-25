@@ -8,7 +8,7 @@ const Stars = (props) => {
   const [sphere] = useState(() => random.inSphere(new Float32Array(6000), { radius: 1.2 }));
 
   useFrame((state, delta) => {
-    ref.current.rotation.x -= delta / 10;
+    ref.current.rotation.x -= delta / 20;
     ref.current.rotation.y -= delta / 15;
   });
 
@@ -17,7 +17,7 @@ const Stars = (props) => {
       <Points ref={ref} positions={sphere} stride={3} frustumCulled {...props}>
         <PointMaterial
           transparent
-          color='#000000'
+          color='#489544'
           size={0.002}
           sizeAttenuation={true}
           depthWrite={false}

@@ -1,87 +1,89 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Importation de useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [extractedData, setExtractedData] = useState({
-    nom: '',
-    prenom: '',
-    email: '',
-    image: '',
-  });
+  const [verificationResult, setVerificationResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const navigate = useNavigate(); // Initialisation de useNavigate
-
+  // Gestion du fichier sélectionné
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setImage(file);
-    setImagePreview(URL.createObjectURL(file)); // Affichage en aperçu avant upload
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
-  const handleSubmit = async (e) => {
+  // Envoi de l'image pour vérification
+  const handleVerifyDiploma = async (e) => {
     e.preventDefault();
     if (!image) {
       alert('Veuillez sélectionner une image');
       return;
     }
 
+    setLoading(true);
+    setErrorMessage('');
+    setVerificationResult(null);
+
     const formData = new FormData();
     formData.append('image', image);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/upload-image', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axios.post(
+        'http://localhost:3000/api/auth/verify-diploma',
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
 
       if (response.data.success) {
-        setExtractedData({
-          nom: response.data.nom,
-          prenom: response.data.prenom,
-          email: response.data.email,
-          image: response.data.image,
-        });
+        setVerificationResult(response.data);
       } else {
-        alert('Extraction des informations échouée.');
+        setErrorMessage(response.data.message || 'Vérification échouée.');
       }
     } catch (error) {
-      console.error('Erreur lors de l’upload:', error);
-      alert('Une erreur est survenue');
+      console.error('Erreur de vérification:', error);
+      setErrorMessage('Erreur lors de la vérification du diplôme.');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleRedirectToRegistration = () => {
-    // Redirection vers la page d'enregistrement en passant les données extraites
-    navigate('/Registration', {
-      state: { firstName: extractedData.prenom, lastName: extractedData.nom }
-    });
   };
 
   return (
     <div>
-      <h1>Upload et Extraction des Informations</h1>
-      <form onSubmit={handleSubmit}>
-        <input type="file" onChange={handleImageChange} accept="image/*" />
-        <button type="submit">Télécharger et Analyser</button>
+      <h1>Vérification de Diplôme</h1>
+      <form onSubmit={handleVerifyDiploma}>
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Vérification...' : 'Vérifier Diplôme'}
+        </button>
       </form>
 
       {imagePreview && (
         <div>
-          <h3>Aperçu de l’image:</h3>
+          <h3>Aperçu:</h3>
           <img src={imagePreview} alt="Aperçu" width="200px" />
         </div>
       )}
 
-      {extractedData.image && (
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+
+      {verificationResult && (
         <div>
           <h3>Résultats:</h3>
-          <p><strong>Nom:</strong> {extractedData.nom}</p>
-          <p><strong>Prénom:</strong> {extractedData.prenom}</p>
-          <p><strong>Email:</strong> {extractedData.email}</p>
-          <h3>Image Uploadée:</h3>
-          <img src={extractedData.image} alt="Carte Identité" width="200px" />
-          <button onClick={handleRedirectToRegistration}>Aller à l'enregistrement</button>
+          <p><strong>Institution:</strong> {verificationResult.diplomaInfo.institution}</p>
+          <p><strong>Type de Diplôme:</strong> {verificationResult.diplomaInfo.diplomaType}</p>
+          <p><strong>Date de délivrance:</strong> {verificationResult.diplomaInfo.date}</p>
+          <p><strong>Nom:</strong> {verificationResult.diplomaInfo.name}</p>
+          <p>
+            <strong>Statut:</strong> {verificationResult.success ? 
+              <span style={{ color: 'green' }}>✅ Diplôme valide</span> : 
+              <span style={{ color: 'red' }}>❌ Diplôme invalide</span>}
+          </p>
         </div>
       )}
     </div>
