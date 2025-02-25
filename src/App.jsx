@@ -14,6 +14,13 @@ AOS.init();
 import Contact from "./components/Contact";
 import Message from "./components/messga";
 
+import Logs from "./components/logs";
+
+
+
+
+import AddModule from "./components/module/addModule";
+import ListModules from "./components/module/listModules";
 function App() {
   return (
     <Router>
@@ -28,6 +35,8 @@ function App() {
         {/* Routes protégées avec Layout */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/addModule" element={<AddModule />} />
+          <Route path="/listModules" element={<ListModules />} />
         </Route>
 
         {/* Routes du tableau de bord */}
@@ -38,7 +47,8 @@ function App() {
 
         <Route path="/registration" element={<Contact />} />
         <Route path="/message" element={<Message />} />
-      </Routes>
+   
+        </Routes>
     </Router>
   );
 }
