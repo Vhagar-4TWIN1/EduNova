@@ -1,18 +1,19 @@
-import React from 'react';
-import Header from './header';
-import Sidebar from './sidebar';
-import Footer from './footer';
+import React from "react";
+import { Outlet } from "react-router-dom"; // Import Outlet
+import Header from "./header";
+import Sidebar from "./sidebar";
+import Footer from "./footer";
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = () => {
   return (
     <div className="app">
       <Header />
       <Sidebar />
       <main className="app-content">
-        {children} {/* Le contenu de la route sera injecté ici */}
+        <Outlet /> {/* 👈 This renders the child routes */}
       </main>
       <Footer />
-    </div>
+    </div>    
   );
 };
 
