@@ -1,12 +1,8 @@
-import React from 'react';
-import Header from './header';
-import Sidebar from './sidebar';
-import Footer from './footer';
-import Logs from "./logs";
-import { Outlet } from 'react-router-dom'; // Outlet gère les routes enfants
-
-const DashboardLayout = ({ children }) => {
-
+import React from "react";
+import Header from "./header";
+import Sidebar from "./sidebar";
+import Footer from "./footer";
+import { Outlet } from "react-router-dom"; // Outlet manages nested routes
 
 const DashboardLayout = () => {
   return (
@@ -14,11 +10,11 @@ const DashboardLayout = () => {
       <Header />
       <Sidebar />
       <main className="app-content">
-        <Outlet /> {/* 👈 This renders the child routes */}
+        <Outlet /> {/* 👈 This ensures child routes render correctly */}
       </main>
       <Footer />
-    </div>    
+    </div>
   );
 };
-}
+
 export default DashboardLayout;
