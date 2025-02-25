@@ -6,7 +6,6 @@ import Layout from "./components/layout";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import LinkedInCallback from "./components/linkedInCallback";
-import ActivityLogs from "./components/logs";
 import DashboardLayout from "./components/dashboard/dashboardLayout";
 import Dashboard from "./components/dashboard/dashboard";
 

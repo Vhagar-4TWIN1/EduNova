@@ -8,8 +8,7 @@ import { slideIn } from "../utils/motion";
 import GoogleSvg from "../assets/icons8-google.svg";
 import FacebookSVG from "../assets/icons8-facebook.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-
-
+import backgroundImage from "../assets/backgroundlogin.jpg"; 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -44,7 +43,38 @@ const Login = () => {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "100px" }}>
+   /* <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh", // Ensure the gradient covers the full height
+        width: "100vw", // Ensure the gradient covers the full width
+        background: "linear-gradient(135deg, #011733, #207bf0)", // Gradient background
+        padding: "20px", // Add some padding
+      }}
+    >*/
+
+
+   
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          width: "100vw",
+          backgroundImage: `url(${backgroundImage})`, // Ajout de l'image de fond
+          backgroundSize: "cover", // Pour couvrir tout l'écran
+          backgroundPosition: "center", // Centrage de l'image
+          backgroundRepeat: "no-repeat", // Empêcher la répétition
+          padding: "20px",
+        }}
+      >
+
+
+
+
       <motion.div
         variants={slideIn("left", "tween", 0.7, 1)}
         style={{
