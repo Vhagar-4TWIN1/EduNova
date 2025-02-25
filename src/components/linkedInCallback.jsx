@@ -12,18 +12,17 @@ const LinkedInCallback = () => {
     if (code) {
       console.log("Authorization code received from LinkedIn:", code);
 
-      // Inclure l'URL de redirection dans le corps de la requête
+      // Send the code to the backend for token exchange
       axios
         .post("http://localhost:3000/api/auth/linkedinAuth", {
           code,
-          redirect_url: "http://localhost:5173/auth/linkedin/callback", // Remplacez par votre URL de redirection
+          redirect_url: "http://localhost:5173/auth/linkedin/callback", // Replace with your actual redirect URL
         })
         .then((response) => {
           console.log("LinkedIn OAuth response:", response.data);
           if (response.data.token) {
-            // Stocker le token dans localStorage
             localStorage.setItem("token", response.data.token);
-            navigate("/registration"); // Rediriger vers la page d'inscription
+            navigate("/registration");
           } else {
             console.error("Error: No token received from LinkedIn.");
           }
@@ -34,7 +33,7 @@ const LinkedInCallback = () => {
     }
   }, [navigate]);
 
-  return <div>Loading...</div>; // Afficher un message de chargement pendant le traitement
+  return <div>Loading...</div>;
 };
 
 export default LinkedInCallback;
