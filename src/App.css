@@ -5,44 +5,14 @@
   text-align: center;
 }
 
+
+
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
-#root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-main {
-  flex-grow: 1; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: 100%;
-  margin-top: 80px; /* Compense la hauteur du header */
-  margin-bottom: 60px; /* Compense la hauteur du footer */
-  overflow-y: auto; /* Permet le défilement du contenu si nécessaire */
-}
-
-.footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000; /* Ensure it stays above other content */
-  background-color: #fff; /* Add a background color if needed */
-}
-
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
@@ -71,4 +41,88 @@ main {
 
 .read-the-docs {
   color: #888;
+}
+body, html {
+  
+  height: 100%;
+  margin: 0;
+}
+
+.app-container {
+  background: url('./assets/back.jpg') no-repeat center center fixed;
+  background-size: cover;
+  height: 100vh;  /* Ensure it takes up full viewport height */
+  width: 100%;    /* Ensure it takes up full width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40%;
+    width: 100%;
+}
+
+.login-form {
+    background: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Limit form width */
+}
+
+.login-form h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.login-options label {
+    margin-left: 0.5rem;
+}
+
+.login-form button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #646cff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.login-form button:hover {
+    background-color: #535bf2;
+}
+
+.login-form span {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.login-form a {
+    color: #646cff;
+    text-decoration: none;
+}
+
+.login-form a:hover {
+    text-decoration: underline;
 }

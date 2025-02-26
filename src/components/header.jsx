@@ -17,6 +17,7 @@ function Header() {
             <li><a href="index.jsx" className="active">Home</a></li>
             <li><a href="">About</a></li>
             <li><a href="">Courses</a></li>
+            <li><a href="/listModules">Modules</a></li>
             <li><a href="">Trainers</a></li>
             <li><a href="">Events</a></li>
             <li><a href="">Pricing</a></li>

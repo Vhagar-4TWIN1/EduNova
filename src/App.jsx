@@ -1,36 +1,53 @@
-import { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './assets/css/main.css';
-import './assets/vendor/bootstrap-icons/bootstrap-icons.css';
-import './assets/vendor/aos/aos.css';
-import './assets/vendor/glightbox/css/glightbox.min.css';
-import './assets/vendor/swiper/swiper-bundle.min.css';
-
-import heroBg from './assets/img/hero-bg.jpg';
-import aboutImg from './assets/img/about.jpg';
-import course1 from './assets/img/course-1.jpg';
-import course2 from './assets/img/course-2.jpg';
-import course3 from './assets/img/course-3.jpg';
-import trainer1 from './assets/img/trainers/trainer-1.jpg';
-import trainer2 from './assets/img/trainers/trainer-2.jpg';
-import trainer3 from './assets/img/trainers/trainer-3.jpg';
-import Footer from './components/footer';
-import Header from './components/header';
-import Home from './components/home'; 
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./components/login";
+import Home from "./components/home";
+import Layout from "./components/layout";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import LinkedInCallback from "./components/linkedInCallback";
+import DashboardLayout from "./components/dashboard/dashboardLayout";
+import Dashboard from "./components/dashboard/dashboard";
 
 
 AOS.init();
-function App() {
-  const [count, setCount] = useState(0);
+import Contact from "./components/Contact";
+import Message from "./components/messga";
 
+
+
+
+
+import AddModule from "./components/module/addModule";
+import ListModules from "./components/module/listModules";
+function App() {
   return (
-    <>
-      <Header />
-      <Home />
-      <Footer />
-    </>
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        {/* Routes publiques */}
+        <Route path="/" element={<Login />} />
+    
+        <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
+
+        {/* Routes with Header & Footer (Layout) */}
+        {/* Routes protégées avec Layout */}
+        <Route element={<Layout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/addModule" element={<AddModule />} />
+          <Route path="/listModules" element={<ListModules />} />
+        </Route>
+
+        {/* Routes du tableau de bord */}
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
+        <Route path="/" element={<Home />} />
+
+        <Route path="/registration" element={<Contact />} />
+        <Route path="/message" element={<Message />} />
+   
+        </Routes>
+    </Router>
   );
 }
 
