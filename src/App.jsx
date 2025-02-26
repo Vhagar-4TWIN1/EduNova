@@ -4,7 +4,6 @@ import Home from "./components/home";
 import Layout from "./components/layout";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import LinkedInCallback from "./components/linkedInCallback";
 import DashboardLayout from "./components/dashboard/dashboardLayout";
 import Dashboard from "./components/dashboard/dashboard";
 
@@ -27,8 +26,7 @@ function App() {
         {/* Routes publiques */}
         <Route path="/" element={<Login />} />
     
-        <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
-
+        
         {/* Routes with Header & Footer (Layout) */}
         {/* Routes protégées avec Layout */}
         <Route element={<Layout />}>

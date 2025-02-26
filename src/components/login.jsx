@@ -9,6 +9,7 @@ import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
 import { EarthCanvas } from "./canvas";
 import { Navigate } from "react-router-dom";
+import LinkedinSvg from "../assets/icon-linkedin.svg";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -33,6 +34,17 @@ const Login = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const handleLinkedinLogin = () => {
+    window.location.href = "http://localhost:3000/api/auth/linkedin";
+  };
+
+  const handleFacebookLogin = () => {
+    window.location.href = "http://localhost:3000/api/auth/facebook";
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:3000/api/auth/google";
+  };
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -51,7 +63,7 @@ const Login = () => {
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
     }
-    Navigate("/home")
+    navigate("/home")
   };
 
   return (
@@ -152,14 +164,20 @@ const Login = () => {
         </form>
 
         <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-          <button style={socialLoginButtonStyle}>
+          <button onClick={handleFacebookLogin} style={socialLoginButtonStyle}>
             <img src={FacebookSVG} alt="Facebook" style={{ marginRight: "8px" }} />
-            Connexion avec Facebook
+            Connexion with Facebook
           </button>
 
-          <button style={socialLoginButtonStyle}>
+          <button onClick={handleGoogleLogin} style={socialLoginButtonStyle}>
             <img src={GoogleSvg} alt="Google" style={{ marginRight: "8px" }} />
-            Connexion avec Google
+            Connexion with Google
+          </button>
+        
+
+          <button onClick={handleLinkedinLogin} style={socialLoginButtonStyle}>
+            <img src={LinkedinSvg} alt="Linkedin" style={{ marginRight: "8px" }} />
+            Connexion with Linkedin
           </button>
         </div>
 
