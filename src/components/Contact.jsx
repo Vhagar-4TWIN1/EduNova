@@ -5,6 +5,7 @@ import { styles } from "../styles";
 import { EarthCanvas } from "./canvas";
 import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
+import ReCAPTCHA from "react-google-recaptcha"; // Import reCAPTCHA component
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -16,11 +17,11 @@ const Contact = () => {
     country: "",
     photo: "",
   });
-
   const [extractionImage, setExtractionImage] = useState(null);
   const [extractionImagePreview, setExtractionImagePreview] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [profileImagePreview, setProfileImagePreview] = useState(null);
+  const [recaptchaValue, setRecaptchaValue] = useState(null); // Store reCAPTCHA value
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -98,17 +99,22 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", formData); // Log form data to inspect it
+    if (!recaptchaValue) {
+      alert("Please verify the reCAPTCHA.");
+      return;
+    }
   
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/signup", formData);
+      const response = await axios.post("http://localhost:3000/api/auth/signup", {
+        ...formData,
+        recaptchaToken: recaptchaValue,  // Send recaptchaToken
+      });
       console.log("Sign-up successful:", response.data);
     } catch (error) {
       console.error("Error during sign-up:", error.response?.data || error.message);
     }
   };
   
-
   const handleFacebookSignup = () => {
     window.location.href = "http://localhost:3000/api/auth/facebook";
   };
@@ -261,20 +267,18 @@ const Contact = () => {
             />
           </label>
 
-
           {/* Age */}
-<label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-  <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Age</span>
-  <input
-    type="number"
-    name="age"
-    value={formData.age}
-    onChange={handleChange}
-    required
-    style={inputStyle}
-  />
-</label>
-
+          <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
+            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Age</span>
+            <input
+              type="number"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+            />
+          </label>
 
           {/* Email */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
@@ -302,7 +306,7 @@ const Contact = () => {
             />
           </label>
 
-
+          {/* Country */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
             <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Country</span>
             <input
@@ -314,6 +318,12 @@ const Contact = () => {
               style={inputStyle}
             />
           </label>
+
+          {/* Google reCAPTCHA */}
+          <ReCAPTCHA
+            sitekey="6LeR2eIqAAAAACc0qs2KlTrKqXNpV6RF4NXL1Ggj" // Replace with your site key
+            onChange={(value) => setRecaptchaValue(value)} // Store reCAPTCHA response
+          />
 
           {/* Submit Button */}
           <button
@@ -335,18 +345,17 @@ const Contact = () => {
       </motion.div>
 
       {/* Earth Canvas Section */}
-        <motion.div
-          variants={slideIn("right", "tween", 0.6, 1)}
-          style={{
-            flex: 1.5,
-            maxWidth: "800px",
-            height: "800px",
-          }}
-        >
-          <EarthCanvas />
-        </motion.div>
-      </div>
-  
+      <motion.div
+        variants={slideIn("right", "tween", 0.6, 1)}
+        style={{
+          flex: 1.5,
+          maxWidth: "800px",
+          height: "800px",
+        }}
+      >
+        <EarthCanvas />
+      </motion.div>
+    </div>
   );
 };
 
