@@ -1,0 +1,56 @@
+.container {
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .module-card {
+    display: flex;
+    align-items: center;
+    width: 100%; /* Make it take most of the page width */
+    max-width: 900px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .module-card:hover {
+    transform: scale(1.02);
+  }
+  
+  .module-image {
+    width: 150px; /* Adjust size */
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 15px;
+  }
+  
+  .module-content {
+    flex: 1;
+  }
+  
+  h3 {
+    font-size: 20px;
+    margin: 0;
+    color: #333;
+  }
+  
+  p {
+    font-size: 14px;
+    color: #555;
+  }
+ 
+  .add-module-btn {
+    position: absolute;
+    top: 100px;
+    right: 75px;
+  }
