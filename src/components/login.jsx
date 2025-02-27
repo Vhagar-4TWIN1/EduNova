@@ -12,13 +12,15 @@ import { Navigate } from "react-router-dom";
 import LinkedinSvg from "../assets/icon-linkedin.svg";
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+  const [formData, setFormData] = useState(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail") || "";
+    const savedPassword = localStorage.getItem("rememberedPassword") || "";
+    return { email: savedEmail, password: savedPassword };
   });
+  
+  const [rememberMe, setRememberMe] = useState(localStorage.getItem("rememberMe") === "true");
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
@@ -89,7 +91,7 @@ const Login = () => {
           backgroundColor: "#f2f2f2",
           padding: "50px",
           borderRadius: "16px",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+          boxShadow: "0 4px 8px rgba(45, 161, 92, 0.1)",
         }}
       >
         <h3 style={{ fontSize: "48px" }}>Connexion</h3>
@@ -138,6 +140,7 @@ const Login = () => {
                   transform: "translateY(-50%)",
                   background: "transparent",
                   border: "none",
+                  
                 }}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -211,7 +214,7 @@ const inputStyle = {
 };
 
 const buttonStyle = {
-  backgroundColor: "#ff6b6b",
+  backgroundColor: "#008000",
   color: "white",
   padding: "20px 40px",
   borderRadius: "12px",
