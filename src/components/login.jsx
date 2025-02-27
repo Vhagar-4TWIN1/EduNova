@@ -1,38 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { styles } from "../styles";
-import { EarthCanvas } from "./canvas";
-import { SectionWrapper } from "../hoc";
-import { slideIn } from "../utils/motion";
-import GoogleSvg from "../assets/icons8-google.svg";
-import FacebookSVG from "../assets/icons8-facebook.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import backgroundImage from "../assets/backgroundlogin.jpg"; 
+import GoogleSvg from "../assets/icons8-google.svg";
+import FacebookSVG from "../assets/icons8-facebook.svg";
+import { SectionWrapper } from "../hoc";
+import { slideIn } from "../utils/motion";
+import { EarthCanvas } from "./canvas";
+import { Navigate } from "react-router-dom";
+import LinkedinSvg from "../assets/icon-linkedin.svg";
+
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+  const [formData, setFormData] = useState(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail") || "";
+    const savedPassword = localStorage.getItem("rememberedPassword") || "";
+    return { email: savedEmail, password: savedPassword };
   });
+  
+  const [rememberMe, setRememberMe] = useState(localStorage.getItem("rememberMe") === "true");
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedPassword = localStorage.getItem("rememberedPassword");
+    const savedRememberMe = localStorage.getItem("rememberMe") === "true"; 
+
+    if (savedRememberMe && savedEmail && savedPassword) {
+      setFormData({ email: savedEmail, password: savedPassword });
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:3000/api/auth/signin", formData);
-      console.log("Login successful:", response.data);
-      localStorage.setItem("token", response.data.token);
-      // Rediriger après la connexion
-    } catch (error) {
-      setError(error.response?.data?.message || "Login failed");
-    }
+  const handleLinkedinLogin = () => {
+    window.location.href = "http://localhost:3000/api/auth/linkedin";
   };
-  
 
   const handleFacebookLogin = () => {
     window.location.href = "http://localhost:3000/api/auth/facebook";
@@ -42,39 +48,41 @@ const Login = () => {
     window.location.href = "http://localhost:3000/api/auth/google";
   };
 
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:3000/api/auth/signin", formData);
+      console.log("Login successful:", response.data);
+      localStorage.setItem("token", response.data.token);
+
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", formData.email);
+        localStorage.setItem("rememberedPassword", formData.password);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberedPassword");
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || "Login failed");
+    }
+    navigate("/home")
+  };
+
   return (
-   /* <div
+    <div
       style={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "100vh", // Ensure the gradient covers the full height
-        width: "100vw", // Ensure the gradient covers the full width
-        background: "linear-gradient(135deg, #011733, #207bf0)", // Gradient background
-        padding: "20px", // Add some padding
+        minHeight: "100vh",
+        width: "100vw",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        padding: "20px",
       }}
-    >*/
-
-
-   
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          width: "100vw",
-          backgroundImage: `url(${backgroundImage})`, // Ajout de l'image de fond
-          backgroundSize: "cover", // Pour couvrir tout l'écran
-          backgroundPosition: "center", // Centrage de l'image
-          backgroundRepeat: "no-repeat", // Empêcher la répétition
-          padding: "20px",
-        }}
-      >
-
-
-
-
+    >
       <motion.div
         variants={slideIn("left", "tween", 0.7, 1)}
         style={{
@@ -83,13 +91,13 @@ const Login = () => {
           backgroundColor: "#f2f2f2",
           padding: "50px",
           borderRadius: "16px",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+          boxShadow: "0 4px 8px rgba(45, 161, 92, 0.1)",
         }}
       >
-        <h3 className={styles.sectionHeadText} style={{ fontSize: "48px" }}>Connexion</h3>
+        <h3 style={{ fontSize: "48px" }}>Connexion</h3>
         
-        {/* Formulaire de connexion */}
         {error && <p style={{ color: "red" }}>{error}</p>}
+
         <form
           onSubmit={handleLogin}
           style={{
@@ -99,7 +107,6 @@ const Login = () => {
             marginTop: "32px",
           }}
         >
-          {/* Email */}
           <label style={{ fontSize: "20px" }}>
             <span>Email</span>
             <input
@@ -112,7 +119,6 @@ const Login = () => {
             />
           </label>
 
-          {/* Password */}
           <label style={{ fontSize: "20px" }}>
             <span>Password</span>
             <div style={{ position: "relative" }}>
@@ -134,6 +140,7 @@ const Login = () => {
                   transform: "translateY(-50%)",
                   background: "transparent",
                   border: "none",
+                  
                 }}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -141,25 +148,24 @@ const Login = () => {
             </div>
           </label>
 
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <input
+              type="checkbox"
+              id="remember-checkbox"
+              checked={rememberMe}
+              onChange={() => setRememberMe(!rememberMe)}
+            />
+            <label htmlFor="remember-checkbox">Remember me</label>
+          </div>
+
           <button
             type="submit"
-            style={{
-              backgroundColor: "#ff6b6b",
-              color: "white",
-              padding: "20px 40px",
-              borderRadius: "12px",
-              border: "none",
-              cursor: "pointer",
-              fontSize: "22px",
-              fontWeight: "bold",
-              transition: "background-color 0.3s ease",
-            }}
+            style={buttonStyle}
           >
             Connexion
           </button>
         </form>
 
-        {/* Connexion via Facebook et Google */}
         <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
           <button onClick={handleFacebookLogin} style={socialLoginButtonStyle}>
             <img src={FacebookSVG} alt="Facebook" style={{ marginRight: "8px" }} />
@@ -170,10 +176,19 @@ const Login = () => {
             <img src={GoogleSvg} alt="Google" style={{ marginRight: "8px" }} />
             Connexion with Google
           </button>
+        
+
+          <button onClick={handleLinkedinLogin} style={socialLoginButtonStyle}>
+            <img src={LinkedinSvg} alt="Linkedin" style={{ marginRight: "8px" }} />
+            Connexion with Linkedin
+          </button>
         </div>
+
+        <p>
+          Vous n'avez pas de compte ? <a href="/registration">Inscrivez-vous</a>
+        </p>
       </motion.div>
 
-      {/* Earth Canvas Section */}
       <motion.div
         variants={slideIn("right", "tween", 0.2, 1)}
         style={{
@@ -188,7 +203,7 @@ const Login = () => {
   );
 };
 
-// Styles for inputs and social login buttons
+// Styles
 const inputStyle = {
   backgroundColor: "#dbcece",
   padding: "20px 24px",
@@ -196,6 +211,18 @@ const inputStyle = {
   border: "none",
   outline: "none",
   fontSize: "18px",
+};
+
+const buttonStyle = {
+  backgroundColor: "#008000",
+  color: "white",
+  padding: "20px 40px",
+  borderRadius: "12px",
+  border: "none",
+  cursor: "pointer",
+  fontSize: "22px",
+  fontWeight: "bold",
+  transition: "background-color 0.3s ease",
 };
 
 const socialLoginButtonStyle = {
