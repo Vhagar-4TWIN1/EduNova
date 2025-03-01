@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/login";
 import Home from "./components/home";
-import Layout from "./components/layout";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import DashboardLayout from "./components/dashboard/dashboardLayout";
@@ -17,22 +16,30 @@ import Message from "./components/messga";
 
 
 import AddModule from "./components/module/addModule";
+import Logs from "./components/logs";
+import Layout from "./components/layout";
+import LinkedInCallback from "./components/linkedInCallback";
+
+import UsersBack from "./components/usersBack";
 import ListModules from "./components/module/listModules";
+import UserProfile from "./components/userconnectedupdate";
+AOS.init();
+
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
         {/* Routes publiques */}
         <Route path="/" element={<Login />} />
-    
-        
-        {/* Routes with Header & Footer (Layout) */}
+        <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
+        <Route path="/addModule" element={<AddModule />} />
+        <Route path="/listModules" element={<ListModules />} />
+
         {/* Routes protégées avec Layout */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
-          <Route path="/addModule" element={<AddModule />} />
-          <Route path="/listModules" element={<ListModules />} />
+          <Route path="/update" element={<UserProfile />} />
+          <Route path="/logs" element={<Logs />} />
         </Route>
 
         {/* Routes du tableau de bord */}
@@ -43,8 +50,10 @@ function App() {
 
         <Route path="/registration" element={<Contact />} />
         <Route path="/message" element={<Message />} />
-   
-        </Routes>
+        <Route path="/users" element={<UsersBack />} />
+
+        
+      </Routes>
     </Router>
   );
 }
