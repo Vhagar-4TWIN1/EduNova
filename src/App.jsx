@@ -5,7 +5,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import DashboardLayout from "./components/dashboard/dashboardLayout";
 import Dashboard from "./components/dashboard/dashboard";
-
+import ForgotPassword from "./components/forgotPassword";
 
 AOS.init();
 import Contact from "./components/Contact";
@@ -51,7 +51,7 @@ function App() {
         <Route path="/registration" element={<Contact />} />
         <Route path="/message" element={<Message />} />
         <Route path="/users" element={<UsersBack />} />
-
+        <Route path="/forgot-password" element={<ForgotPassword />}></Route>
         
       </Routes>
     </Router>

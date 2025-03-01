@@ -9,9 +9,17 @@ import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
 import { EarthCanvas } from "./canvas";
 import { Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import GithubSVG from "../assets/icons8-github.svg";
 import LinkedinSvg from "../assets/icon-linkedin.svg";
 
 const Login = () => {
+  const handleGitHubLogin = () => {
+    window.location.href = "http://localhost:3000/oauth";
+  };
+  const navigate = useNavigate();  // Add this at the top where you are importing dependencies
+
   const [formData, setFormData] = useState(() => {
     const savedEmail = localStorage.getItem("rememberedEmail") || "";
     const savedPassword = localStorage.getItem("rememberedPassword") || "";
@@ -54,7 +62,7 @@ const Login = () => {
       const response = await axios.post("http://localhost:3000/api/auth/signin", formData);
       console.log("Login successful:", response.data);
       localStorage.setItem("token", response.data.token);
-
+     
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", formData.email);
         localStorage.setItem("rememberedPassword", formData.password);
@@ -165,13 +173,15 @@ const Login = () => {
             Connexion
           </button>
         </form>
+        <p style={{ fontSize: "18px", textAlign: "center", marginTop: "32px" }}>
+          Vous n'avez pas de compte? <a href="/register" style={{ color: "#ff6b6b" }}>Inscrivez-vous</a>
+          <br></br>
+          <Link to="/forgot-password">Forgot Password</Link>
+        </p>
 
+        {/* Connexion via Facebook et Google */}
         <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-          <button onClick={handleFacebookLogin} style={socialLoginButtonStyle}>
-            <img src={FacebookSVG} alt="Facebook" style={{ marginRight: "8px" }} />
-            Connexion with Facebook
-          </button>
-
+        
           <button onClick={handleGoogleLogin} style={socialLoginButtonStyle}>
             <img src={GoogleSvg} alt="Google" style={{ marginRight: "8px" }} />
             Connexion with Google
@@ -182,6 +192,18 @@ const Login = () => {
             <img src={LinkedinSvg} alt="Linkedin" style={{ marginRight: "8px" }} />
             Connexion with Linkedin
           </button>
+         
+        </div>
+        <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+        <button onClick={handleGitHubLogin} style={socialLoginButtonStyle}>
+            <img src={GithubSVG} alt="GitHub" style={{ marginRight: "8px" }} />
+            Connexion with GitHub
+          </button>
+          <button onClick={handleFacebookLogin} style={socialLoginButtonStyle}>
+            <img src={FacebookSVG} alt="Facebook" style={{ marginRight: "8px" }} />
+            Connexion with Facebook
+          </button>
+
         </div>
 
         <p>

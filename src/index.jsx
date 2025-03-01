@@ -9,11 +9,7 @@ import './assets/vendor/swiper/swiper-bundle.min.css';
 import heroBg from './assets/img/hero-bg.jpg';
 import aboutImg from './assets/img/about.jpg';
 import course1 from './assets/img/course-1.jpg';
-import course2 from './assets/img/course-2.jpg';
-import course3 from './assets/img/course-3.jpg';
 import trainer1 from './assets/img/trainers/trainer-1.jpg';
-import trainer2 from './assets/img/trainers/trainer-2.jpg';
-import trainer3 from './assets/img/trainers/trainer-3.jpg';
 
 const Index = () => {
   return (
