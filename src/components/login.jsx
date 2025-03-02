@@ -73,7 +73,6 @@ const Login = () => {
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
     }
-    navigate("/home")
   };
 
   return (

@@ -104,6 +104,8 @@ const Contact = () => {
       return;
     }
   
+    console.log("Form Data Submitted:", formData);  // Debugging line
+  
     try {
       const response = await axios.post("http://localhost:3000/api/auth/signup", {
         ...formData,
@@ -112,8 +114,10 @@ const Contact = () => {
       console.log("Sign-up successful:", response.data);
     } catch (error) {
       console.error("Error during sign-up:", error.response?.data || error.message);
+      alert("Signup failed! Please try again later.");
     }
   };
+  
   
   const handleFacebookSignup = () => {
     window.location.href = "http://localhost:3000/api/auth/facebook";
