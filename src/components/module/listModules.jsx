@@ -61,7 +61,6 @@ const ListModules = () => {
 
   return (
     <>
-      <Header />
       <div className="container">
         <div className="d-flex justify-content-between align-items-center my-3  ">
           <h2 className="title">Modules List</h2>
@@ -129,7 +128,6 @@ const ListModules = () => {
           </>
         )}
       </div>
-      <Footer />
     </>
   );
 };

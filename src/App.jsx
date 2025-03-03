@@ -32,12 +32,13 @@ function App() {
         {/* Routes publiques */}
         <Route path="/" element={<Login />} />
         <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
-        <Route path="/addModule" element={<AddModule />} />
-        <Route path="/listModules" element={<ListModules />} />
+        
 
         {/* Routes protégées avec Layout */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/addModule" element={<AddModule />} />
+        <Route path="/listModules" element={<ListModules />} />
           <Route path="/update" element={<UserProfile />} />
           <Route path="/logs" element={<Logs />} />
         </Route>
@@ -45,6 +46,8 @@ function App() {
         {/* Routes du tableau de bord */}
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/users" element={<UsersBack />} />
+
         </Route>
   
 

@@ -70,9 +70,7 @@ const AddModule = ({ existingModule, onClose }) => {
   };
 
   return (
-    <>
-      <Header/>
-      <br /><br />
+    <>      <br /><br />
       <div className="container">
         <div className="card">
           <h2 className="card-title">{existingModule ? "Edit Module" : "Add New Module"}</h2>
@@ -111,7 +109,6 @@ const AddModule = ({ existingModule, onClose }) => {
           </form>
         </div>
       </div>
-      <Footer/>
     </>
   );
 };
