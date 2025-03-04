@@ -1,0 +1,114 @@
+
+.app-pagination {
+    margin-top: 20px;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+  }
+  
+  .page-item {
+    margin: 0 5px;
+  }
+  
+  .page-link {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #007bff;
+  }
+  
+  .page-link:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .page-item.active .page-link {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+  
+  .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    cursor: not-allowed;
+    background-color: #fff;
+    border-color: #ddd;
+  }
+  .logs-container {
+    display: flex;
+    justify-content: center; /* Centrer horizontalement */
+    align-items: center; /* Centrer verticalement si nécessaire */
+    flex-direction: column; /* Garde les éléments empilés verticalement */
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .logs-table {
+    width: 80%; /* Ajuste la largeur selon le besoin */
+    max-width: 1000px; /* Évite qu'il ne soit trop large */
+    border-collapse: collapse;
+    text-align: center; /* Centre le texte dans les cellules */
+  }
+  
+  .logs-table th, .logs-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center; /* Centrer la pagination */
+    margin-top: 10px;
+  }
+
+  .logs-container {
+    display: flex;
+    justify-content: center; /* Centrer horizontalement */
+    align-items: center; /* Centrer verticalement si nécessaire */
+    flex-direction: column; /* Garde les éléments empilés verticalement */
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .logs-wrapper {
+    background-color: white; /* Conteneur blanc */
+    padding: 20px;
+    border-radius: 10px; /* Coins arrondis */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    width: 85%; /* Ajuste la largeur */
+    max-width: 1100px; /* Évite qu'il ne soit trop large */
+  }
+  
+  .logs-table {
+    width: 100%; /* Utilise toute la largeur du conteneur */
+    border-collapse: collapse;
+    text-align: center; /* Centre le texte dans les cellules */
+  }
+  
+  .logs-table th, .logs-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center; /* Centrer la pagination */
+    margin-top: 10px;
+  }
+  
+  .logs-wrapper {
+    background-color: white; /* Conteneur blanc */
+    padding: 20px;
+    border-radius: 10px; /* Coins arrondis */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    width: 85%; /* Ajuste la largeur */
+    max-width: 1100px; /* Évite qu'il ne soit trop large */
+  }
+  
+  

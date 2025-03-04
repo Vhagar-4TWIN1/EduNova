@@ -1,128 +1,44 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* App.css */
+.app {
+  display: flex;
+  height: 100vh;
 }
 
-
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.sidebar {
+  position: fixed; /* Garder la sidebar fixée à gauche */
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #2c3e50; /* Couleur de fond de la sidebar */
+  z-index: 1000; /* S'assurer que la sidebar est au-dessus du contenu */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.content {
+  margin-top: 40px; /* Espacer le contenu sous le header (si le header fait 64px de haut) */
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 10;
+  right: 10;
+  background-color: #fff;
+  z-index: 999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 64px; /* Hauteur du header */
+  display: flex;
+  align-items: center;
+  padding: 20 20px;
+  justify-content: space-between;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-body, html {
-  
-  height: 100%;
-  margin: 0;
-}
-
-.app-container {
-  background: url('./assets/back.jpg') no-repeat center center fixed;
-  background-size: cover;
-  height: 100vh;  /* Ensure it takes up full viewport height */
-  width: 100%;    /* Ensure it takes up full width */
+/* Par exemple, pour les routes spécifiques (Dashboard, Team, etc.) */
+.dashboard-content {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 40%;
-    width: 100%;
-}
-
-.login-form {
-    background: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px; /* Limit form width */
-}
-
-.login-form h1 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.login-form input {
-    width: 100%;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.login-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.login-options label {
-    margin-left: 0.5rem;
-}
-
-.login-form button {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: #646cff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.login-form button:hover {
-    background-color: #535bf2;
-}
-
-.login-form span {
-    display: block;
-    text-align: center;
-    margin-top: 1rem;
-}
-
-.login-form a {
-    color: #646cff;
-    text-decoration: none;
-}
-
-.login-form a:hover {
-    text-decoration: underline;
+  height: calc(100vh - 64px); /* Calculer la hauteur restante pour le contenu */
 }

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import "./responsive.css";
-import './assets/dashboard/css/portal.css';
+// import './assets/dashboard/css/portal.css';
 ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
 )

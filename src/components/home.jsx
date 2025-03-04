@@ -12,23 +12,10 @@ import course3 from '../assets/img/course-3.jpg';
 import trainer1 from '../assets/img/trainers/trainer-1.jpg';
 import trainer2 from '../assets/img/trainers/trainer-2.jpg';
 import trainer3 from '../assets/img/trainers/trainer-3.jpg';
-import { useEffect } from 'react';
+
 
 function Home() {
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-
-    if (token) {
-      localStorage.setItem("token", token);
-
-      window.history.replaceState({}, document.title, "/home");
-      console.log("logged in successfully and Token checked:",token)
-    } else {
-      window.location.href = "/";
-    }
-  }, []);
 
   const features = [
     { icon: "bi-eye", color: "#ffbb2c", title: "Lorem Ipsum" },
