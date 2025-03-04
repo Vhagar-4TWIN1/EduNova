@@ -1,45 +1,47 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./components/login";
-import Registration from "./components/registration";
-import Home from "./components/home";
+import { lazy, Suspense } from "react"; // Importez lazy et Suspense
 import Layout from "./components/layout";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import LinkedInCallback from "./components/linkedInCallback";
-import ActivityLogs from "./components/logs";
 import DashboardLayout from "./components/dashboard/dashboardLayout";
-import Dashboard from "./components/dashboard/dashboard";
-
 
 AOS.init();
-import Contact from "./components/Contact";
-import Message from "./components/messga";
+
+// Utilisez React.lazy pour charger les composants dynamiquement
+const Login = lazy(() => import("./components/login"));
+const Registration = lazy(() => import("./components/registration"));
+const Home = lazy(() => import("./components/home"));
+const LinkedInCallback = lazy(() => import("./components/linkedInCallback"));
+const ActivityLogs = lazy(() => import("./components/logs"));
+const Dashboard = lazy(() => import("./components/dashboard/dashboard"));
+const Contact = lazy(() => import("./components/Contact"));
+const Message = lazy(() => import("./components/messga"));
 
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Public Routes */}
-        {/* Routes publiques */}
-        <Route path="/" element={<Login />} />
-        <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
+      {/* Utilisez Suspense pour afficher un composant de secours pendant le chargement */}
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Login />} />
+          <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
 
-        {/* Routes with Header & Footer (Layout) */}
-        {/* Routes protégées avec Layout */}
-        <Route element={<Layout />}>
-          <Route path="/home" element={<Home />} />
-        </Route>
+          {/* Routes with Header & Footer (Layout) */}
+          <Route element={<Layout />}>
+            <Route path="/home" element={<Home />} />
+          </Route>
 
-        {/* Routes du tableau de bord */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Route>
-        <Route path="/" element={<Home />} />
-      
-        <Route path="/registration" element={<Contact />} />
-        
-        <Route path="/message" element={<Message />} />
-      </Routes>
+          {/* Dashboard Routes */}
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
+
+          {/* Autres routes */}
+          <Route path="/registration" element={<Contact />} />
+          <Route path="/message" element={<Message />} />
+        </Routes>
+      </Suspense>
     </Router>
   );
 }

@@ -8,7 +8,10 @@ import { slideIn } from "../utils/motion";
 import GoogleSvg from "../assets/icons8-google.svg";
 import FacebookSVG from "../assets/icons8-facebook.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import backgroundImage from "../assets/backgroundlogin.jpg"; 
+import { useNavigate } from "react-router-dom";
+import Logo from "./Logo"; 
+import Footerpage from "./Footerpage";
+
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -26,13 +29,12 @@ const Login = () => {
     try {
       const response = await axios.post("http://localhost:3000/api/auth/signin", formData);
       console.log("Login successful:", response.data);
+      navigate("http://localhost:5173/home");
       localStorage.setItem("token", response.data.token);
-      // Rediriger après la connexion
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
     }
   };
-  
 
   const handleFacebookLogin = () => {
     window.location.href = "http://localhost:3000/api/auth/facebook";
@@ -43,37 +45,20 @@ const Login = () => {
   };
 
   return (
-   /* <div
+    <div
       style={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "100vh", // Ensure the gradient covers the full height
-        width: "100vw", // Ensure the gradient covers the full width
-        background: "linear-gradient(135deg, #011733, #207bf0)", // Gradient background
-        padding: "20px", // Add some padding
+        minHeight: "100vh",
+        width: "100vw",
+        padding: "20px",
+          paddingBottom: '150px',
+        position: "relative", // Ajoutez cette ligne pour positionner le logo et le footer
       }}
-    >*/
-
-
-   
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          width: "100vw",
-          backgroundImage: `url(${backgroundImage})`, // Ajout de l'image de fond
-          backgroundSize: "cover", // Pour couvrir tout l'écran
-          backgroundPosition: "center", // Centrage de l'image
-          backgroundRepeat: "no-repeat", // Empêcher la répétition
-          padding: "20px",
-        }}
-      >
-
-
-
+    >
+      <Logo /> {/* Ajoutez le composant Logo ici */}
+      <Footerpage /> {/* Ajoutez le composant Footer ici */}
 
       <motion.div
         variants={slideIn("left", "tween", 0.7, 1)}
@@ -86,9 +71,8 @@ const Login = () => {
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <h3 className={styles.sectionHeadText} style={{ fontSize: "48px" }}>Connexion</h3>
+        <h3 className={styles.sectionHeadText} style={{ fontSize: "48px", color: "black" }}>Connexion</h3>
         
-        {/* Formulaire de connexion */}
         {error && <p style={{ color: "red" }}>{error}</p>}
         <form
           onSubmit={handleLogin}
@@ -99,7 +83,6 @@ const Login = () => {
             marginTop: "32px",
           }}
         >
-          {/* Email */}
           <label style={{ fontSize: "20px" }}>
             <span>Email</span>
             <input
@@ -112,7 +95,6 @@ const Login = () => {
             />
           </label>
 
-          {/* Password */}
           <label style={{ fontSize: "20px" }}>
             <span>Password</span>
             <div style={{ position: "relative" }}>
@@ -144,7 +126,7 @@ const Login = () => {
           <button
             type="submit"
             style={{
-              backgroundColor: "#ff6b6b",
+              backgroundColor: "#008000",
               color: "white",
               padding: "20px 40px",
               borderRadius: "12px",
@@ -159,7 +141,6 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Connexion via Facebook et Google */}
         <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
           <button onClick={handleFacebookLogin} style={socialLoginButtonStyle}>
             <img src={FacebookSVG} alt="Facebook" style={{ marginRight: "8px" }} />
@@ -173,7 +154,6 @@ const Login = () => {
         </div>
       </motion.div>
 
-      {/* Earth Canvas Section */}
       <motion.div
         variants={slideIn("right", "tween", 0.2, 1)}
         style={{
@@ -188,7 +168,6 @@ const Login = () => {
   );
 };
 
-// Styles for inputs and social login buttons
 const inputStyle = {
   backgroundColor: "#dbcece",
   padding: "20px 24px",

@@ -5,6 +5,8 @@ import { styles } from "../styles";
 import { EarthCanvas } from "./canvas";
 import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
+import Logo from "./Logo";
+import Footerpage from "./Footerpage";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,7 +16,7 @@ const Contact = () => {
     email: "",
     password: "",
     country: "",
-    photo: "",
+    photo: "", // L'image de profil est obligatoire
   });
 
   const [extractionImage, setExtractionImage] = useState(null);
@@ -76,30 +78,38 @@ const Contact = () => {
       alert("Veuillez sélectionner une image de profil");
       return;
     }
-
+  
     const formDataImage = new FormData();
     formDataImage.append("image", profileImage);
-
+  
     try {
       const response = await axios.post("http://localhost:3000/api/auth/upload-profile-image", formDataImage, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+  
       if (response.data.success) {
-        setFormData({ ...formData, photo: response.data.image });
+        setFormData({ ...formData, photo: response.data.imagePath }); // Mettre à jour le chemin de l'image de profil
+        alert("Image de profil uploadée avec succès !");
       } else {
         alert("Échec de l'upload de l'image de profil.");
       }
     } catch (error) {
       console.error("Erreur lors de l’upload :", error);
-      alert("Une erreur est survenue");
+      alert("Une erreur est survenue lors de l'upload de l'image de profil.");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Vérifier si l'image de profil est uploadée
+    if (!formData.photo) {
+      alert("Veuillez uploader une image de profil.");
+      return;
+    }
+
     console.log("Form Data:", formData); // Log form data to inspect it
-  
+
     try {
       const response = await axios.post("http://localhost:3000/api/auth/signup", formData);
       console.log("Sign-up successful:", response.data);
@@ -107,7 +117,6 @@ const Contact = () => {
       console.error("Error during sign-up:", error.response?.data || error.message);
     }
   };
-  
 
   const handleFacebookSignup = () => {
     window.location.href = "http://localhost:3000/api/auth/facebook";
@@ -127,17 +136,19 @@ const Contact = () => {
   return (
     <div
       style={{
-        backgroundColor: "#f0f0f0",
         display: "flex",
-        flexDirection: "row",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        width: "100%",
-        gap: "10px",
-        padding: "100px",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        width: "100vw",
+        padding: "20px",
+        paddingBottom: '150px',
+        position: "relative",
       }}
     >
-      {/* Form Section */}
+      <Logo />
+      <Footerpage />
+
       <motion.div
         variants={slideIn("left", "tween", 0.7, 1)}
         style={{
@@ -149,7 +160,7 @@ const Contact = () => {
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <h3 className={styles.sectionSubText} style={{ fontSize: "90px" }}>Welocome !</h3>
+        <h3 className={styles.sectionSubText} style={{ fontSize: "90px" }}>Welcome</h3>
         <h1 className={styles.sectionHeadText} style={{ fontSize: "30px" }}>Your informations </h1>
 
         {/* Upload Extraction Image */}
@@ -170,7 +181,7 @@ const Contact = () => {
             transition: "background-color 0.3s ease",
           }}
         >
-          Extraire les informations
+          Extract your data
         </button>
 
         {extractionImagePreview && (
@@ -223,7 +234,7 @@ const Contact = () => {
             marginTop: "16px",
           }}
         >
-          S'inscrire avec Facebook
+          Sign up with Facebook
         </button>
 
         <form
@@ -261,20 +272,18 @@ const Contact = () => {
             />
           </label>
 
-
           {/* Age */}
-<label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-  <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Age</span>
-  <input
-    type="number"
-    name="age"
-    value={formData.age}
-    onChange={handleChange}
-    required
-    style={inputStyle}
-  />
-</label>
-
+          <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
+            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Age</span>
+            <input
+              type="number"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+            />
+          </label>
 
           {/* Email */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
@@ -302,7 +311,7 @@ const Contact = () => {
             />
           </label>
 
-
+          {/* Country */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
             <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Country</span>
             <input
@@ -335,18 +344,17 @@ const Contact = () => {
       </motion.div>
 
       {/* Earth Canvas Section */}
-        <motion.div
-          variants={slideIn("right", "tween", 0.6, 1)}
-          style={{
-            flex: 1.5,
-            maxWidth: "800px",
-            height: "800px",
-          }}
-        >
-          <EarthCanvas />
-        </motion.div>
-      </div>
-  
+      <motion.div
+        variants={slideIn("right", "tween", 0.6, 1)}
+        style={{
+          flex: 1.5,
+          maxWidth: "800px",
+          height: "800px",
+        }}
+      >
+        <EarthCanvas />
+      </motion.div>
+    </div>
   );
 };
 
