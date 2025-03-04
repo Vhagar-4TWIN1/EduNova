@@ -18,7 +18,6 @@ import Message from "./components/messga";
 import AddModule from "./components/module/addModule";
 import Logs from "./components/logs";
 import Layout from "./components/layout";
-import LinkedInCallback from "./components/linkedInCallback";
 
 import UsersBack from "./components/usersBack";
 import ListModules from "./components/module/listModules";
@@ -31,7 +30,6 @@ function App() {
       <Routes>
         {/* Routes publiques */}
         <Route path="/" element={<Login />} />
-        <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
         
 
         {/* Routes protégées avec Layout */}
