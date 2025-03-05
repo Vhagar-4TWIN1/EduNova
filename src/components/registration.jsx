@@ -32,7 +32,7 @@ const Registration = () => {
         if (code) {
             console.log("Authorization code received from LinkedIn:", code);
 
-            axios.post("http://localhost:3000/api/auth/linkedinAuth", { code })
+            axios.post("http://localhost:3000/api/auth/linkedinAuth", { code },{withCredentials: true})
                 .then((response) => {
                     console.log("LinkedIn OAuth response:", response.data);
                     if (response.data.token) {

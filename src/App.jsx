@@ -10,10 +10,9 @@ import ForgotPassword from "./components/forgotPassword";
 AOS.init();
 import Contact from "./components/Contact";
 import Message from "./components/messga";
+import axios from "axios";
 
-
-
-
+axios.defaults.withCredentials = true;
 
 import AddModule from "./components/module/addModule";
 import Logs from "./components/logs";

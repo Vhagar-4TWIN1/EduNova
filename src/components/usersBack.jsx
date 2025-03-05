@@ -15,8 +15,6 @@ const UsersBack = () => {
         fetchUsers();
     }, [currentPage]);
 
-    const token = localStorage.getItem('token');
-
     const fetchUsers = async () => {
         setLoading(true);
         try {

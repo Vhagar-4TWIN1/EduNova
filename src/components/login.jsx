@@ -59,7 +59,7 @@ const Login = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/signin", formData);
+      const response = await axios.post("http://localhost:3000/api/auth/signin", formData,{ withCredentials: true } );
       console.log("Login successful:", response.data);
       localStorage.setItem("token", response.data.token);
      
