@@ -13,6 +13,8 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import GithubSVG from "../assets/icons8-github.svg";
 import LinkedinSvg from "../assets/icon-linkedin.svg";
+import Logo from "./Logo";
+import Footerpage from "./Footerpage";
 
 const Login = () => {
   const handleGitHubLogin = () => {
@@ -84,13 +86,14 @@ const Login = () => {
         alignItems: "center",
         minHeight: "100vh",
         width: "100vw",
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
         padding: "20px",
+          paddingBottom: '150px',
+        position: "relative", // Ajoutez cette ligne pour positionner le logo et le footer
       }}
     >
+      <Logo /> {/* Ajoutez le composant Logo ici */}
+      <Footerpage /> {/* Ajoutez le composant Footer ici */}
+
       <motion.div
         variants={slideIn("left", "tween", 0.7, 1)}
         style={{
@@ -179,7 +182,6 @@ const Login = () => {
           <Link to="/forgot-password">Forgot Password</Link>
         </p>
 
-        {/* Connexion via Facebook et Google */}
         <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
         
           <button onClick={handleGoogleLogin} style={socialLoginButtonStyle}>
