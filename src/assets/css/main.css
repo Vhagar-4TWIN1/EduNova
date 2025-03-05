@@ -529,6 +529,7 @@ h6 {
   font-size: 14px;
   padding-bottom: 50px;
   position: relative;
+  padding: 50px;
 }
 
 .footer .footer-top {
@@ -890,7 +891,9 @@ section,
   height: 100%;
   object-fit: cover;
   z-index: 1;
+  top: 90px; /* Décale l'image vers le bas */
 }
+
 
 .hero:before {
   content: "";
@@ -903,7 +906,17 @@ section,
 .hero .container {
   position: relative;
   z-index: 3;
+  background-color: transparent; /* Fond transparent */
+  color: black; /* Texte en noir */
+  text-align: left; /* Alignement du texte à gauche */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%; /* S'assurer que le conteneur occupe toute la hauteur */
+  padding-left: 50px; /* Ajuste l'espace à gauche selon ton besoin */
 }
+
 
 .hero h2 {
   margin: 0;
@@ -1007,7 +1020,7 @@ section,
 # Counts Section
 --------------------------------------------------------------*/
 .counts {
-  padding: 25px 0;
+  padding: 50px;
 }
 
 .counts .stats-item {
@@ -1159,6 +1172,8 @@ section,
   background-color: var(--surface-color);
   border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
   border-radius: 5px;
+  padding: 50px;
+
 }
 
 .courses .course-content {
@@ -1293,6 +1308,7 @@ section,
 .about-us .content h3 {
   font-size: 2rem;
   font-weight: 700;
+  
 }
 
 .about-us .content ul {
