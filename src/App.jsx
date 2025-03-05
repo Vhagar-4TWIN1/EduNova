@@ -33,7 +33,7 @@ const FAQ = lazy(() => import("./dashboard/scenes/faq"));
 const Geography = lazy(() => import("./dashboard/scenes/geography"));
 const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
-
+const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
@@ -82,6 +82,7 @@ function App() {
                         <Route path="/line" element={<Line />} />
                         <Route path="/faq" element={<FAQ />} />
                         <Route path="/geography" element={<Geography />} />
+                        <Route path="/badgeForm" element={<BadgeForm />} />
                       </Routes>
                     </div>
                   </div>
