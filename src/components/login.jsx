@@ -18,7 +18,7 @@ const Login = () => {
   const handleGitHubLogin = () => {
     window.location.href = "http://localhost:3000/oauth";
   };
-  const navigate = useNavigate();  // Add this at the top where you are importing dependencies
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState(() => {
     const savedEmail = localStorage.getItem("rememberedEmail") || "";
@@ -29,8 +29,16 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(localStorage.getItem("rememberMe") === "true");
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Check if user is already logged in
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/"); // Redirect to home or dashboard if already logged in
+    }
+    
+    // Load remembered credentials
     const savedEmail = localStorage.getItem("rememberedEmail");
     const savedPassword = localStorage.getItem("rememberedPassword");
     const savedRememberMe = localStorage.getItem("rememberMe") === "true"; 
@@ -39,11 +47,14 @@ const Login = () => {
       setFormData({ email: savedEmail, password: savedPassword });
       setRememberMe(true);
     }
-  }, []);
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear any previous error messages when user types
+    if (error) setError(null);
   };
+  
   const handleLinkedinLogin = () => {
     window.location.href = "http://localhost:3000/api/auth/linkedin";
   };
@@ -58,20 +69,71 @@ const Login = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    setLoading(true);
+    setError(null);
+    
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/signin", formData);
-      console.log("Login successful:", response.data);
-      localStorage.setItem("token", response.data.token);
-     
-      if (rememberMe) {
-        localStorage.setItem("rememberedEmail", formData.email);
-        localStorage.setItem("rememberedPassword", formData.password);
+      // Log the data being sent
+      console.log("Attempting login with:", { ...formData, password: '****' });
+      
+      // Check password complexity before sending to avoid unnecessary API calls
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        setError("Password must be at least 8 characters with uppercase, lowercase, and numbers");
+        setLoading(false);
+        return;
+      }
+      
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/signin", 
+        formData,
+        { 
+          timeout: 5000, // Set timeout to 5 seconds
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+      
+      console.log("Login response:", response.data);
+      
+      if (response.data?.success && response.data?.token) {
+        console.log("Login successful:", response.data);
+        
+        // Save token to localStorage
+        localStorage.setItem("token", response.data.token);
+        
+        // Handle remember me functionality
+        localStorage.setItem("rememberMe", rememberMe.toString());
+        if (rememberMe) {
+          localStorage.setItem("rememberedEmail", formData.email);
+          localStorage.setItem("rememberedPassword", formData.password);
+        } else {
+          localStorage.removeItem("rememberedEmail");
+          localStorage.removeItem("rememberedPassword");
+        }
+        
+        // Redirect to home/dashboard page
+        navigate("/");
       } else {
-        localStorage.removeItem("rememberedEmail");
-        localStorage.removeItem("rememberedPassword");
+        setError(response.data?.message || "Invalid response from server");
       }
     } catch (error) {
-      setError(error.response?.data?.message || "Login failed");
+      console.error("Login error:", error);
+      
+      // Handle different types of errors
+      if (error.code === 'ECONNABORTED') {
+        setError("Connection timeout. Server may be down or not responding.");
+      } else if (error.code === 'ERR_NETWORK') {
+        setError("Network error. Please check if the backend server is running.");
+      } else if (error.response?.status === 401) {
+        setError(error.response.data?.message || "Invalid email or password.");
+      } else {
+        setError(
+          error.response?.data?.message || 
+          "Login failed. Please check your credentials and try again."
+        );
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -168,12 +230,13 @@ const Login = () => {
           <button
             type="submit"
             style={buttonStyle}
+            disabled={loading}
           >
-            Connexion
+            {loading ? "Signing in..." : "Connexion"}
           </button>
         </form>
         <p style={{ fontSize: "18px", textAlign: "center", marginTop: "32px" }}>
-          Vous n'avez pas de compte? <a href="/register" style={{ color: "#ff6b6b" }}>Inscrivez-vous</a>
+          Vous n'avez pas de compte? <Link to="/registration" style={{ color: "#ff6b6b" }}>Inscrivez-vous</Link>
           <br></br>
           <Link to="/forgot-password">Forgot Password</Link>
         </p>
@@ -206,7 +269,7 @@ const Login = () => {
         </div>
 
         <p>
-          Vous n'avez pas de compte ? <a href="/registration">Inscrivez-vous</a>
+          Vous n'avez pas de compte ? <Link to="/registration">Inscrivez-vous</Link>
         </p>
       </motion.div>
 
@@ -232,6 +295,8 @@ const inputStyle = {
   border: "none",
   outline: "none",
   fontSize: "18px",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 const buttonStyle = {
@@ -248,14 +313,17 @@ const buttonStyle = {
 
 const socialLoginButtonStyle = {
   backgroundColor: "#dbdbdb",
-  color: "black",
-  padding: "10px 20px",
+  color: "#333",
+  padding: "12px 16px",
   borderRadius: "12px",
   border: "none",
+  cursor: "pointer",
+  fontSize: "16px",
   display: "flex",
   alignItems: "center",
-  gap: "8px",
-  cursor: "pointer",
+  justifyContent: "center",
+  flex: 1,
+  transition: "background-color 0.3s ease",
 };
 
 export default SectionWrapper(Login, "login");
