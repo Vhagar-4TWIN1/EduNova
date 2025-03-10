@@ -37,6 +37,7 @@ const Login = () => {
   useEffect(() => {
     // Check if user is already logged in
     const token = localStorage.getItem("token");
+    
     if (token) {
       navigate("/"); // Redirect to home or dashboard if already logged in
     }
@@ -113,9 +114,17 @@ const Login = () => {
           localStorage.removeItem("rememberedEmail");
           localStorage.removeItem("rememberedPassword");
         }
-        
-        // Redirect to home/dashboard page
-        navigate("/");
+        localStorage.setItem("firstName", response.data.user.firstName);
+        localStorage.setItem("lastName", response.data.user.lastName);      
+        localStorage.setItem('role', response.data.user.role);
+       
+
+        if (response.data.user.role === 'Admin') {
+          navigate("/dashboard");
+        } else {
+          navigate("/home");
+        }
+
       } else {
         setError(response.data?.message || "Invalid response from server");
       }
