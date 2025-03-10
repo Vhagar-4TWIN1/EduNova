@@ -6,7 +6,7 @@ import "./App.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Layout from "./components/layout";
-
+import PrivateRoute from './PrivateRoute';
 // Initialize AOS
 AOS.init();
 
@@ -33,6 +33,7 @@ const FAQ = lazy(() => import("./dashboard/scenes/faq"));
 const Geography = lazy(() => import("./dashboard/scenes/geography"));
 const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
+const Level = lazy(() => import("./dashboard/scenes/Level"));
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -72,16 +73,95 @@ function App() {
                         <Topbar setIsSidebar={setIsSidebar} />
                       </div>
                       <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/team" element={<Team />} />
-                        <Route path="/contacts" element={<Contacts />} />
-                        <Route path="/invoices" element={<Invoices />} />
-                        <Route path="/form" element={<Form />} />
-                        <Route path="/bar" element={<Bar />} />
-                        <Route path="/pie" element={<Pie />} />
-                        <Route path="/line" element={<Line />} />
-                        <Route path="/faq" element={<FAQ />} />
-                        <Route path="/geography" element={<Geography />} />
+                        {/* PrivateRoute is applied for each dashboard route */}
+                        <Route
+                          path="/"
+                          element={
+                            <PrivateRoute>
+                              <Dashboard />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/team"
+                          element={
+                            <PrivateRoute>
+                              <Team />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/contacts"
+                          element={
+                            <PrivateRoute>
+                              <Contacts />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/invoices"
+                          element={
+                            <PrivateRoute>
+                              <Invoices />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/form"
+                          element={
+                            <PrivateRoute>
+                              <Form />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/Level"
+                          element={
+                            <PrivateRoute>
+                              <Level />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/bar"
+                          element={
+                            <PrivateRoute>
+                              <Bar />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/pie"
+                          element={
+                            <PrivateRoute>
+                              <Pie />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/line"
+                          element={
+                            <PrivateRoute>
+                              <Line />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/faq"
+                          element={
+                            <PrivateRoute>
+                              <FAQ />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/geography"
+                          element={
+                            <PrivateRoute>
+                              <Geography />
+                            </PrivateRoute>
+                          }
+                        />
                       </Routes>
                     </div>
                   </div>
