@@ -1,12 +1,15 @@
 import { Box, Typography, useTheme } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { useState, useEffect } from 'react';
+import { mockDataInvoices } from "../../data/mockData";
+import Header from "../../components/header";
 import axios from 'axios';
 import './logs.css';
 
+import { useState, useEffect } from 'react';
 const Invoices = () => {
-  //const theme = useTheme();
-  //const colors = tokens(theme.palette.mode);
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -88,82 +91,82 @@ const Invoices = () => {
   };
   
   
+
   return (
     <div className="logs-container">
-    <div className="logs-wrapper">
-      <h2>Activity logs</h2>
+      <div className="logs-wrapper">
+        <h2>Activity logs</h2>
 
-      {error && <p className="error-message">{error}</p>}
+        {error && <p className="error-message">{error}</p>}
 
-      {loading ? (
-        <p>Chargement des logs...</p>
-      ) : (
-        <>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="logs-table">
-              <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Action</th>
-                  <th>IP Address</th>
-                  <th>User Agent</th>
-                  <th>Duration (s)</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentLogs.length > 0 ? (
-                  currentLogs.map((user) => (
-                    user.logs.length > 0 ? (
-                      user.logs.map((log) => (
-                        <tr key={log._id}>
-                          <td>{user.email || 'Inconnu'}</td>
-                          <td>{log.action}</td>
-                          <td>{log.ipAddress}</td>
-                          <td>{log.userAgent}</td>
-                          <td>{formatDuration(log.duration)}</td> {/* Afficher la durée formatée */}
-                          <td>{new Date(log.createdAt).toLocaleString()}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr key={user.userId}>
-                        <td colSpan="6">Aucun log trouvé pour {user.email}</td>
-                      </tr>
-                    )
-                  ))
-                ) : (
+        {loading ? (
+          <p>Chargement des logs...</p>
+        ) : (
+          <>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="logs-table">
+                <thead>
                   <tr>
-                    <td colSpan="6">Aucun log trouvé</td>
+                    <th>Email</th>
+                    <th>Action</th>
+                    <th>IP Address</th>
+                    <th>User Agent</th>
+                    <th>Duration (s)</th>
+                    <th>Date</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {currentLogs.length > 0 ? (
+                    currentLogs.map((user) => (
+                      user.logs.length > 0 ? (
+                        user.logs.map((log) => (
+                          <tr key={log._id}>
+                            <td>{user.email || 'Inconnu'}</td>
+                            <td>{log.action}</td>
+                            <td>{log.ipAddress}</td>
+                            <td>{log.userAgent}</td>
+                            <td>{formatDuration(log.duration)}</td> {/* Afficher la durée formatée */}
+                            <td>{new Date(log.createdAt).toLocaleString()}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr key={user.userId}>
+                          <td colSpan="6">Aucun log trouvé pour {user.email}</td>
+                        </tr>
+                      )
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6">Aucun log trouvé</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-          {totalPages > 1 && (
-            <nav className="app-pagination">
-              <ul className="pagination">
-                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => paginate(currentPage - 1)}>
-                    Précédent
-                  </button>
-                </li>
+            {totalPages > 1 && (
+              <nav className="app-pagination">
+                <ul className="pagination">
+                  <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => paginate(currentPage - 1)}>
+                      Précédent
+                    </button>
+                  </li>
 
-                {renderPagination()}
+                  {renderPagination()}
 
-                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => paginate(currentPage + 1)}>
-                    Suivant
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          )}
-        </>
-      )}
+                  <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => paginate(currentPage + 1)}>
+                      Suivant
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            )}
+          </>
+        )}
+      </div>
     </div>
-  </div>
-
   );
 };
 

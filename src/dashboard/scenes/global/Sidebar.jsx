@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Box, IconButton, Typography, useTheme, Button } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -9,7 +9,6 @@ import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
@@ -39,6 +38,23 @@ const Sidebar = () => {
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
+
+  // Récupérer les informations de l'utilisateur depuis localStorage
+  const firstName = localStorage.getItem("firstName");
+  const lastName = localStorage.getItem("lastName");
+
+  // Utilisation de useNavigate pour naviguer après le logout
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Supprimer les informations de l'utilisateur du localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("lastName");
+
+    // Naviguer vers la page d'accueil
+    navigate("/"); 
+  };
 
   return (
     <Box
@@ -98,19 +114,16 @@ const Sidebar = () => {
                   height="100px"
                   src={`../../dashboard/assets/user.png`}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
-                />h
+                />
               </Box>
               <Box textAlign="center">
                 <Typography
-                  variant="h2"
+                  variant="h6"
                   color={colors.grey[100]}
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  
-                </Typography>
-                <Typography variant="h5" color={colors.primary}>
-                  EduNova
+                  {firstName && lastName ? `${firstName} ${lastName}` : "Guest"}
                 </Typography>
               </Box>
             </Box>
@@ -147,7 +160,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Invoices Balances"
+              title="Activity logs"
               to="/dashboard/invoices"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}
@@ -168,7 +181,15 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-           
+         <Item
+  title="Level"
+  to="/dashboard/Level"
+  icon={<PersonOutlinedIcon />}
+  selected={selected}
+  setSelected={setSelected}
+/>
+
+
             <Typography
               variant="h6"
               color={colors.grey[300]}
@@ -204,6 +225,22 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+          </Box>
+
+          {/* Logout Button */}
+          <Box display="flex" justifyContent="center" mt="auto" mb="20px">
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleLogout}
+              sx={{
+                width: "80%",
+                padding: "10px",
+                borderRadius: "10px",
+              }}
+            >
+              Logout
+            </Button>
           </Box>
         </Menu>
       </ProSidebar>
