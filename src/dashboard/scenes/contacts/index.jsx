@@ -1,63 +1,157 @@
-import { Box } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, IconButton, Button, Typography } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataContacts } from "../../data/mockData";
 import Header from "../../components/header";
 import { useTheme } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import { useNavigate } from "react-router-dom";
 
 const Contacts = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const [questions, setQuestions] = useState([]);
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  // Fonction pour récupérer les questions depuis l'API
+  const fetchQuestions = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/questions/questions", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des questions");
+      }
+      const data = await response.json();
+      setQuestions(data);
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  };
+
+  // Fonction pour supprimer une question
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/questions/questions/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Erreur lors de la suppression de la question");
+      }
+      fetchQuestions(); // Rafraîchir la liste des questions après la suppression
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  };
+
+  // Fonction pour rediriger vers la page de mise à jour
+  const handleUpdate = (id) => {
+    navigate(`/update-question/${id}`);
+  };
+
+  // Fonction pour gérer l'upload du fichier CSV
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      setMessage("Veuillez sélectionner un fichier CSV.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("csvFile", file);
+
+    try {
+      const response = await fetch("http://localhost:3000/api/questions/upload-csv", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setMessage(data.message);
+        fetchQuestions(); // Rafraîchir la liste des questions après l'importation
+      } else {
+        setMessage("Erreur lors de l'importation du fichier CSV.");
+      }
+    } catch (error) {
+      setMessage("Erreur lors de l'envoi du fichier CSV.");
+    }
+  };
+
+  // Colonnes pour la DataGrid
   const columns = [
-    { field: "id", headerName: "ID", flex: 0.5 },
-    { field: "registrarId", headerName: "Registrar ID" },
+    { field: "questionText", headerName: "Question", flex: 1, minWidth: 300 },
     {
-      field: "name",
-      headerName: "Name",
-      flex: 1,
-      cellClassName: "name-column--cell",
+      field: "answers",
+      headerName: "Réponses",
+      flex: 2,
+      minWidth: 500,
+      renderCell: (params) => {
+        return (
+          <ul style={{ color: "black", padding: 0, margin: 0, listStyleType: "none" }}>
+            {params.value.map((answer, index) => (
+              <li key={index} style={{ marginBottom: "8px" }}>
+                {answer.text} {answer.isCorrect ? "(Correcte)" : ""}
+              </li>
+            ))}
+          </ul>
+        );
+      },
     },
     {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      headerAlign: "left",
-      align: "left",
-    },
-    {
-      field: "phone",
-      headerName: "Phone Number",
+      field: "actions",
+      headerName: "Actions",
       flex: 1,
-    },
-    {
-      field: "email",
-      headerName: "Email",
-      flex: 1,
-    },
-    {
-      field: "address",
-      headerName: "Address",
-      flex: 1,
-    },
-    {
-      field: "city",
-      headerName: "City",
-      flex: 1,
-    },
-    {
-      field: "zipCode",
-      headerName: "Zip Code",
-      flex: 1,
+      minWidth: 150,
+      renderCell: (params) => {
+        return (
+          <div>
+            <IconButton onClick={() => handleUpdate(params.row._id)}>
+              <EditIcon style={{ color: colors.greenAccent[500] }} />
+            </IconButton>
+            <IconButton onClick={() => handleDelete(params.row._id)}>
+              <DeleteIcon style={{ color: colors.redAccent[500] }} />
+            </IconButton>
+          </div>
+        );
+      },
     },
   ];
 
   return (
     <Box m="20px">
       <Header
-        title="CONTACTS"
-        subtitle="List of Contacts for Future Reference"
+        title="QUESTIONS"
+        subtitle="Liste des questions et leurs réponses"
       />
+      {/* Bouton pour uploader un fichier CSV */}
+      <Box mb="20px">
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFileUpload}
+          style={{ display: "none" }}
+          id="csv-upload"
+        />
+        <label htmlFor="csv-upload">
+          <Button variant="contained" color="secondary" component="span">
+            Importer un fichier CSV
+          </Button>
+        </label>
+        {message && (
+          <Typography variant="body1" style={{ marginTop: "10px", color: "green" }}>
+            {message}
+          </Typography>
+        )}
+      </Box>
+      {/* Tableau des questions */}
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -67,13 +161,14 @@ const Contacts = () => {
           },
           "& .MuiDataGrid-cell": {
             borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
+            color: "black",
+            display: "flex",
+            alignItems: "center",
           },
           "& .MuiDataGrid-columnHeaders": {
             backgroundColor: colors.blueAccent[700],
             borderBottom: "none",
+            color: "black",
           },
           "& .MuiDataGrid-virtualScroller": {
             backgroundColor: colors.primary[400],
@@ -91,9 +186,14 @@ const Contacts = () => {
         }}
       >
         <DataGrid
-          rows={mockDataContacts}
+          rows={questions}
           columns={columns}
+          getRowId={(row) => row._id}
           components={{ Toolbar: GridToolbar }}
+          autoHeight
+          getRowHeight={() => "auto"}
+          pageSize={10}
+          rowsPerPageOptions={[10, 20, 50]}
         />
       </Box>
     </Box>
