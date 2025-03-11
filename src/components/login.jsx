@@ -128,6 +128,7 @@ const Login = () => {
       } else {
         setError(response.data?.message || "Invalid response from server");
       }
+      navigate("/home");
     } catch (error) {
       console.error("Login error:", error);
       
@@ -210,23 +211,25 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                style={inputStyle}
+                style={{ ...inputStyle, flex: 1, paddingRight: "70px" }}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: "10px",
-                  transform: "translateY(-50%)",
-                  background: "transparent",
-                  border: "none",
-                  
-                }}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
+            <button
+  type="button"
+  onClick={() => setShowPassword(!showPassword)}
+  style={{
+    background: "transparent",
+    border: "none",
+    position: "",
+    top: "50%",
+    right: "10px",
+    transform: "translateY(-50%)",
+    cursor: "pointer",
+    padding: "2px", 
+  }}
+>
+  {showPassword ? <FaEyeSlash size={16} color="#555" /> : <FaEye size={16} color="#555" />}
+</button>
+
             </div>
           </label>
 

@@ -21,10 +21,11 @@ const UserProfile = lazy(() => import("./components/userconnectedupdate"));
 const UsersBack = lazy(() => import("./components/usersBack"));
 const Contact = lazy(() => import("./components/Contact"));
 const Message = lazy(() => import("./components/messga"));
-const Dashboard = lazy(() => import("./dashboard/scenes/dashboard"));
+const Dashboard = lazy(() => import("./dashboard/scenes/dashboard")); // Corrigé
 const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
-const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
+const Contacts = lazy(() => import("./dashboard/scenes/contacts")); // Corrigé
+const UpdateQuestion = lazy(() => import("./dashboard/scenes/contacts/UpdateQuestion")); // Corrigé
 const Bar = lazy(() => import("./dashboard/scenes/bar"));
 const Form = lazy(() => import("./dashboard/scenes/form"));
 const Line = lazy(() => import("./dashboard/scenes/line"));
@@ -59,6 +60,7 @@ function App() {
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/users" element={<UsersBack />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/update-question/:id" element={<UpdateQuestion />} />
                 <Route path="/message" element={<Message />} />
               </Route>
 
