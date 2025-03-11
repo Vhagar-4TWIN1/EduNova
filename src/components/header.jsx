@@ -54,7 +54,7 @@ function Header() {
               {isDropdownVisible && ( // Si le dropdown est visible, afficher les options
                 <ul>
                   <li>
-                    <a href="#">Profile</a>
+                    <a href="/update">Profile</a>
                   </li>
                   <li>
                     <button className="btn-getstarted" onClick={handleLogout}>
