@@ -50,14 +50,13 @@ function App() {
               <Route path="/" element={<Login />} />
               <Route path="/registration" element={<Contact />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-
+              <Route path="/face" element={<FaceRecognition />} />
               {/* Protected Routes with Layout */}
               <Route element={<Layout />}>
                 <Route path="/home" element={<Home />} />
                 <Route path="/addModule" element={<AddModule />} />
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
-                <Route path="/users" element={<UsersBack />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/message" element={<Message />} />
               </Route>
@@ -171,6 +170,8 @@ function App() {
           </Suspense>
         </Router>
       </ThemeProvider>
+      <ToastContainer />
+
     </ColorModeContext.Provider>
   );
 }

@@ -28,7 +28,7 @@ const Contact = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  
   const handleExtractionImageChange = (e) => {
     const file = e.target.files[0];
     setExtractionImage(file);
