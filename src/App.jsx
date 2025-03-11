@@ -6,6 +6,8 @@ import "./App.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Layout from "./components/layout";
+import FaceRecognition from "./components/FaceRecognition";
+import { ToastContainer } from "react-toastify";
 
 // Initialize AOS
 AOS.init();
@@ -49,14 +51,13 @@ function App() {
               <Route path="/" element={<Login />} />
               <Route path="/registration" element={<Contact />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-
+              <Route path="/face" element={<FaceRecognition />} />
               {/* Protected Routes with Layout */}
               <Route element={<Layout />}>
                 <Route path="/home" element={<Home />} />
                 <Route path="/addModule" element={<AddModule />} />
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
-                <Route path="/users" element={<UsersBack />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/message" element={<Message />} />
               </Route>
@@ -82,6 +83,8 @@ function App() {
                         <Route path="/line" element={<Line />} />
                         <Route path="/faq" element={<FAQ />} />
                         <Route path="/geography" element={<Geography />} />
+                        <Route path="/users" element={<UsersBack />} />
+
                       </Routes>
                     </div>
                   </div>
@@ -91,6 +94,8 @@ function App() {
           </Suspense>
         </Router>
       </ThemeProvider>
+      <ToastContainer />
+
     </ColorModeContext.Provider>
   );
 }

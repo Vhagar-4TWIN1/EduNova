@@ -15,8 +15,11 @@ import GithubSVG from "../assets/icons8-github.svg";
 import LinkedinSvg from "../assets/icon-linkedin.svg";
 import Logo from "./Logo";
 import Footerpage from "./Footerpage";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
+
   const handleGitHubLogin = () => {
     window.location.href = "http://localhost:3000/oauth";
   };
@@ -74,71 +77,88 @@ const Login = () => {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
-      // Log the data being sent
-      console.log("Attempting login with:", { ...formData, password: '****' });
-      
-      // Check password complexity before sending to avoid unnecessary API calls
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-      if (!passwordRegex.test(formData.password)) {
-        setError("Password must be at least 8 characters with uppercase, lowercase, and numbers");
-        setLoading(false);
-        return;
-      }
-      
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/signin", 
-        formData,
-        { 
-          timeout: 5000, // Set timeout to 5 seconds
-          headers: { 'Content-Type': 'application/json' }
+        console.log("Attempting login with:", { ...formData, password: '****' });
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        if (!passwordRegex.test(formData.password)) {
+            setError("Password must be at least 8 characters with uppercase, lowercase, and numbers");
+            setLoading(false);
+            return;
         }
-      );
-      
-      console.log("Login response:", response.data);
-      
-      if (response.data?.success && response.data?.token) {
-        console.log("Login successful:", response.data);
-        
-        // Save token to localStorage
-        localStorage.setItem("token", response.data.token);
-        
-        // Handle remember me functionality
-        localStorage.setItem("rememberMe", rememberMe.toString());
-        if (rememberMe) {
-          localStorage.setItem("rememberedEmail", formData.email);
-          localStorage.setItem("rememberedPassword", formData.password);
-        } else {
-          localStorage.removeItem("rememberedEmail");
-          localStorage.removeItem("rememberedPassword");
-        }
-        
-        // Redirect to home/dashboard page
-        navigate("/");
-      } else {
-        setError(response.data?.message || "Invalid response from server");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      
-      // Handle different types of errors
-      if (error.code === 'ECONNABORTED') {
-        setError("Connection timeout. Server may be down or not responding.");
-      } else if (error.code === 'ERR_NETWORK') {
-        setError("Network error. Please check if the backend server is running.");
-      } else if (error.response?.status === 401) {
-        setError(error.response.data?.message || "Invalid email or password.");
-      } else {
-        setError(
-          error.response?.data?.message || 
-          "Login failed. Please check your credentials and try again."
+
+        const response = await axios.post(
+            "http://localhost:3000/api/auth/signin",
+            formData,
+            {
+                timeout: 5000,
+                headers: { "Content-Type": "application/json" }
+            }
         );
-      }
+
+        console.log("Login response:", response.data);
+
+        if (response.data?.success && response.data?.token) {
+            console.log("Login successful:", response.data);
+
+            // Save token to localStorage
+            localStorage.setItem("token", response.data.token);
+
+            // Handle remember me functionality
+            localStorage.setItem("rememberMe", rememberMe.toString());
+            if (rememberMe) {
+                localStorage.setItem("rememberedEmail", formData.email);
+                localStorage.setItem("rememberedPassword", formData.password);
+            } else {
+                localStorage.removeItem("rememberedEmail");
+                localStorage.removeItem("rememberedPassword");
+            }
+
+            // Start break reminder timer (1 min)
+            startBreakTimer();
+
+            // Redirect to home/dashboard page
+            navigate("/home");
+        } else {
+            setError(response.data?.message || "Invalid response from server");
+        }
+    } catch (error) {
+        console.error("Login error:", error);
+        if (error.code === "ECONNABORTED") {
+            setError("Connection timeout. Server may be down or not responding.");
+        } else if (error.code === "ERR_NETWORK") {
+            setError("Network error. Please check if the backend server is running.");
+        } else if (error.response?.status === 401) {
+            setError(error.response.data?.message || "Invalid email or password.");
+        } else {
+            setError(
+                error.response?.data?.message ||
+                    "Login failed. Please check your credentials and try again."
+            );
+        }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+const playNotificationSound = () => {
+  const audio = new Audio("/sounds/notification.wav"); // Path to sound in public folder
+  audio.play();
+};
+
+// Function to start a break timer (triggers after 1 hour)
+const startBreakTimer = () => {
+  setInterval(() => {
+        toast.warn("⏳ Time for a break! You've been active for an hour.", {
+            position: "top-right",
+            autoClose: false, // Keep it open until dismissed
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+        });
+        playNotificationSound();
+    }, 10 * 1000); // 1 min in milliseconds
+};
 
   return (
     <div
