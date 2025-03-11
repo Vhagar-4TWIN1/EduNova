@@ -7,6 +7,10 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Layout from "./components/layout";
 import PrivateRoute from './PrivateRoute';
+import FaceRecognition from './components/FaceRecognition';
+import { ToastContainer } from "react-toastify";
+import AutoLogout from "./components/AutoLogout";
+
 // Initialize AOS
 AOS.init();
 
@@ -45,6 +49,8 @@ function App() {
         <CssBaseline />
         <Router>
           <Suspense fallback={<div>Loading...</div>}>
+          <AutoLogout />
+
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Login />} />
@@ -105,6 +111,7 @@ function App() {
                             </PrivateRoute>
                           }
                         />
+
                         <Route
                           path="/form"
                           element={
@@ -161,6 +168,8 @@ function App() {
                             </PrivateRoute>
                           }
                         />
+                        <Route path="/users" element={<PrivateRoute><UsersBack /></PrivateRoute>} />
+
                       </Routes>
                     </div>
                   </div>
@@ -171,6 +180,7 @@ function App() {
         </Router>
       </ThemeProvider>
       <ToastContainer />
+
 
     </ColorModeContext.Provider>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import * as faceapi from "face-api.js";
 import {
   TextField,
   Button,
@@ -400,18 +401,44 @@ const UserProfile = () => {
     fileInputRef.current.click();
   };
 
-  const handleImageChange = (event) => {
+  const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
+  
     // Preview the image
     const reader = new FileReader();
-    reader.onload = () => {
-      setPreviewUrl(reader.result);
+    reader.onload = async () => {
+      const imageUrl = reader.result;
+      setPreviewUrl(imageUrl);
+  
+      // Load face-api.js models if not loaded
+      await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+      await faceapi.nets.faceLandmark68Net.loadFromUri("/models");
+      await faceapi.nets.faceRecognitionNet.loadFromUri("/models");
+  
+      // Create an image element and check for a face
+      const img = new Image();
+      img.src = imageUrl;
+      img.onload = async () => {
+        const imageDetection = await faceapi.detectSingleFace(
+          img,
+          new faceapi.TinyFaceDetectorOptions()
+        ).withFaceLandmarks().withFaceDescriptor();
+  
+        if (!imageDetection) {
+          alert("No face detected in the selected image.");
+          setPreviewUrl(null); // Reset preview if no face is found
+          setImageFile(null);
+          return;
+        }
+  
+        setImageFile(file);
+        alert("Image loaded successfully! Face detected.");
+      };
     };
     reader.readAsDataURL(file);
-    setImageFile(file);
   };
+  
 
   const uploadImage = async () => {
     if (!imageFile) return null;

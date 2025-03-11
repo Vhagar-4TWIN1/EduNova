@@ -1,19 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
+import { useNavigate } from "react-router-dom";
 
 const FaceRecognition = () => {
+  const navigate = useNavigate(); // Get navigate function
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [storedImage, setStoredImage] = useState(null);
   const [imageDescriptor, setImageDescriptor] = useState(null);
 
+  // Load Face-API models
   useEffect(() => {
     const loadModels = async () => {
       try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
-        await faceapi.nets.faceLandmark68Net.loadFromUri("/models");
-        await faceapi.nets.faceRecognitionNet.loadFromUri("/models");
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+          faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+          faceapi.nets.faceRecognitionNet.loadFromUri("/models")
+        ]);
         setIsModelLoaded(true);
       } catch (error) {
         console.error("Error loading face-api.js models:", error);
@@ -22,6 +28,7 @@ const FaceRecognition = () => {
     loadModels();
   }, []);
 
+  // Start webcam when models are loaded
   useEffect(() => {
     if (!isModelLoaded) return;
 
@@ -37,13 +44,33 @@ const FaceRecognition = () => {
     startVideo();
   }, [isModelLoaded]);
 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  // Load stored image from localStorage and process it
+  const fetchImageAsDataURL = async (url) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error("Error fetching image:", error);
+      return null;
+    }
+  };
+
+  // Process stored image and extract face descriptor
+  const processStoredImage = async (imageUrl) => {
+    const dataURL = await fetchImageAsDataURL(imageUrl);
+    if (!dataURL) {
+      alert("Failed to load image from localStorage.");
+      return;
+    }
 
     const img = new Image();
-    img.src = URL.createObjectURL(file);
-    setSelectedImage(img.src);
+    img.src = dataURL;
+    console.log("Image loaded as Data URL:", img.src);
 
     img.onload = async () => {
       const imageDetection = await faceapi.detectSingleFace(
@@ -52,18 +79,30 @@ const FaceRecognition = () => {
       ).withFaceLandmarks().withFaceDescriptor();
 
       if (!imageDetection) {
-        alert("No face detected in the selected image.");
+        alert("No face detected in the stored image.");
         return;
       }
 
       setImageDescriptor(imageDetection.descriptor);
-      alert("Image loaded successfully! Now capture from the webcam.");
+      console.log("Stored image descriptor:", imageDetection.descriptor);
+      console.log("Stored image processed successfully!");
     };
   };
 
-  const compareFaceWithImage = async () => {
+  // Load image from localStorage and process it
+  useEffect(() => {
+    const storedImageUrl = localStorage.getItem("image");
+    if (storedImageUrl) {
+      setStoredImage(storedImageUrl);
+      processStoredImage(storedImageUrl);
+    } else {
+      alert("No stored profile image found. Please upload one.");
+    }
+  }, []);
+  // Compare live camera feed with stored image
+  const compareFaceWithStoredImage = async () => {
     if (!videoRef.current || !imageDescriptor) {
-      alert("Please select an image first!");
+      alert("No profile image found or not processed yet.");
       return;
     }
 
@@ -86,9 +125,17 @@ const FaceRecognition = () => {
 
     const similarityThreshold = 0.5; // Adjust as needed
     if (distance < similarityThreshold) {
-      alert("✅ Match Found! The face matches the selected image.");
+      alert("✅ Match Found! The face matches the stored profile image.");
+      navigate("/home");
+
     } else {
-      alert("❌ No Match. The face does not match the selected image.");
+      alert("❌ No Match. The face does not match the stored image.");
+      localStorage.removeItem("token");
+      localStorage.removeItem("firstName");
+      localStorage.removeItem("lastName");
+      localStorage.removeItem("image");
+      navigate("/");
+
     }
   };
 
@@ -96,9 +143,15 @@ const FaceRecognition = () => {
     <div className="container text-center mt-5">
       <h2 className="mb-3">Face Recognition System</h2>
 
-      {/* Image Upload Section */}
-      <input type="file" accept="image/*" onChange={handleImageUpload} className="mb-3" />
-      {selectedImage && <img src={selectedImage} alt="Selected" width="200" className="mt-2 border rounded" />}
+      {/* Display Stored Image */}
+      {storedImage ? (
+        <div>
+          <h5>Stored Profile Image</h5>
+          <img src={storedImage} alt="Stored Profile" width="200" className="mt-2 border rounded" />
+        </div>
+      ) : (
+        <p className="text-danger">No stored profile image found.</p>
+      )}
 
       {/* Video & Canvas */}
       <div className="position-relative mt-3">
@@ -117,8 +170,8 @@ const FaceRecognition = () => {
       {!isModelLoaded && <p className="text-danger mt-3">Loading models...</p>}
 
       {/* Compare Faces Button */}
-      <button className="btn btn-primary mt-3" onClick={compareFaceWithImage}>
-        Compare Face with Selected Image
+      <button className="btn btn-primary mt-3" onClick={compareFaceWithStoredImage}>
+        Compare Face with Stored Image
       </button>
     </div>
   );

@@ -16,10 +16,8 @@ function Header() {
   const lastName = localStorage.getItem("lastName");
 
   const handleLogout = () => {
-    // Supprimer les informations de l'utilisateur du localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("firstName");
-    localStorage.removeItem("lastName");
+    
+    localStorage.clear();
 
     navigate("/"); // Rediriger après la déconnexion
   };
@@ -36,7 +34,7 @@ function Header() {
         </a>
         <nav id="navmenu" className="navmenu">
           <ul>
-            <li><a href="index.jsx" className="active">Home</a></li>
+            <li><a href="/home" className="active">Home</a></li>
             <li><a href="">About</a></li>
             <li><a href="">Courses</a></li>
             <li><a href="/listModules">Modules</a></li>
@@ -54,7 +52,7 @@ function Header() {
               {isDropdownVisible && ( // Si le dropdown est visible, afficher les options
                 <ul>
                   <li>
-                    <a href="#">Profile</a>
+                    <a href="/update">Profile</a>
                   </li>
                   <li>
                     <button className="btn-getstarted" onClick={handleLogout}>

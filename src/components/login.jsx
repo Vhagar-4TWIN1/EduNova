@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import backgroundImage from "../assets/backgroundlogin.jpg"; 
+import backgroundImage from "../assets/backgroundlogin.jpg";
 import GoogleSvg from "../assets/icons8-google.svg";
 import FacebookSVG from "../assets/icons8-facebook.svg";
 import { SectionWrapper } from "../hoc";
@@ -30,25 +30,26 @@ const Login = () => {
     const savedPassword = localStorage.getItem("rememberedPassword") || "";
     return { email: savedEmail, password: savedPassword };
   });
-  
+
   const [rememberMe, setRememberMe] = useState(localStorage.getItem("rememberMe") === "true");
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [id, setId] = useState();
 
 
   useEffect(() => {
     // Check if user is already logged in
     const token = localStorage.getItem("token");
-    
+
     if (token) {
       navigate("/"); // Redirect to home or dashboard if already logged in
     }
-    
+
     // Load remembered credentials
     const savedEmail = localStorage.getItem("rememberedEmail");
     const savedPassword = localStorage.getItem("rememberedPassword");
-    const savedRememberMe = localStorage.getItem("rememberMe") === "true"; 
+    const savedRememberMe = localStorage.getItem("rememberMe") === "true";
 
     if (savedRememberMe && savedEmail && savedPassword) {
       setFormData({ email: savedEmail, password: savedPassword });
@@ -56,12 +57,13 @@ const Login = () => {
     }
   }, [navigate]);
 
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     // Clear any previous error messages when user types
     if (error) setError(null);
   };
-  
+
   const handleLinkedinLogin = () => {
     window.location.href = "http://localhost:3000/api/auth/linkedin";
   };
@@ -80,94 +82,123 @@ const Login = () => {
     setError(null);
 
     try {
-        console.log("Attempting login with:", { ...formData, password: '****' });
+      console.log("Attempting login with:", { ...formData, password: '****' });
 
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-        if (!passwordRegex.test(formData.password)) {
-            setError("Password must be at least 8 characters with uppercase, lowercase, and numbers");
-            setLoading(false);
-            return;
-        }
-
-        const response = await axios.post(
-            "http://localhost:3000/api/auth/signin",
-            formData,
-            {
-                timeout: 5000,
-                headers: { "Content-Type": "application/json" }
-            }
-        );
-
-        console.log("Login response:", response.data);
-
-        if (response.data?.success && response.data?.token) {
-            console.log("Login successful:", response.data);
-
-            // Save token to localStorage
-            localStorage.setItem("token", response.data.token);
-
-            // Handle remember me functionality
-            localStorage.setItem("rememberMe", rememberMe.toString());
-            if (rememberMe) {
-                localStorage.setItem("rememberedEmail", formData.email);
-                localStorage.setItem("rememberedPassword", formData.password);
-            } else {
-                localStorage.removeItem("rememberedEmail");
-                localStorage.removeItem("rememberedPassword");
-            }
-            localStorage.setItem("firstName", response.data.user.firstName);
-            localStorage.setItem("lastName", response.data.user.lastName);      
-            localStorage.setItem('role', response.data.user.role);
-           
-    
-            if (response.data.user.role === 'Admin') {
-              navigate("/dashboard");
-            } else {
-              navigate("/home");
-            }
-            // Start break reminder timer (1 min)
-            startBreakTimer();
-
-            
-        } else {
-            setError(response.data?.message || "Invalid response from server");
-        }
-    } catch (error) {
-        console.error("Login error:", error);
-        if (error.code === "ECONNABORTED") {
-            setError("Connection timeout. Server may be down or not responding.");
-        } else if (error.code === "ERR_NETWORK") {
-            setError("Network error. Please check if the backend server is running.");
-        } else if (error.response?.status === 401) {
-            setError(error.response.data?.message || "Invalid email or password.");
-        } else {
-            setError(
-                error.response?.data?.message ||
-                    "Login failed. Please check your credentials and try again."
-            );
-        }
-    } finally {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        setError("Password must be at least 8 characters with uppercase, lowercase, and numbers");
         setLoading(false);
-    }
-};
-const playNotificationSound = () => {
-  const audio = new Audio("/sounds/notification.wav"); // Path to sound in public folder
-  audio.play();
-};
+        return;
+      }
 
-// Function to start a break timer (triggers after 1 hour)
-const startBreakTimer = () => {
-  setInterval(() => {
-        toast.warn("⏳ Time for a break! You've been active for an hour.", {
-            position: "top-right",
-            autoClose: false, // Keep it open until dismissed
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-        });
-        playNotificationSound();
-    }, 10 * 1000); // 1 min in milliseconds
-};
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/signin",
+        formData,
+        {
+          // timeout: 10000,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+
+      console.log("Login response:", response.data);
+      const token = response.data.token;
+      if (response.data?.success && response.data?.token) {
+        console.log("Login successful:", response.data);
+
+        // Save token to localStorage
+        localStorage.setItem("token", response.data.token);
+
+        // Handle remember me functionality
+        localStorage.setItem("rememberMe", rememberMe.toString());
+        if (rememberMe) {
+          localStorage.setItem("rememberedEmail", formData.email);
+          localStorage.setItem("rememberedPassword", formData.password);
+        } else {
+          localStorage.removeItem("rememberedEmail");
+          localStorage.removeItem("rememberedPassword");
+        }
+        localStorage.setItem("firstName", response.data.user.firstName);
+        localStorage.setItem("lastName", response.data.user.lastName);
+        localStorage.setItem('role', response.data.user.role);
+
+        const parseJwt = (token) => {
+          try {
+            return JSON.parse(atob(token.split(".")[1]));
+          } catch (e) {
+            return null;
+          }
+        };
+
+        const decodedToken = parseJwt(token);
+        if (!decodedToken || !decodedToken.userId) {
+          alert("Invalid token.");
+          return;
+        }
+
+        const userId = decodedToken.userId;
+        setId(userId);
+        const userResponse = await axios.get(
+          `http://localhost:3000/api/users/${userId}`
+        );
+        console.log("User data:", userResponse.data);
+        console.log("Photo value from API:", userResponse.data.photo);
+        if (userResponse.data.data?.photo) {
+          localStorage.setItem('image', "http://localhost:3000/"+userResponse.data.data?.photo);
+          console.log("User has an image, redirecting to face recognition...");
+          navigate("/face");
+        } else {
+          console.log("No image found, proceeding to dashboard/home...");
+          if (response.data.user.role === 'Admin') {
+            navigate("/dashboard");
+          } else {
+            navigate("/home");
+          }
+        }
+        //if(token){
+        startBreakTimer();
+        //}
+      } else {
+        setError(response.data?.message || "Invalid response from server");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      if (error.code === "ECONNABORTED") {
+        setError("Connection timeout. Server may be down or not responding.");
+      } else if (error.code === "ERR_NETWORK") {
+        setError("Network error. Please check if the backend server is running.");
+      } else if (error.response?.status === 401) {
+        setError(error.response.data?.message || "Invalid email or password.");
+      } else {
+        setError(
+          error.response?.data?.message ||
+          "Login failed. Please check your credentials and try again."
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const playNotificationSound = () => {
+    const audio = new Audio("/sounds/notification.wav"); // Path to sound in public folder
+    audio.play();
+  };
+ 
+  // Function to start a break timer (triggers after 1 hour)
+  const startBreakTimer = () => {
+    console.log(`Break timer started `);
+    setInterval(() => {
+      toast.warn("⏳ Time for a break! You've been active for an hour.", {
+        position: "top-right",
+        autoClose: false, // Keep it open until dismissed
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      playNotificationSound();
+    }, 10000); // 1 min in milliseconds
+  };
+
+
 
   return (
     <div
@@ -178,7 +209,7 @@ const startBreakTimer = () => {
         minHeight: "100vh",
         width: "100vw",
         padding: "20px",
-          paddingBottom: '150px',
+        paddingBottom: '150px',
         position: "relative", // Ajoutez cette ligne pour positionner le logo et le footer
       }}
     >
@@ -197,7 +228,7 @@ const startBreakTimer = () => {
         }}
       >
         <h3 style={{ fontSize: "48px" }}>Connexion</h3>
-        
+
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         <form
@@ -242,7 +273,7 @@ const startBreakTimer = () => {
                   transform: "translateY(-50%)",
                   background: "transparent",
                   border: "none",
-                  
+
                 }}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -275,21 +306,21 @@ const startBreakTimer = () => {
         </p>
 
         <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-        
+
           <button onClick={handleGoogleLogin} style={socialLoginButtonStyle}>
             <img src={GoogleSvg} alt="Google" style={{ marginRight: "8px" }} />
             Connexion with Google
           </button>
-        
+
 
           <button onClick={handleLinkedinLogin} style={socialLoginButtonStyle}>
             <img src={LinkedinSvg} alt="Linkedin" style={{ marginRight: "8px" }} />
             Connexion with Linkedin
           </button>
-         
+
         </div>
         <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-        <button onClick={handleGitHubLogin} style={socialLoginButtonStyle}>
+          <button onClick={handleGitHubLogin} style={socialLoginButtonStyle}>
             <img src={GithubSVG} alt="GitHub" style={{ marginRight: "8px" }} />
             Connexion with GitHub
           </button>
