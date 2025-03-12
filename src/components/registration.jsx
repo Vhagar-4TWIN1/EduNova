@@ -134,7 +134,7 @@ const Registration = () => {
             if (response.data.success) {
                 console.log("Registration successful:", response.data);
                 // Redirect to login page
-                navigate("/login");
+                navigate("/");
             } else {
                 setError(response.data.message || "Registration failed");
             }
