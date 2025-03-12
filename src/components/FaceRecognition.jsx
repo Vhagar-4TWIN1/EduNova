@@ -124,9 +124,14 @@ const FaceRecognition = () => {
     console.log("Euclidean Distance:", distance);
 
     const similarityThreshold = 0.5; // Adjust as needed
+    const role = localStorage.getItem("role");
     if (distance < similarityThreshold) {
       alert("✅ Match Found! The face matches the stored profile image.");
-      navigate("/home");
+      if (role === 'Admin') {
+        navigate("/dashboard");
+      } else {
+        navigate("/home");
+      }
 
     } else {
       alert("❌ No Match. The face does not match the stored image.");
