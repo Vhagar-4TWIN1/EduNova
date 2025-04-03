@@ -46,6 +46,7 @@ const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx"));
 
 
+const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);

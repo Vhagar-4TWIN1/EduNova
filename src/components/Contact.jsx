@@ -19,6 +19,7 @@ const Contact = () => {
     country: "",
     photo: "", // L'image de profil est obligatoire
   });
+  
   const [extractionImage, setExtractionImage] = useState(null);
   const [extractionImagePreview, setExtractionImagePreview] = useState(null);
   const [profileImage, setProfileImage] = useState(null);

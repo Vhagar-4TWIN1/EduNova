@@ -6,15 +6,43 @@ import "../assets/vendor/glightbox/css/glightbox.min.css";
 import "../assets/vendor/swiper/swiper-bundle.min.css";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function Header() {
-  const navigate = useNavigate();
+   const navigate = useNavigate();
+  
+    useEffect(() => {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+  
+      if (token) {
+        console.log("Token reçu:", token);
+  
+        // Decode token
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          console.log("Payload décodé:", payload);
+  
+          localStorage.setItem("token", token);
+          localStorage.setItem("userId", payload.userId);
+          localStorage.setItem("email", payload.email);
+          localStorage.setItem("role", payload.role);
+          localStorage.setItem("firstName", payload.firstName);
+          localStorage.setItem("lastName", payload.lastName);
+          localStorage.setItem("image",payload.photo);
+  
+          navigate("/home", { replace: true }); // enlève le ?token=... de l'URL
+        } catch (e) {
+          console.error("Erreur de décodage JWT", e);
+        }
+      }
+    }, []);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Contrôle l'affichage du menu déroulant
   
   // Récupérer les informations de l'utilisateur depuis localStorage
   const firstName = localStorage.getItem("firstName");
   const lastName = localStorage.getItem("lastName");
-
+    
   const handleLogout = () => {
     
     localStorage.clear();
