@@ -39,23 +39,70 @@ const Login = () => {
 
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      navigate("/"); // Redirect to home or dashboard if already logged in
+    const tokenFromLocalStorage = localStorage.getItem("token");
+  
+    // If already logged in, redirect to home
+    if (tokenFromLocalStorage) {
+      navigate("/");
+      return;
     }
-
+  
+    // Handle GitHub OAuth token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get("token");
+  
+    if (tokenFromUrl) {
+      // Clean the URL (remove ?token=...)
+      window.history.replaceState({}, document.title, window.location.pathname);
+  
+      localStorage.setItem("token", tokenFromUrl);
+  
+      const parseJwt = (token) => {
+        try {
+          return JSON.parse(atob(token.split(".")[1]));
+        } catch (e) {
+          return null;
+        }
+      };
+  
+      const decoded = parseJwt(tokenFromUrl);
+      if (!decoded || !decoded.userId) return;
+  
+      const userId = decoded.userId;
+  
+      axios.get(`http://localhost:3000/api/users/${userId}`)
+        .then((userResponse) => {
+          const userData = userResponse.data?.data;
+          if (userData?.photo) {
+            localStorage.setItem("image", `http://localhost:3000/${userData.photo}`);
+            navigate("/face");
+          } else {
+            if (decoded.role === 'Admin') {
+              navigate("/dashboard");
+            } else {
+              navigate("/home");
+            }
+          }
+        })
+        .catch((err) => {
+          console.error("GitHub user fetch failed:", err);
+          navigate("/home");
+        });
+  
+      return;
+    }
+  
     // Load remembered credentials
     const savedEmail = localStorage.getItem("rememberedEmail");
     const savedPassword = localStorage.getItem("rememberedPassword");
     const savedRememberMe = localStorage.getItem("rememberMe") === "true";
-
+  
     if (savedRememberMe && savedEmail && savedPassword) {
       setFormData({ email: savedEmail, password: savedPassword });
       setRememberMe(true);
     }
   }, [navigate]);
+  
 
 
   const handleChange = (e) => {
