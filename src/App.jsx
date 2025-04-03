@@ -40,6 +40,7 @@ const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
 
+const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
