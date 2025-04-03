@@ -53,7 +53,7 @@ const Sidebar = () => {
     localStorage.removeItem("lastName");
 
     // Naviguer vers la page d'accueil
-    navigate("/"); 
+    navigate("/");
   };
 
   return (
@@ -181,14 +181,13 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-         <Item
-  title="Level"
-  to="/dashboard/Level"
-  icon={<PersonOutlinedIcon />}
-  selected={selected}
-  setSelected={setSelected}
-/>
-
+            <Item
+              title="Level"
+              to="/dashboard/Level"
+              icon={<PersonOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
             <Typography
               variant="h6"
