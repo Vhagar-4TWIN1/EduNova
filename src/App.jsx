@@ -6,8 +6,8 @@ import "./App.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Layout from "./components/layout";
-import PrivateRoute from './PrivateRoute';
-import FaceRecognition from './components/FaceRecognition';
+import PrivateRoute from "./PrivateRoute";
+import FaceRecognition from "./components/FaceRecognition";
 import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
 
@@ -22,6 +22,8 @@ const ForgotPassword = lazy(() => import("./components/forgotPassword"));
 const AddModule = lazy(() => import("./components/module/addModule"));
 const ListModules = lazy(() => import("./components/module/listModules"));
 const UserProfile = lazy(() => import("./components/userconnectedupdate"));
+const Lesson = lazy(() => import("./components/Courses"));
+const CreateLesson = lazy(() => import("./components/CoursesAdd"));
 const UsersBack = lazy(() => import("./components/usersBack"));
 const Contact = lazy(() => import("./components/Contact"));
 const Message = lazy(() => import("./components/messga"));
@@ -29,7 +31,9 @@ const Dashboard = lazy(() => import("./dashboard/scenes/dashboard")); // Corrig�
 const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts")); // Corrigé
-const UpdateQuestion = lazy(() => import("./dashboard/scenes/contacts/UpdateQuestion")); // Corrigé
+const UpdateQuestion = lazy(() =>
+  import("./dashboard/scenes/contacts/UpdateQuestion")
+); // Corrigé
 const Bar = lazy(() => import("./dashboard/scenes/bar"));
 const Form = lazy(() => import("./dashboard/scenes/form"));
 const Line = lazy(() => import("./dashboard/scenes/line"));
@@ -51,7 +55,7 @@ function App() {
         <CssBaseline />
         <Router>
           <Suspense fallback={<div>Loading...</div>}>
-          <AutoLogout />
+            <AutoLogout />
 
             <Routes>
               {/* Public Routes */}
@@ -66,8 +70,13 @@ function App() {
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/update-question/:id" element={<UpdateQuestion />} />
+                <Route
+                  path="/update-question/:id"
+                  element={<UpdateQuestion />}
+                />
                 <Route path="/message" element={<Message />} />
+                <Route path="/lesson" element={<Lesson />} />
+                <Route path="/create-lesson" element={<CreateLesson />} />
               </Route>
 
               {/* Dashboard Routes */}
@@ -171,8 +180,14 @@ function App() {
                             </PrivateRoute>
                           }
                         />
-                        <Route path="/users" element={<PrivateRoute><UsersBack /></PrivateRoute>} />
-
+                        <Route
+                          path="/users"
+                          element={
+                            <PrivateRoute>
+                              <UsersBack />
+                            </PrivateRoute>
+                          }
+                        />
                       </Routes>
                     </div>
                   </div>
@@ -183,8 +198,6 @@ function App() {
         </Router>
       </ThemeProvider>
       <ToastContainer />
-
-
     </ColorModeContext.Provider>
   );
 }
