@@ -23,7 +23,6 @@ const AddModule = lazy(() => import("./components/module/addModule"));
 const ListModules = lazy(() => import("./components/module/listModules"));
 const UserProfile = lazy(() => import("./components/userconnectedupdate"));
 const Lesson = lazy(() => import("./components/Courses"));
-const CreateLesson = lazy(() => import("./components/CoursesAdd"));
 const UsersBack = lazy(() => import("./components/usersBack"));
 const Contact = lazy(() => import("./components/Contact"));
 const Message = lazy(() => import("./components/messga"));
@@ -43,12 +42,15 @@ const Geography = lazy(() => import("./dashboard/scenes/geography"));
 const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
-const LessonsDashboard = lazy(() =>import("./dashboard/scenes/lessons/LessonsDashboard"));
+const LessonsDashboard = lazy(() =>
+  import("./dashboard/scenes/lessons/LessonsDashboard")
+);
 const CreateLesson = lazy(() =>
-  import("./dashboard/scenes/lessons/CreateLesson"));
+  import("./dashboard/scenes/lessons/CreateLesson")
+);
 const LessonDetails = lazy(() =>
-  import("./dashboard/scenes/lessons/LessonDetails.jsx"));
-
+  import("./dashboard/scenes/lessons/LessonDetails.jsx")
+);
 
 const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 function App() {
@@ -105,17 +107,30 @@ function App() {
                             </PrivateRoute>
                           }
                         />
-                          <Route
-                            path="/lessons"
-                            element={
-                             <PrivateRoute>
-                            <LessonsDashboard />
+                        <Route
+                          path="/lessons"
+                          element={
+                            <PrivateRoute>
+                              <LessonsDashboard />
                             </PrivateRoute>
-                               }
-                            />
-<Route path="create-lesson" element={<PrivateRoute><CreateLesson /></PrivateRoute>} />
-<Route path="lesson/:id" element={<PrivateRoute><LessonDetails /></PrivateRoute>} />
-
+                          }
+                        />
+                        <Route
+                          path="create-lesson"
+                          element={
+                            <PrivateRoute>
+                              <CreateLesson />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="lesson/:id"
+                          element={
+                            <PrivateRoute>
+                              <LessonDetails />
+                            </PrivateRoute>
+                          }
+                        />
 
                         <Route
                           path="/team"
