@@ -23,6 +23,8 @@ const AddModule = lazy(() => import("./components/module/addModule"));
 const ListModules = lazy(() => import("./components/module/listModules"));
 const UserProfile = lazy(() => import("./components/userconnectedupdate"));
 const Lesson = lazy(() => import("./components/Courses"));
+const LessonAdd = lazy(() => import("./components/CoursesAdd"));
+const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
 const UsersBack = lazy(() => import("./components/usersBack"));
 const Contact = lazy(() => import("./components/Contact"));
 const Message = lazy(() => import("./components/messga"));
@@ -84,7 +86,11 @@ function App() {
                 />
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
-                <Route path="/create-lesson" element={<CreateLesson />} />
+                <Route path="/create-lesson" element={<LessonAdd />} />
+                <Route
+                  path="/lesson-details"
+                  element={<LessonDetailsFront />}
+                />
               </Route>
 
               {/* Dashboard Routes */}
