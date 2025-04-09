@@ -9,16 +9,19 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 
 const ListModules = () => {
   const [modules, setModules] = useState([]);
+  const [filteredModules, setFilteredModules] = useState([]); // For filtered results
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(''); // For search input
   const [selectedModule, setSelectedModule] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const navigate = useNavigate(); // ✅ For navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchModules = async () => {
       try {
         const response = await axios.get('http://localhost:3000/module/');
         setModules(response.data);
+        setFilteredModules(response.data); // Initialize filteredModules
         setLoading(false);
       } catch (error) {
         console.error("Error fetching modules:", error);
@@ -29,12 +32,24 @@ const ListModules = () => {
     fetchModules();
   }, []);
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    const filtered = modules.filter((module) =>
+      module.title.toLowerCase().includes(value) ||
+      module.description.toLowerCase().includes(value)
+    );
+    setFilteredModules(filtered);
+  };
+
   const handleDelete = async (moduleId) => {
     if (!window.confirm("Are you sure you want to delete this module?")) return;
 
     try {
       await axios.delete(`http://localhost:3000/module/${moduleId}`);
       setModules((prevModules) => prevModules.filter((module) => module._id !== moduleId));
+      setFilteredModules((prevModules) => prevModules.filter((module) => module._id !== moduleId));
       alert("Module deleted successfully!");
     } catch (error) {
       console.error("Error deleting module:", error);
@@ -53,7 +68,8 @@ const ListModules = () => {
 
     try {
       const response = await axios.get('http://localhost:3000/module/');
-      setModules(response.data); // Refresh module list
+      setModules(response.data);
+      setFilteredModules(response.data); // Refresh filteredModules
     } catch (error) {
       console.error("Error fetching updated modules:", error);
     }
@@ -62,16 +78,23 @@ const ListModules = () => {
   return (
     <>
       <div className="container">
-        <div className="d-flex justify-content-between align-items-center my-3  ">
+        <div className="d-flex justify-content-between align-items-center my-3">
           <h2 className="title">Modules List</h2>
-          
         </div>
-        <div className="d-flex justify-content-between align-items-center my-3 add-module-btn ">
-          <button className="btn btn-primary" onClick={() => navigate('/addModule')}>
+
+        <div className="d-flex justify-content-between align-items-center my-3">
+          <input
+            type="text"
+            className="form-control search-bar"
+            placeholder="Search modules..."
+            value={searchTerm}
+            onChange={handleSearch}
+          />
+          <button className="btn btn-primary add-module-btn" onClick={() => navigate('/addModule')}>
             + Add Module
           </button>
         </div>
-        
+
         {isEditing ? (
           <AddModule existingModule={selectedModule} onClose={handleCloseEdit} />
         ) : (
@@ -80,13 +103,13 @@ const ListModules = () => {
               <p>Loading modules...</p>
             ) : (
               <div className="module-list">
-                {modules.length === 0 ? (
+                {filteredModules.length === 0 ? (
                   <p>No modules found.</p>
                 ) : (
-                  modules.map((module) => (
-                    <div key={module._id} className="module-card">
+                  filteredModules.map((module) => (
+                    <div key={module._id} className="module-card1">
                       {module.image && (
-                        <img src={module.image} alt={module.title} className="module-image" />
+                        <img src={module.image} alt={module.title} className="module-image1" />
                       )}
                       <div className="module-content">
                         <h3>{module.title}</h3>
@@ -103,19 +126,39 @@ const ListModules = () => {
 
                         <ul className="dropdown-menu">
                           <li>
-                            <a className="dropdown-item" href="#" onClick={(e) => {
-                              e.preventDefault();
-                              handleUpdate(module);
-                            }}>
+                            <a
+                              className="dropdown-item"
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleUpdate(module);
+                              }}
+                            >
                               Update
                             </a>
                           </li>
                           <li>
-                            <a className="dropdown-item" href="#" onClick={(e) => {
-                              e.preventDefault();
-                              handleDelete(module._id);
-                            }}>
+                            <a
+                              className="dropdown-item"
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleDelete(module._id);
+                              }}
+                            >
                               Delete
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              className="dropdown-item"
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                navigate(`/moduleDetails/${module._id}`);
+                              }}
+                            >
+                              Details
                             </a>
                           </li>
                         </ul>

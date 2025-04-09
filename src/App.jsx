@@ -10,6 +10,7 @@ import PrivateRoute from "./PrivateRoute";
 import FaceRecognition from "./components/FaceRecognition";
 import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
+import ModuleDetails from "./components/module/moduleDetails.jsx";
 
 // Initialize AOS
 AOS.init();
@@ -78,6 +79,7 @@ function App() {
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/face" element={<FaceRecognition />} />
+                <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
 
                 <Route
                   path="/update-question/:id"
