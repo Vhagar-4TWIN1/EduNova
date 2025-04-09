@@ -174,6 +174,14 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+            <Item
+              title="Badges"
+              to="/dashboard/badgeForm"
+              icon={<MenuOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            
 
             <Typography
               variant="h6"

@@ -91,7 +91,7 @@ const FaceRecognition = () => {
 
   // Load image from localStorage and process it
   useEffect(() => {
-    const storedImageUrl = "http://localhost:3000/"+localStorage.getItem("image");
+    const storedImageUrl = localStorage.getItem("image");
     console.log("Stored image URL:", storedImageUrl);
     if (storedImageUrl) {
       setStoredImage(storedImageUrl);

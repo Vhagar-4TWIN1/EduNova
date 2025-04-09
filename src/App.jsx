@@ -30,6 +30,7 @@ const Dashboard = lazy(() => import("./dashboard/scenes/dashboard")); // Corrig�
 const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts")); // Corrigé
+const Badge = lazy(() => import("./components/badges"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
 ); // Corrigé
@@ -42,6 +43,7 @@ const Geography = lazy(() => import("./dashboard/scenes/geography"));
 const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
+const BadgeDetail = lazy(() => import("./components/BadgeDetail"));
 const LessonsDashboard = lazy(() =>
   import("./dashboard/scenes/lessons/LessonsDashboard")
 );
@@ -77,6 +79,8 @@ function App() {
                 <Route path="/addModule" element={<AddModule />} />
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
+                <Route path="/badges" element={<Badge />} />
+                <Route path="/badge/:id" element={<BadgeDetail />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route
                   path="/update-question/:id"
@@ -128,6 +132,14 @@ function App() {
                           element={
                             <PrivateRoute>
                               <LessonDetails />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/badgeForm"
+                          element={
+                            <PrivateRoute>
+                              <BadgeForm />
                             </PrivateRoute>
                           }
                         />

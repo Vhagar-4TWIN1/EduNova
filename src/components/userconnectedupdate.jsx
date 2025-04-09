@@ -893,6 +893,7 @@ const UserProfile = () => {
           // Set profile image if available
           if (user.photo) {
             setPreviewUrl(`http://localhost:3000/${user.photo}`);
+            console.log("the photo is ",user.photo)
           }
 
           // Set role-specific data
