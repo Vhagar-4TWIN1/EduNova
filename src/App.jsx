@@ -11,6 +11,8 @@ import FaceRecognition from "./components/FaceRecognition";
 import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
 import ModuleDetails from "./components/module/moduleDetails.jsx";
+import ListModulesBack from "./components/module/listModulesBack.jsx";
+import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 
 // Initialize AOS
 AOS.init();
@@ -224,6 +226,10 @@ function App() {
                             </PrivateRoute>
                           }
                         />
+                        <Route path="/listModulesBack" element={<ListModulesBack />} />
+                        <Route path="/moduleDetailsBack/:id" element={<ModuleDetailsBack />} />
+
+
                       </Routes>
                     </div>
                   </div>
