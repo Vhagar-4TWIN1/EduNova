@@ -45,9 +45,12 @@ const CreateLesson = lazy(() =>
 const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx"));
 
+const SelectGoogleLessons = lazy(() =>
+  import("./dashboard/scenes/lessons/SelectGoogleLessons.jsx"));
 
 const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 function App() {
+  console.log("App component rendered");
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
 
@@ -106,6 +109,7 @@ function App() {
                             />
 <Route path="create-lesson" element={<PrivateRoute><CreateLesson /></PrivateRoute>} />
 <Route path="lesson/:id" element={<PrivateRoute><LessonDetails /></PrivateRoute>} />
+<Route path="select-google-lessons" element={<PrivateRoute><SelectGoogleLessons /></PrivateRoute>} />
 
 
                         <Route

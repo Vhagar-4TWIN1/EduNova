@@ -61,13 +61,13 @@ import {
     const handleSubmit = async () => {
       const token = localStorage.getItem("token");
       if (!token) return alert("You are not logged in.");
-  
+    
       try {
         setUploading(true);
-  
+    
         for (const lecture of lectures) {
           const uploadResult = await uploadToCloudinary(lecture.file);
-  
+    
           await axios.post(
             "http://localhost:3000/api/lessons",
             {
@@ -84,7 +84,7 @@ import {
             }
           );
         }
-  
+    
         alert("Lectures uploaded successfully ✅");
         setLectures([{ ...initialLecture }]);
         setLessonData({ content: "", typeLesson: "" });
@@ -95,7 +95,7 @@ import {
       } finally {
         setUploading(false);
       }
-    };
+    };    
   
     const isValid =
       lessonData.content.trim() &&

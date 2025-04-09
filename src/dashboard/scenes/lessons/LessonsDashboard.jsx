@@ -24,7 +24,12 @@ const LessonsDashboard = () => {
   const [selectionModel, setSelectionModel] = useState([]);
   const [editingLesson, setEditingLesson] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [uploadProgress, setUploadProgress] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchLessons();
+  }, []);
 
   const fetchLessons = async () => {
     try {
@@ -34,29 +39,40 @@ const LessonsDashboard = () => {
       });
       setLessons(res.data || []);
     } catch (error) {
-      console.error("\u274C Failed to fetch lessons:", error);
+      console.error("❌ Failed to fetch lessons:", error);
     }
   };
 
-  useEffect(() => {
-    fetchLessons();
-  }, []);
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "edunova_preset");
+
+    const response = await axios.post(
+      `https://api.cloudinary.com/v1_1/dcf7pbfes/auto/upload`,
+      formData,
+      {
+        onUploadProgress: (event) => {
+          setUploadProgress(Math.round((event.loaded * 100) / event.total));
+        },
+      }
+    );
+
+    return response.data;
+  };
 
   const handleDelete = async () => {
-    const confirm = window.confirm(
-      `Are you sure you want to delete ${selectionModel.length > 1 ? "these lessons" : "this lesson"}?`
-    );
+    const confirm = window.confirm(`Are you sure you want to delete ${selectionModel.length > 1 ? "these lessons" : "this lesson"}?`);
     if (!confirm) return;
 
     const token = localStorage.getItem("token");
-
     for (const id of selectionModel) {
       try {
         await axios.delete(`http://localhost:3000/api/lessons/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } catch (error) {
-        console.error(`\u274C Failed to delete lesson ${id}:`, error);
+        console.error(`❌ Failed to delete lesson ${id}:`, error);
       }
     }
 
@@ -76,17 +92,25 @@ const LessonsDashboard = () => {
   const handleFormSubmit = async () => {
     try {
       const token = localStorage.getItem("token");
+      let uploadUrl = editForm.fileUrl;
+      let public_id = editForm.public_id;
+
+      if (editForm.file) {
+        const { secure_url, public_id: pid } = await uploadToCloudinary(editForm.file);
+        uploadUrl = secure_url;
+        public_id = pid;
+      }
+
       await axios.patch(
         `http://localhost:3000/api/lessons/${editingLesson._id}`,
-        editForm,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { ...editForm, fileUrl: uploadUrl, public_id },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+
       setEditingLesson(null);
       fetchLessons();
     } catch (error) {
-      console.error("\u274C Update failed:", error);
+      console.error("❌ Update failed:", error);
     }
   };
 
@@ -94,16 +118,14 @@ const LessonsDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(`http://localhost:3000/api/lessons/${id}/tts`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         responseType: "blob",
       });
-  
+
       const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.setAttribute("download", `${id}_tts.mp3`);
+      link.setAttribute("download", `${id}_tts.${response.headers['content-type'].includes('audio') ? 'mp3' : 'txt'}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -112,10 +134,17 @@ const LessonsDashboard = () => {
       alert("Failed to download TTS");
     }
   };
+
   const columns = [
     { field: "title", headerName: "Title", flex: 1 },
     { field: "content", headerName: "Content", flex: 1 },
-    { field: "typeLesson", headerName: "Type", flex: 0.5 },
+    {
+      field: "typeLesson",
+      headerName: "Type",
+      flex: 0.5,
+      valueGetter: (params) =>
+        params.row.typeLesson?.charAt(0).toUpperCase() + params.row.typeLesson?.slice(1),
+    },
     { field: "fileUrl", headerName: "File URL", flex: 1 },
     {
       field: "actions",
@@ -146,7 +175,6 @@ const LessonsDashboard = () => {
   return (
     <Box m="20px">
       <Header title="LESSONS" subtitle="Manage all your lessons and lectures" />
-
       <Stack direction="row" spacing={2} mb={2}>
         <Button
           variant="contained"
@@ -155,7 +183,13 @@ const LessonsDashboard = () => {
         >
           Create New Lesson
         </Button>
-
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => navigate("/dashboard/select-google-lessons")}
+        >
+          Import from Google Classroom
+        </Button>
         {selectionModel.length > 0 && (
           <Button
             variant="outlined"
@@ -176,12 +210,13 @@ const LessonsDashboard = () => {
           checkboxSelection
           onSelectionModelChange={(ids) => setSelectionModel(ids)}
           selectionModel={selectionModel}
-          sx={{
-            backgroundColor: "#fff",
-            borderRadius: 2,
-            boxShadow: 2,
-          }}
+          sx={{ backgroundColor: "#fff", borderRadius: 2, boxShadow: 2 }}
         />
+        {lessons.length === 0 && (
+          <Typography mt={2} color="textSecondary" textAlign="center">
+            No lessons available. Try creating one or importing from Google Classroom.
+          </Typography>
+        )}
       </Box>
 
       <Modal open={!!editingLesson} onClose={() => setEditingLesson(null)}>
@@ -198,7 +233,9 @@ const LessonsDashboard = () => {
             p: 4,
           }}
         >
-          <Typography variant="h5" mb={3}>Edit Lesson</Typography>
+          <Typography variant="h5" mb={3}>
+            Edit Lesson
+          </Typography>
           <Stack spacing={2}>
             {["title", "content", "typeLesson"].map((field) => (
               <TextField
@@ -210,11 +247,26 @@ const LessonsDashboard = () => {
                 fullWidth
               />
             ))}
+            <Button variant="outlined" component="label">
+              Upload File
+              <input
+                type="file"
+                hidden
+                onChange={(e) => setEditForm({ ...editForm, file: e.target.files?.[0] })}
+              />
+            </Button>
+            {editForm.file?.name && (
+              <Typography variant="caption">Selected: {editForm.file.name}</Typography>
+            )}
           </Stack>
           <Divider sx={{ my: 3 }} />
           <Box textAlign="right">
-            <Button onClick={() => setEditingLesson(null)} sx={{ mr: 2 }}>Cancel</Button>
-            <Button variant="contained" onClick={handleFormSubmit}>Save Changes</Button>
+            <Button onClick={() => setEditingLesson(null)} sx={{ mr: 2 }}>
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={handleFormSubmit}>
+              Save Changes
+            </Button>
           </Box>
         </Box>
       </Modal>
