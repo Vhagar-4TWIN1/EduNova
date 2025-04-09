@@ -54,7 +54,7 @@ const Contacts = () => {
 
   // Fonction pour rediriger vers la page de mise à jour
   const handleUpdate = (id) => {
-    navigate(`/update-question/${id}`);
+    navigate(`/dashboard/update-question/${id}`);
   };
 
   // Fonction pour gérer l'upload du fichier CSV

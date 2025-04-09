@@ -78,10 +78,7 @@ function App() {
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route
-                  path="/update-question/:id"
-                  element={<UpdateQuestion />}
-                />
+                
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
                 <Route path="/create-lesson" element={<CreateLesson />} />
@@ -107,6 +104,7 @@ function App() {
                             </PrivateRoute>
                           }
                         />
+                        <Route path="/update-question/:id" element={<UpdateQuestion />} />
                         <Route
                           path="/lessons"
                           element={
@@ -115,6 +113,9 @@ function App() {
                             </PrivateRoute>
                           }
                         />
+
+
+                        
                         <Route
                           path="create-lesson"
                           element={
@@ -148,6 +149,7 @@ function App() {
                             </PrivateRoute>
                           }
                         />
+   
                         <Route
                           path="/invoices"
                           element={

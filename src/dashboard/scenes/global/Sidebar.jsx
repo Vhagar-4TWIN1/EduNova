@@ -161,7 +161,7 @@ const Sidebar = () => {
 />
 
             <Item
-              title="Contacts Information"
+              title="liste des questions"
               to="/dashboard/contacts"
               icon={<ContactsOutlinedIcon />}
               selected={selected}
