@@ -10,6 +10,9 @@ import PrivateRoute from "./PrivateRoute";
 import FaceRecognition from "./components/FaceRecognition";
 import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
+import ModuleDetails from "./components/module/moduleDetails.jsx";
+import ListModulesBack from "./components/module/listModulesBack.jsx";
+import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 
 // Initialize AOS
 AOS.init();
@@ -73,15 +76,19 @@ function App() {
               <Route path="/registration" element={<Contact />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/face" element={<FaceRecognition />} />
+
               {/* Protected Routes with Layout */}
               <Route element={<Layout />}>
                 <Route path="/home" element={<Home />} />
+
                 <Route path="/addModule" element={<AddModule />} />
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/badges" element={<Badge />} />
                 <Route path="/badge/:id" element={<BadgeDetail />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
+
                 <Route
                   path="/update-question/:id"
                   element={<UpdateQuestion />}
@@ -233,6 +240,10 @@ function App() {
                             </PrivateRoute>
                           }
                         />
+                        <Route path="/listModulesBack" element={<ListModulesBack />} />
+                        <Route path="/moduleDetailsBack/:id" element={<ModuleDetailsBack />} />
+
+
                       </Routes>
                     </div>
                   </div>

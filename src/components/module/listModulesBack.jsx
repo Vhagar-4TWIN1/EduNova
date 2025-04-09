@@ -7,7 +7,7 @@ import AddModule from './addModule';
 import './ListModules.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 
-const ListModules = () => {
+const ListModulesBack = () => {
   const [modules, setModules] = useState([]);
   const [filteredModules, setFilteredModules] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,12 +74,12 @@ const ListModules = () => {
   const handleCloseEdit = async () => {
     setIsEditing(false);
     setSelectedModule(null);
+    setCurrentPage(1); // Reset to first page after update
 
     try {
       const response = await axios.get('http://localhost:3000/module/');
       setModules(response.data);
       setFilteredModules(response.data);
-      setCurrentPage(1); // Reset to first page after update
     } catch (error) {
       console.error("Error fetching updated modules:", error);
     }
@@ -87,7 +87,6 @@ const ListModules = () => {
 
   return (
     <>
-    <br/><br/><br/>
       <div className="container">
         <div className="d-flex justify-content-between align-items-center my-3">
           <h2 className="title">Modules List</h2>
@@ -101,9 +100,6 @@ const ListModules = () => {
             value={searchTerm}
             onChange={handleSearch}
           />
-          <button className="btn btn-primary add-module-btn" onClick={() => navigate('/addModule')}>
-            + Add Module
-          </button>
         </div>
 
         {isEditing ? (
@@ -143,31 +139,7 @@ const ListModules = () => {
                                 href="#"
                                 onClick={(e) => {
                                   e.preventDefault();
-                                  handleUpdate(module);
-                                }}
-                              >
-                                Update
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                className="dropdown-item"
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleDelete(module._id);
-                                }}
-                              >
-                                Delete
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                className="dropdown-item"
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  navigate(`/moduleDetails/${module._id}`);
+                                  navigate(`/dashboard/moduleDetailsBack/${module._id}`);
                                 }}
                               >
                                 Details
@@ -228,4 +200,4 @@ const ListModules = () => {
   );
 };
 
-export default ListModules;
+export default ListModulesBack;
