@@ -10,6 +10,9 @@ import PrivateRoute from "./PrivateRoute";
 import FaceRecognition from "./components/FaceRecognition";
 import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
+import ModuleDetails from "./components/module/moduleDetails.jsx";
+import ListModulesBack from "./components/module/listModulesBack.jsx";
+import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 
 // Initialize AOS
 AOS.init();
@@ -23,10 +26,11 @@ const AddModule = lazy(() => import("./components/module/addModule"));
 const ListModules = lazy(() => import("./components/module/listModules"));
 const UserProfile = lazy(() => import("./components/userconnectedupdate"));
 const Lesson = lazy(() => import("./components/Courses"));
-const LessonAdd = lazy(() => import("./components/CoursesAdd"));
+const LessonAdd = lazy(() => import("./components/AddLesson"));
 const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
 const UsersBack = lazy(() => import("./components/usersBack"));
 const Contact = lazy(() => import("./components/Contact"));
+const ListModule = lazy(() => import("./components/module/listModules"));
 const Message = lazy(() => import("./components/messga"));
 const Dashboard = lazy(() => import("./dashboard/scenes/dashboard")); // Corrigé
 const Team = lazy(() => import("./dashboard/scenes/team"));
@@ -34,7 +38,7 @@ const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts")); // Corrigé
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
-); // Corrigé
+);
 const Bar = lazy(() => import("./dashboard/scenes/bar"));
 const Form = lazy(() => import("./dashboard/scenes/form"));
 const Line = lazy(() => import("./dashboard/scenes/line"));
@@ -47,9 +51,11 @@ const Level = lazy(() => import("./dashboard/scenes/Level"));
 const LessonsDashboard = lazy(() =>
   import("./dashboard/scenes/lessons/LessonsDashboard")
 );
-const CreateLesson = lazy(() =>
+const CreateLessonBack = lazy(() =>
   import("./dashboard/scenes/lessons/CreateLesson")
 );
+
+const CreateLesson = lazy(() => import("./components/AddLesson"));
 const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx")
 );
@@ -58,6 +64,7 @@ const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(""); // <-- add this line
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -80,13 +87,17 @@ function App() {
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
                 <Route
                   path="/update-question/:id"
                   element={<UpdateQuestion />}
                 />
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
-                <Route path="/create-lesson" element={<LessonAdd />} />
+                <Route
+                  path="/create-lesson/:id"
+                  element={<CreateLesson />}
+                />
                 <Route
                   path="/lesson-details"
                   element={<LessonDetailsFront />}
@@ -101,7 +112,10 @@ function App() {
                     <Sidebar isSidebar={isSidebar} className="sidebar" />
                     <div className="content">
                       <div className="main-header">
-                        <Topbar setIsSidebar={setIsSidebar} />
+                        <Topbar
+                          setIsSidebar={setIsSidebar}
+                          onSearchChange={setSearchQuery}
+                        />
                       </div>
                       <Routes>
                         {/* PrivateRoute is applied for each dashboard route */}
@@ -125,7 +139,7 @@ function App() {
                           path="create-lesson"
                           element={
                             <PrivateRoute>
-                              <CreateLesson />
+                              <CreateLessonBack />
                             </PrivateRoute>
                           }
                         />
@@ -142,10 +156,11 @@ function App() {
                           path="/team"
                           element={
                             <PrivateRoute>
-                              <Team />
+                              <Team searchQuery={searchQuery} />
                             </PrivateRoute>
                           }
                         />
+
                         <Route
                           path="/contacts"
                           element={
@@ -226,6 +241,14 @@ function App() {
                               <UsersBack />
                             </PrivateRoute>
                           }
+                        />
+                        <Route
+                          path="/listModulesBack"
+                          element={<ListModulesBack />}
+                        />
+                        <Route
+                          path="/moduleDetailsBack/:id"
+                          element={<ModuleDetailsBack />}
                         />
                       </Routes>
                     </div>
