@@ -5,13 +5,13 @@ import Logo from "./Logo";
 import Footerpage from "./Footerpage";
 
 const FaceRecognition = () => {
-  const navigate = useNavigate(); // Get navigate function
-
+  const navigate = useNavigate();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [storedImage, setStoredImage] = useState(null);
   const [imageDescriptor, setImageDescriptor] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Load Face-API models
   useEffect(() => {
@@ -28,6 +28,10 @@ const FaceRecognition = () => {
       }
     };
     loadModels();
+
+    return () => {
+      // Cleanup models if needed
+    };
   }, []);
 
   // Start webcam when models are loaded
@@ -37,13 +41,22 @@ const FaceRecognition = () => {
     const startVideo = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-        videoRef.current.srcObject = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
       } catch (error) {
         console.error("Error accessing webcam:", error);
+        alert("Could not access webcam. Please check permissions.");
       }
     };
 
     startVideo();
+
+    return () => {
+      if (videoRef.current?.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      }
+    };
   }, [isModelLoaded]);
 
   // Load stored image from localStorage and process it
@@ -64,21 +77,25 @@ const FaceRecognition = () => {
 
   // Process stored image and extract face descriptor
   const processStoredImage = async (imageUrl) => {
-    const dataURL = await fetchImageAsDataURL(imageUrl);
-    if (!dataURL) {
-      alert("Failed to load image from localStorage.");
+    if (!isModelLoaded) {
+      console.error("Models not loaded yet");
       return;
     }
 
-    const img = new Image();
-    img.src = dataURL;
-    console.log("Image loaded as Data URL:", img.src);
+    setIsProcessing(true);
+    try {
+      const dataURL = await fetchImageAsDataURL(imageUrl);
+      if (!dataURL) {
+        alert("Failed to load image from storage.");
+        return;
+      }
 
-    img.onload = async () => {
-      const imageDetection = await faceapi.detectSingleFace(
-        img,
-        new faceapi.TinyFaceDetectorOptions()
-      ).withFaceLandmarks().withFaceDescriptor();
+      const img = await faceapi.bufferToImage(await (await fetch(dataURL)).blob());
+      
+      const imageDetection = await faceapi
+        .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceDescriptor();
 
       if (!imageDetection) {
         alert("No face detected in the stored image.");
@@ -86,64 +103,79 @@ const FaceRecognition = () => {
       }
 
       setImageDescriptor(imageDetection.descriptor);
-      console.log("Stored image descriptor:", imageDetection.descriptor);
       console.log("Stored image processed successfully!");
-    };
+    } catch (error) {
+      console.error("Error processing stored image:", error);
+      alert("Error processing stored image. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  // Load image from localStorage and process it
+  // Load image from localStorage after models are loaded
   useEffect(() => {
+    if (!isModelLoaded) return;
+
     const storedImageUrl = localStorage.getItem("image");
-    console.log("Stored image URL:", storedImageUrl);
     if (storedImageUrl) {
       setStoredImage(storedImageUrl);
       processStoredImage(storedImageUrl);
     } else {
       alert("No stored profile image found. Please upload one.");
+      navigate("/profile");
     }
-  }, []);
+  }, [isModelLoaded, navigate]);
+
   // Compare live camera feed with stored image
   const compareFaceWithStoredImage = async () => {
-    if (!videoRef.current || !imageDescriptor) {
-      alert("No profile image found or not processed yet.");
+    if (!isModelLoaded || !imageDescriptor) {
+      alert("System not ready yet. Please wait.");
       return;
     }
 
-    // Detect face from webcam
-    const webcamDetection = await faceapi.detectSingleFace(
-      videoRef.current,
-      new faceapi.TinyFaceDetectorOptions()
-    ).withFaceLandmarks().withFaceDescriptor();
-
-    if (!webcamDetection) {
-      alert("No face detected in the webcam.");
+    if (!videoRef.current) {
+      alert("Webcam not accessible.");
       return;
     }
 
-    const webcamDescriptor = webcamDetection.descriptor;
+    setIsProcessing(true);
+    try {
+      const webcamDetection = await faceapi
+        .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceDescriptor();
 
-    // Compare descriptors using Euclidean distance
-    const distance = faceapi.euclideanDistance(webcamDescriptor, imageDescriptor);
-    console.log("Euclidean Distance:", distance);
-
-    const similarityThreshold = 0.5; // Adjust as needed
-    const role = localStorage.getItem("role");
-    if (distance < similarityThreshold) {
-      alert("✅ Match Found! The face matches the stored profile image.");
-      if (role === 'Admin') {
-        navigate("/dashboard");
-      } else {
-        navigate("/home");
+      if (!webcamDetection) {
+        alert("No face detected in the webcam.");
+        return;
       }
 
-    } else {
-      alert("❌ No Match. The face does not match the stored image.");
-      localStorage.removeItem("token");
-      localStorage.removeItem("firstName");
-      localStorage.removeItem("lastName");
-      localStorage.removeItem("image");
-      navigate("/");
+      const distance = faceapi.euclideanDistance(
+        webcamDetection.descriptor,
+        imageDescriptor
+      );
+      console.log("Euclidean Distance:", distance);
 
+      const similarityThreshold = 0.5;
+      const role = localStorage.getItem("role");
+      
+      if (distance < similarityThreshold) {
+        alert("✅ Match Found! The face matches the stored profile image.");
+        navigate(role === 'Admin' ? "/dashboard" : "/home");
+      } else {
+        alert("❌ No Match. The face does not match the stored image.");
+        // Clear user data
+        localStorage.removeItem("token");
+        localStorage.removeItem("firstName");
+        localStorage.removeItem("lastName");
+        localStorage.removeItem("image");
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error during face comparison:", error);
+      alert("Error during face recognition. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -156,49 +188,70 @@ const FaceRecognition = () => {
       width: "100vw",
       padding: "20px",
       position: "relative",
-      flexDirection: "column", // Stack elements vertically
+      flexDirection: "column",
     }}>
-    <div style={{ position: "absolute", top: "75px", left: "10px", zIndex: 10 }}>
-      <Logo />
-    </div>
-    <Footerpage />
-
-
-   
-    <div className="container text-center mt-5">
-      <h2 className="mb-3">Face Recognition System</h2>
-
-      {/* Display Stored Image */}
-      {storedImage ? (
-        <div>
-          <h5>Stored Profile Image</h5>
-          <img src={storedImage} alt="Stored Profile" width="200" className="mt-2 border rounded" />
-        </div>
-      ) : (
-        <p className="text-danger">No stored profile image found.</p>
-      )}
-
-      {/* Video & Canvas */}
-      <div className="position-relative mt-3">
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          width="640"
-          height="480"
-          className="border border-primary rounded"
-        />
-        <canvas ref={canvasRef} className="position-absolute top-0 start-0" />
+      <div style={{ position: "absolute", top: "75px", left: "10px", zIndex: 10 }}>
+        <Logo />
       </div>
+      <Footerpage />
 
-      {!isModelLoaded && <p className="text-danger mt-3">Loading models...</p>}
+      <div className="container text-center mt-5">
+        <h2 className="mb-3">Face Recognition System</h2>
 
-      {/* Compare Faces Button */}
-      <button className="btn btn-primary mt-3" onClick={compareFaceWithStoredImage}>
-        Compare Face with Stored Image
-      </button>
-    </div>
+        {/* Display Stored Image */}
+        {storedImage ? (
+          <div>
+            <h5>Stored Profile Image</h5>
+            <img 
+              src={storedImage} 
+              alt="Stored Profile" 
+              width="200" 
+              className="mt-2 border rounded" 
+            />
+          </div>
+        ) : (
+          <p className="text-danger">No stored profile image found.</p>
+        )}
+
+        {/* Video & Canvas */}
+        <div className="position-relative mt-3">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            width="640"
+            height="480"
+            className="border border-primary rounded"
+          />
+          <canvas ref={canvasRef} className="position-absolute top-0 start-0" />
+        </div>
+
+        {!isModelLoaded && (
+          <div className="mt-3">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p>Loading face recognition models...</p>
+          </div>
+        )}
+
+        {/* Compare Faces Button */}
+        <button 
+          className="btn btn-primary mt-3" 
+          onClick={compareFaceWithStoredImage}
+          disabled={!isModelLoaded || isProcessing}
+        >
+          {isProcessing ? (
+            <>
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Processing...
+            </>
+          ) : (
+            "Compare Face with Stored Image"
+          )}
+        </button>
+      </div>
     </div>
   );
 };

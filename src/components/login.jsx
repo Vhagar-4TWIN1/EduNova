@@ -256,7 +256,7 @@ const Login = () => {
         draggable: true,
       });
       playNotificationSound();
-    }, 10000); // 1 min in milliseconds
+    }, 100000); // 1 min in milliseconds
   };
 
 
