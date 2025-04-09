@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 import { useNavigate } from "react-router-dom";
+import Logo from "./Logo";
+import Footerpage from "./Footerpage";
 
 const FaceRecognition = () => {
   const navigate = useNavigate(); // Get navigate function
@@ -91,7 +93,7 @@ const FaceRecognition = () => {
 
   // Load image from localStorage and process it
   useEffect(() => {
-    const storedImageUrl = "http://localhost:3000/"+localStorage.getItem("image");
+    const storedImageUrl = localStorage.getItem("image");
     console.log("Stored image URL:", storedImageUrl);
     if (storedImageUrl) {
       setStoredImage(storedImageUrl);
@@ -146,6 +148,23 @@ const FaceRecognition = () => {
   };
 
   return (
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "100vh",
+      width: "100vw",
+      padding: "20px",
+      position: "relative",
+      flexDirection: "column", // Stack elements vertically
+    }}>
+    <div style={{ position: "absolute", top: "75px", left: "10px", zIndex: 10 }}>
+      <Logo />
+    </div>
+    <Footerpage />
+
+
+   
     <div className="container text-center mt-5">
       <h2 className="mb-3">Face Recognition System</h2>
 
@@ -179,6 +198,7 @@ const FaceRecognition = () => {
       <button className="btn btn-primary mt-3" onClick={compareFaceWithStoredImage}>
         Compare Face with Stored Image
       </button>
+    </div>
     </div>
   );
 };
