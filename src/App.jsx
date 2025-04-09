@@ -70,7 +70,6 @@ function App() {
               <Route path="/" element={<Login />} />
               <Route path="/registration" element={<Contact />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/face" element={<FaceRecognition />} />
               {/* Protected Routes with Layout */}
               <Route element={<Layout />}>
                 <Route path="/home" element={<Home />} />
@@ -78,6 +77,8 @@ function App() {
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/face" element={<FaceRecognition />} />
+
                 <Route
                   path="/update-question/:id"
                   element={<UpdateQuestion />}
