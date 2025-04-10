@@ -5,7 +5,8 @@ import { styles } from "../styles";
 import { EarthCanvas } from "./canvas";
 import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
-
+import Logo from "./Logo";
+import Footerpage from "./Footerpage";
 const ForgotPassword = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -102,7 +103,9 @@ const ForgotPassword = () => {
       <motion.div variants={slideIn("right", "tween", 0.2, 1)} style={{ flex: 1, maxWidth: "800px", height: "800px" }}>
         <EarthCanvas />
       </motion.div>
+
     </div>
+    
   );
 };
 

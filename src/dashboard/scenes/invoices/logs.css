@@ -1,80 +1,80 @@
 .app-pagination {
-    margin-top: 20px;
+  margin-top: 20px;
 }
-  
+
 .pagination {
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    padding: 0;
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
 }
-  
+
 .page-item {
-    margin: 0 5px;
+  margin: 0 5px;
 }
-  
+
 .page-link {
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    color: black; /* Texte en noir */
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  color: black; /* Texte en noir */
 }
-  
+
 .page-link:hover {
-    background-color: #f8f9fa;
+  background-color: #f8f9fa;
 }
-  
+
 .page-item.active .page-link {
-    background-color: #117540;
-    color: white;
-    border-color: #117540;
+  background-color: #117540;
+  color: white;
+  border-color: #117540;
 }
-  
+
 .page-item.disabled .page-link {
-    color: #6c757d;
-    pointer-events: none;
-    cursor: not-allowed;
-    background-color: #fff;
-    border-color: #ddd;
+  color: #6c757d;
+  pointer-events: none;
+  cursor: not-allowed;
+  background-color: #fff;
+  border-color: #ddd;
 }
 
 .logs-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    padding: 20px;
-    color: black; /* Texte en noir */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  padding: 20px;
+  color: black; /* Texte en noir */
 }
-  
+
 .logs-wrapper {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    width: 85%;
-    max-width: 1100px;
-    color: black; /* Texte en noir */
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 85%;
+  max-width: 1100px;
+  color: black; /* Texte en noir */
 }
-  
+
 .logs-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-    color: black; /* Texte en noir */
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  color: black; /* Texte en noir */
 }
-  
+
 .logs-table th, .logs-table td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    color: black; /* Texte en noir */
+  padding: 10px;
+  border: 1px solid #ddd;
+  color: black; /* Texte en noir */
 }
-  
+
 .pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
 }

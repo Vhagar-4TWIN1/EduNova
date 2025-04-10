@@ -1,35 +1,52 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import { useState, lazy, Suspense, useEffect } from "react"; // Import lazy, Suspense, et useEffect
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./dashboard/theme";
 import "./App.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
-
-import Login from "./components/login";
-import Home from "./components/home";
-import Dashboard from "./dashboard/scenes/dashboard";
-import ForgotPassword from "./components/forgotPassword";
-import Contact from "./components/Contact";
-import AddModule from "./components/module/addModule";
 import Layout from "./components/layout";
-import UsersBack from "./components/usersBack";
-import ListModules from "./components/module/listModules";
-import UserProfile from "./components/userconnectedupdate";
-
-import Topbar from "./dashboard/scenes/global/Topbar";
-import Sidebar from "./dashboard/scenes/global/Sidebar";
-import Team from "./dashboard/scenes/team";
-import Invoices from "./dashboard/scenes/invoices";
-import Contacts from "./dashboard/scenes/contacts";
-import Bar from "./dashboard/scenes/bar";
-import Form from "./dashboard/scenes/form";
-import Line from "./dashboard/scenes/line";
-import Pie from "./dashboard/scenes/pie";
-import FAQ from "./dashboard/scenes/faq";
-import Geography from "./dashboard/scenes/geography";
-
+import PrivateRoute from "./PrivateRoute";
+import FaceRecognition from "./components/FaceRecognition";
+import { ToastContainer } from "react-toastify";
+import AutoLogout from "./components/AutoLogout";
+import ReactGA from 'react-ga4'; // Utilisation de react-ga4 pour GA4
+import { useLocation } from "react-router-dom";
+import { trackPageView } from './GoogleAnalyticsTracker';
+// Initialisation de AOS pour les animations
 AOS.init();
+// Chargement paresseux (lazy loading) de tous les composants
+// Cela améliore les performances en chargeant les composants seulement quand nécessaire
+const Login = lazy(() => import("./components/login"));
+const Registration = lazy(() => import("./components/registration"));
+const Home = lazy(() => import("./components/home"));
+const ForgotPassword = lazy(() => import("./components/forgotPassword"));
+const AddModule = lazy(() => import("./components/module/addModule"));
+const ListModules = lazy(() => import("./components/module/listModules"));
+const UserProfile = lazy(() => import("./components/userconnectedupdate"));
+const Lesson = lazy(() => import("./components/Courses"));
+const UsersBack = lazy(() => import("./components/usersBack"));
+const Contact = lazy(() => import("./components/Contact"));
+const Message = lazy(() => import("./components/messga"));
+const Dashboard = lazy(() => import("./dashboard/scenes/dashboard"));
+const Team = lazy(() => import("./dashboard/scenes/team"));
+const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
+const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
+const UpdateQuestion = lazy(() => import("./dashboard/scenes/contacts/UpdateQuestion"));
+const Bar = lazy(() => import("./dashboard/scenes/bar"));
+const Form = lazy(() => import("./dashboard/scenes/form"));
+const Line = lazy(() => import("./dashboard/scenes/line"));
+const Pie = lazy(() => import("./dashboard/scenes/pie"));
+const FAQ = lazy(() => import("./dashboard/scenes/faq"));
+const Geography = lazy(() => import("./dashboard/scenes/geography"));
+const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
+const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
+const Level = lazy(() => import("./dashboard/scenes/Level"));
+const Performance = lazy(() => import("./dashboard/scenes/performance/performance.jsx"));
+const LessonsDashboard = lazy(() => import("./dashboard/scenes/lessons/LessonsDashboard"));
+const CreateLesson = lazy(() => import("./dashboard/scenes/lessons/CreateLesson"));
+const LessonDetails = lazy(() => import("./dashboard/scenes/lessons/LessonDetails.jsx"));
+const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -40,52 +57,191 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Login />} />
-            <Route path="/registration" element={<Contact />} />
-            <Route path="/users" element={<UsersBack />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-
-            {/* Protected Routes with Layout */}
-            <Route element={<Layout />}>
-              <Route path="/home" element={<Home />} />
-              <Route path="/addModule" element={<AddModule />} />
-              <Route path="/listModules" element={<ListModules />} />
-              <Route path="/update" element={<UserProfile />} />
-            </Route>
-
-            {/* Dashboard Routes */}
-            <Route
-              path="/dashboard/*"
-              element={
-                <div className="app">
-                  <Sidebar isSidebar={isSidebar} className="sidebar" />
-                  <div className="content">
-                    <div className="main-header">
-                      <Topbar setIsSidebar={setIsSidebar} />
-                    </div>
-                    <Routes>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/team" element={<Team />} />
-                      <Route path="/contacts" element={<Contacts />} />
-                      <Route path="/invoices" element={<Invoices />} />
-                      <Route path="/form" element={<Form />} />
-                      <Route path="/bar" element={<Bar />} />
-                      <Route path="/pie" element={<Pie />} />
-                      <Route path="/line" element={<Line />} />
-                      <Route path="/faq" element={<FAQ />} />
-                      <Route path="/geography" element={<Geography />} />
-                      <Route path="/users" element={<UsersBack />} />
-                    </Routes>
-                  </div>
-                </div>
-              }
-            />
-          </Routes>
+          <AppWithRouter isSidebar={isSidebar} setIsSidebar={setIsSidebar} />
         </Router>
       </ThemeProvider>
+      <ToastContainer />
     </ColorModeContext.Provider>
+  );
+}
+
+function AppWithRouter({ isSidebar, setIsSidebar }) {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView(document.title);
+  }, [location]);
+
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AutoLogout />
+      <Routes>
+        {/* Routes publiques */}
+        <Route path="/" element={<Login />} />
+        <Route path="/registration" element={<Contact />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/face" element={<FaceRecognition />} />
+
+        {/* Routes protégées avec layout */}
+        <Route element={<Layout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/addModule" element={<AddModule />} />
+          <Route path="/listModules" element={<ListModules />} />
+          <Route path="/update" element={<UserProfile />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/update-question/:id" element={<UpdateQuestion />} />
+          <Route path="/message" element={<Message />} />
+          <Route path="/lesson" element={<Lesson />} />
+          <Route path="/create-lesson" element={<CreateLesson />} />
+        </Route>
+
+        {/* Routes du tableau de bord */}
+        <Route
+          path="/dashboard/*"
+          element={
+            <div className="app">
+              <Sidebar isSidebar={isSidebar} className="sidebar" />
+              <div className="content">
+                <div className="main-header">
+                  <Topbar setIsSidebar={setIsSidebar} />
+                </div>
+                <Routes>
+                  <Route
+                    path="/"
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/lessons"
+                    element={
+                      <PrivateRoute>
+                        <LessonsDashboard />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="create-lesson"
+                    element={
+                      <PrivateRoute>
+                        <CreateLesson />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="lesson/:id"
+                    element={
+                      <PrivateRoute>
+                        <LessonDetails />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/team"
+                    element={
+                      <PrivateRoute>
+                        <Team />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/contacts"
+                    element={
+                      <PrivateRoute>
+                        <Contacts />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/invoices"
+                    element={
+                      <PrivateRoute>
+                        <Invoices />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/performance"
+                    element={
+                      <PrivateRoute>
+                        <Performance />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/form"
+                    element={
+                      <PrivateRoute>
+                        <Form />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/Level"
+                    element={
+                      <PrivateRoute>
+                        <Level />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/bar"
+                    element={
+                      <PrivateRoute>
+                        <Bar />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/pie"
+                    element={
+                      <PrivateRoute>
+                        <Pie />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/line"
+                    element={
+                      <PrivateRoute>
+                        <Line />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/faq"
+                    element={
+                      <PrivateRoute>
+                        <FAQ />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/geography"
+                    element={
+                      <PrivateRoute>
+                        <Geography />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/users"
+                    element={
+                      <PrivateRoute>
+                        <UsersBack />
+                      </PrivateRoute>
+                    }
+                  />
+                </Routes>
+              </div>
+            </div>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }
 

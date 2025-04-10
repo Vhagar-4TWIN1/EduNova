@@ -1,694 +1,355 @@
-
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../assets/css/main.css';
+import '../assets/vendor/bootstrap-icons/bootstrap-icons.css';
+import '../assets/vendor/aos/aos.css';
+import '../assets/vendor/glightbox/css/glightbox.min.css';
+import '../assets/vendor/swiper/swiper-bundle.min.css';
 import heroBg from '../assets/img/hero-bg.jpg';
 import aboutImg from '../assets/img/about.jpg';
+import course1 from '../assets/img/course-1.jpg';
+import course2 from '../assets/img/course-2.jpg';
+import course3 from '../assets/img/course-3.jpg';
+import trainer1 from '../assets/img/trainers/trainer-1.jpg';
+import trainer2 from '../assets/img/trainers/trainer-2.jpg';
+import trainer3 from '../assets/img/trainers/trainer-3.jpg';
+import { useNavigate } from 'react-router-dom';
+
+import React, { useEffect } from 'react';
+
+
+function Home() {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      console.log("Token reçu:", token);
+
+      // Decode token
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log("Payload décodé:", payload);
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", payload.userId);
+        localStorage.setItem("email", payload.email);
+        localStorage.setItem("role", payload.role);
+        localStorage.setItem("firstName", payload.firstName);
+        localStorage.setItem("lastName", payload.lastName);
+        localStorage.setItem("image", payload.photo);
+        navigate("/home", { replace: true });
+      } catch (e) {
+        console.error("Erreur de décodage JWT", e);
+      }
+    }
+  }, []);
+
+  const features = [
+    { icon: "bi-eye", color: "#ffbb2c", title: "Lorem Ipsum" },
+    { icon: "bi-infinity", color: "#5578ff", title: "Dolor Sitema" },
+    { icon: "bi-mortarboard", color: "#e80368", title: "Sed perspiciatis" },
+    { icon: "bi-nut", color: "#e361ff", title: "Magni Dolores" },
+    { icon: "bi-shuffle", color: "#47aeff", title: "Nemo Enim" },
+    { icon: "bi-star", color: "#ffa76e", title: "Eiusmod Tempor" },
+    { icon: "bi-x-diamond", color: "#11dbcf", title: "Midela Teren" },
+    { icon: "bi-camera-video", color: "#4233ff", title: "Pira Neve" },
+    { icon: "bi-command", color: "#b2904f", title: "Dirada Pack" },
+    { icon: "bi-dribbble", color: "#b20969", title: "Moton Ideal" },
+    { icon: "bi-activity", color: "#ff5828", title: "Verdo Park" },
+    { icon: "bi-brightness-high", color: "#29cc61", title: "Flavor Nivelanda" }
+  ];
+  
+  const courses = [
+    {
+      img: {course1},
+      category: "Web Development",
+      price: "$169",
+      title: "Website Design",
+      description:
+        "Et architecto provident deleniti facere repellat nobis iste. Id facere quia quae dolores dolorem tempore.",
+      trainer: { img: "assets/img/trainers/trainer-1-2.jpg", name: "Antonio" },
+      students: 50,
+      likes: 65
+    },
+    {
+      img: {course2},
+      category: "Marketing",
+      price: "$250",
+      title: "Search Engine Optimization",
+      description:
+        "Et architecto provident deleniti facere repellat nobis iste. Id facere quia quae dolores dolorem tempore.",
+      trainer: { img: "assets/img/trainers/trainer-2-2.jpg", name: "Lana" },
+      students: 35,
+      likes: 42
+    },
+    {
+      img: {course3},
+      category: "Content",
+      price: "$180",
+      title: "Copywriting",
+      description:
+        "Et architecto provident deleniti facere repellat nobis iste. Id facere quia quae dolores dolorem tempore.",
+      trainer: { img: "assets/img/trainers/trainer-3-2.jpg", name: "Brandon" },
+      students: 20,
+      likes: 85
+    }
+  ];
 
 
 
-import React from 'react';
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
 
-const App = () => {
+    if (token) {
+      console.log("Token reçu:", token);
+
+      // Decode token
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log("Payload décodé:", payload);
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", payload.userId);
+        localStorage.setItem("email", payload.email);
+        localStorage.setItem("role", payload.role);
+        localStorage.setItem("firstName", payload.firstName);
+        localStorage.setItem("lastName", payload.lastName);
+
+        navigate("/home", { replace: true }); // enlève le ?token=... de l'URL
+      } catch (e) {
+        console.error("Erreur de décodage JWT", e);
+      }
+    }
+  }, []);
+
+  const trainers = [
+    {
+      name: "Walter White",
+      role: "Web Development",
+      imgSrc: {trainer1},
+      description:
+        "Magni qui quod omnis unde et eos fuga et exercitationem. Odio veritatis perspiciatis quaerat qui aut aut aut",
+    },
+    {
+      name: "Sarah Jhinson",
+      role: "Marketing",
+      imgSrc: {trainer2},
+      description:
+        "Repellat fugiat adipisci nemo illum nesciunt voluptas repellendus. In architecto rerum rerum temporibus",
+    },
+    {
+      name: "William Anderson",
+      role: "Content",
+      imgSrc: {trainer3},
+      description:
+        "Voluptas necessitatibus occaecati quia. Earum totam consequuntur qui porro et laborum toro des clara",
+    },
+  ];
+
   return (
     <>
-  <meta charSet="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Index - Mentor Bootstrap Template</title>
-  <meta name="description" content="" />
-  <meta name="keywords" content="" />
-  {/* Favicons */}
-  <link href="assets/img/favicon.png" rel="icon" />
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
-  {/* Fonts */}
-  <link href="https://fonts.googleapis.com" rel="preconnect" />
-  <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-    rel="stylesheet"
-  />
-  {/* Vendor CSS Files */}
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-  <link
-    href="assets/vendor/bootstrap-icons/bootstrap-icons.css"
-    rel="stylesheet"
-  />
-  <link href="assets/vendor/aos/aos.css" rel="stylesheet" />
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet" />
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet" />
-  {/* Main CSS File */}
-  <link href="assets/css/main.css" rel="stylesheet" />
- 
-  <main className="main">
-    {/* Hero Section */}
-    <section id="hero" className="hero section dark-background">
-      <img src={heroBg} alt="" data-aos="fade-in" />
+      <section id="hero" className="hero section dark-background">
+        <img src={heroBg} alt="Hero Background" data-aos="fade-in" />
+        <div className="container">
+          <h2 data-aos="fade-up" data-aos-delay="100">Learning Today,<br />Leading Tomorrow</h2>
+          <p data-aos="fade-up" data-aos-delay="200">
+            We are a team of talented designers making websites with Bootstrap
+          </p>
+          <div className="d-flex mt-4" data-aos="fade-up" data-aos-delay="300">
+            <a href="courses.html" className="btn-get-started">Get Started</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" className="about section">
+        <div className="container">
+          <div className="row gy-4">
+            <div className="col-lg-6 order-1 order-lg-2" data-aos="fade-up" data-aos-delay="100">
+              <img src={aboutImg} className="img-fluid" alt="About Us" />
+            </div>
+
+            <div className="col-lg-6 order-2 order-lg-1 content" data-aos="fade-up" data-aos-delay="200">
+              <h3>Voluptatem dignissimos provident quasi corporis</h3>
+              <p className="fst-italic">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              </p>
+              <ul>
+                <li><i className="bi bi-check-circle"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo consequat.</span></li>
+                <li><i className="bi bi-check-circle"></i> <span>Duis aute irure dolor in reprehenderit in voluptate velit.</span></li>
+                <li><i className="bi bi-check-circle"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate trideta storacalaperda mastiro dolore eu fugiat nulla pariatur.</span></li>
+              </ul>
+              <a href="#" className="read-more"><span>Read More</span><i className="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="counts" className="section counts light-background">
+        <div className="container" data-aos="fade-up" data-aos-delay="100">
+          <div className="row gy-4">
+            <div className="col-lg-3 col-md-6">
+              <div className="stats-item text-center w-100 h-100">
+                <span data-purecounter-start="0" data-purecounter-end="1232" data-purecounter-duration="1" className="purecounter"></span>
+                <p>Students</p>
+              </div>
+            </div>
+            <div className="col-lg-3 col-md-6">
+              <div className="stats-item text-center w-100 h-100">
+                <span data-purecounter-start="0" data-purecounter-end="64" data-purecounter-duration="1" className="purecounter"></span>
+                <p>Courses</p>
+              </div>
+            </div>
+            <div className="col-lg-3 col-md-6">
+              <div className="stats-item text-center w-100 h-100">
+                <span data-purecounter-start="0" data-purecounter-end="42" data-purecounter-duration="1" className="purecounter"></span>
+                <p>Events</p>
+              </div>
+            </div>
+            <div className="col-lg-3 col-md-6">
+              <div className="stats-item text-center w-100 h-100">
+                <span data-purecounter-start="0" data-purecounter-end="24" data-purecounter-duration="1" className="purecounter"></span>
+                <p>Trainers</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="why-us" className="section why-us">
       <div className="container">
-        <h2 data-aos="fade-up" data-aos-delay={100}>
-          Learning Today,
-          <br />
-          Leading Tomorrow
-        </h2>
-        <p data-aos="fade-up" data-aos-delay={200}>
-          We are team of talented designers making websites with Bootstrap
-        </p>
-        <div className="d-flex mt-4" data-aos="fade-up" data-aos-delay={300}>
-          <a href="courses.html" className="btn-get-started">
-            Get Started
-          </a>
-        </div>
-      </div>
-    </section>
-    {/* /Hero Section */}
-    {/* About Section */}
-    <section id="about" className=" container about section">
         <div className="row gy-4">
-          <div
-            className="col-lg-6 order-1 order-lg-2"
-            data-aos="fade-up"
-            data-aos-delay={100}
-          >
-            <img src={aboutImg} className="img-fluid" alt="" />
-          </div>
-          <div
-            className="col-lg-6 order-2 order-lg-1 content"
-            data-aos="fade-up"
-            data-aos-delay={200}
-          >
-            <h3>Voluptatem dignissimos provident quasi corporis</h3>
-            <p className="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </p>
-            <ul>
-              <li>
-                <i className="bi bi-check-circle" />{" "}
-                <span>
-                  Ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                </span>
-              </li>
-              <li>
-                <i className="bi bi-check-circle" />{" "}
-                <span>
-                  Duis aute irure dolor in reprehenderit in voluptate velit.
-                </span>
-              </li>
-              <li>
-                <i className="bi bi-check-circle" />{" "}
-                <span>
-                  Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
-                  aute irure dolor in reprehenderit in voluptate trideta
-                  storacalaperda mastiro dolore eu fugiat nulla pariatur.
-                </span>
-              </li>
-            </ul>
-            <a href="#" className="read-more">
-              <span>Read More</span>
-              <i className="bi bi-arrow-right" />
-            </a>
-          </div>
-        </div>
-    </section>
-    {/* /About Section */}
-    {/* Counts Section */}
-    <section id="counts" className="section counts light-background">
-      <div  data-aos="fade-up" data-aos-delay={100}>
-        <div className="row gy-4">
-          <div className="col-lg-3 col-md-6">
-            <div className="stats-item text-center w-100 h-100">
-              <span
-                data-purecounter-start={0}
-                data-purecounter-end={1232}
-                data-purecounter-duration={1}
-                className="purecounter"
-              />
-              <p>Students</p>
-            </div>
-          </div>
-          {/* End Stats Item */}
-          <div className="col-lg-3 col-md-6">
-            <div className="stats-item text-center w-100 h-100">
-              <span
-                data-purecounter-start={0}
-                data-purecounter-end={64}
-                data-purecounter-duration={1}
-                className="purecounter"
-              />
-              <p>Courses</p>
-            </div>
-          </div>
-          {/* End Stats Item */}
-          <div className="col-lg-3 col-md-6">
-            <div className="stats-item text-center w-100 h-100">
-              <span
-                data-purecounter-start={0}
-                data-purecounter-end={42}
-                data-purecounter-duration={1}
-                className="purecounter"
-              />
-              <p>Events</p>
-            </div>
-          </div>
-          {/* End Stats Item */}
-          <div className="col-lg-3 col-md-6">
-            <div className="stats-item text-center w-100 h-100">
-              <span
-                data-purecounter-start={0}
-                data-purecounter-end={24}
-                data-purecounter-duration={1}
-                className="purecounter"
-              />
-              <p>Trainers</p>
-            </div>
-          </div>
-          {/* End Stats Item */}
-        </div>
-      </div>
-    </section>
-    {/* /Counts Section */}
-    {/* Why Us Section */}
-    <section id="why-us" className="section why-us">
-        <div className="row gy-4">
-          <div className="col-lg-4" data-aos="fade-up" data-aos-delay={100}>
+          <div className="col-lg-4" data-aos="fade-up" data-aos-delay="100">
             <div className="why-box">
               <h3>Why Choose Our Products?</h3>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Duis
-                aute irure dolor in reprehenderit Asperiores dolores sed et.
-                Tenetur quia eos. Autem tempore quibusdam vel necessitatibus
-                optio ad corporis.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Duis aute irure dolor in reprehenderit
+                Asperiores dolores sed et. Tenetur quia eos. Autem tempore quibusdam vel necessitatibus optio ad corporis.
               </p>
               <div className="text-center">
                 <a href="#" className="more-btn">
-                  <span>Learn More</span> <i className="bi bi-chevron-right" />
+                  <span>Learn More</span> <i className="bi bi-chevron-right"></i>
                 </a>
               </div>
             </div>
           </div>
-          {/* End Why Box */}
+
           <div className="col-lg-8 d-flex align-items-stretch">
-            <div className="row gy-4" data-aos="fade-up" data-aos-delay={200}>
+            <div className="row gy-4" data-aos="fade-up" data-aos-delay="200">
               <div className="col-xl-4">
                 <div className="icon-box d-flex flex-column justify-content-center align-items-center">
-                  <i className="bi bi-clipboard-data" />
+                  <i className="bi bi-clipboard-data"></i>
                   <h4>Corporis voluptates officia eiusmod</h4>
-                  <p>
-                    Consequuntur sunt aut quasi enim aliquam quae harum pariatur
-                    laboris nisi ut aliquip
-                  </p>
+                  <p>Consequuntur sunt aut quasi enim aliquam quae harum pariatur laboris nisi ut aliquip</p>
                 </div>
               </div>
-              {/* End Icon Box */}
-              <div className="col-xl-4" data-aos="fade-up" data-aos-delay={300}>
+
+              <div className="col-xl-4" data-aos="fade-up" data-aos-delay="300">
                 <div className="icon-box d-flex flex-column justify-content-center align-items-center">
-                  <i className="bi bi-gem" />
+                  <i className="bi bi-gem"></i>
                   <h4>Ullamco laboris ladore pan</h4>
-                  <p>
-                    Excepteur sint occaecat cupidatat non proident, sunt in
-                    culpa qui officia deserunt
-                  </p>
+                  <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt</p>
                 </div>
               </div>
-              {/* End Icon Box */}
-              <div className="col-xl-4" data-aos="fade-up" data-aos-delay={400}>
+
+              <div className="col-xl-4" data-aos="fade-up" data-aos-delay="400">
                 <div className="icon-box d-flex flex-column justify-content-center align-items-center">
-                  <i className="bi bi-inboxes" />
+                  <i className="bi bi-inboxes"></i>
                   <h4>Labore consequatur incidid dolore</h4>
-                  <p>
-                    Aut suscipit aut cum nemo deleniti aut omnis. Doloribus ut
-                    maiores omnis facere
-                  </p>
+                  <p>Aut suscipit aut cum nemo deleniti aut omnis. Doloribus ut maiores omnis facere</p>
                 </div>
               </div>
-              {/* End Icon Box */}
             </div>
           </div>
         </div>
-    </section>
-    {/* /Why Us Section */}
-    {/* Features Section */}
-    <section id="features" className="features section">
-        <div className="row gy-4">
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={100}
-          >
-            <div className="features-item">
-              <i className="bi bi-eye" style={{ color: "#ffbb2c" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Lorem Ipsum
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={200}
-          >
-            <div className="features-item">
-              <i className="bi bi-infinity" style={{ color: "#5578ff" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Dolor Sitema
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={300}
-          >
-            <div className="features-item">
-              <i className="bi bi-mortarboard" style={{ color: "#e80368" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Sed perspiciatis
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={400}
-          >
-            <div className="features-item">
-              <i className="bi bi-nut" style={{ color: "#e361ff" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Magni Dolores
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={500}
-          >
-            <div className="features-item">
-              <i className="bi bi-shuffle" style={{ color: "#47aeff" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Nemo Enim
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={600}
-          >
-            <div className="features-item">
-              <i className="bi bi-star" style={{ color: "#ffa76e" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Eiusmod Tempor
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={700}
-          >
-            <div className="features-item">
-              <i className="bi bi-x-diamond" style={{ color: "#11dbcf" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Midela Teren
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={800}
-          >
-            <div className="features-item">
-              <i className="bi bi-camera-video" style={{ color: "#4233ff" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Pira Neve
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={900}
-          >
-            <div className="features-item">
-              <i className="bi bi-command" style={{ color: "#b2904f" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Dirada Pack
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={1000}
-          >
-            <div className="features-item">
-              <i className="bi bi-dribbble" style={{ color: "#b20969" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Moton Ideal
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={1100}
-          >
-            <div className="features-item">
-              <i className="bi bi-activity" style={{ color: "#ff5828" }} />
-              <h3>
-                <a href="" className="stretched-link">
-                  Verdo Park
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-          <div
-            className="col-lg-3 col-md-4"
-            data-aos="fade-up"
-            data-aos-delay={1200}
-          >
-            <div className="features-item">
-              <i
-                className="bi bi-brightness-high"
-                style={{ color: "#29cc61" }}
-              />
-              <h3>
-                <a href="" className="stretched-link">
-                  Flavor Nivelanda
-                </a>
-              </h3>
-            </div>
-          </div>
-          {/* End Feature Item */}
-        </div>
-    </section>
-    {/* /Features Section */}
-    {/* Courses Section */}
-    <section id="courses" className="courses section">
-      {/* Section Title */}
-      <div className="container section-title" data-aos="fade-up">
-        <h2>Courses</h2>
-        <p>Popular Courses</p>
       </div>
-      {/* End Section Title */}
-        <div className="row">
-          <div
-            className="col-lg-4 col-md-6 d-flex align-items-stretch"
-            data-aos="zoom-in"
-            data-aos-delay={100}
-          >
-            <div className="course-item">
-              <img
-                src="assets/img/course-1.jpg"
-                className="img-fluid"
-                alt="..."
-              />
-              <div className="course-content">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <p className="category">Web Development</p>
-                  <p className="price">$169</p>
-                </div>
-                <h3>
-                  <a href="course-details.html">Website Design</a>
-                </h3>
-                <p className="description">
-                  Et architecto provident deleniti facere repellat nobis iste.
-                  Id facere quia quae dolores dolorem tempore.
-                </p>
-                <div className="trainer d-flex justify-content-between align-items-center">
-                  <div className="trainer-profile d-flex align-items-center">
-                    <img
-                      src="assets/img/trainers/trainer-1-2.jpg"
-                      className="img-fluid"
-                      alt=""
-                    />
-                    <a href="" className="trainer-link">
-                      Antonio
-                    </a>
-                  </div>
-                  <div className="trainer-rank d-flex align-items-center">
-                    <i className="bi bi-person user-icon" />
-                    &nbsp;50 &nbsp;&nbsp;
-                    <i className="bi bi-heart heart-icon" />
-                    &nbsp;65
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>{" "}
-          {/* End Course Item*/}
-          <div
-            className="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-md-0"
-            data-aos="zoom-in"
-            data-aos-delay={200}
-          >
-            <div className="course-item">
-              <img
-                src="assets/img/course-2.jpg"
-                className="img-fluid"
-                alt="..."
-              />
-              <div className="course-content">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <p className="category">Marketing</p>
-                  <p className="price">$250</p>
-                </div>
-                <h3>
-                  <a href="course-details.html">Search Engine Optimization</a>
-                </h3>
-                <p className="description">
-                  Et architecto provident deleniti facere repellat nobis iste.
-                  Id facere quia quae dolores dolorem tempore.
-                </p>
-                <div className="trainer d-flex justify-content-between align-items-center">
-                  <div className="trainer-profile d-flex align-items-center">
-                    <img
-                      src="assets/img/trainers/trainer-2-2.jpg"
-                      className="img-fluid"
-                      alt=""
-                    />
-                    <a href="" className="trainer-link">
-                      Lana
-                    </a>
-                  </div>
-                  <div className="trainer-rank d-flex align-items-center">
-                    <i className="bi bi-person user-icon" />
-                    &nbsp;35 &nbsp;&nbsp;
-                    <i className="bi bi-heart heart-icon" />
-                    &nbsp;42
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>{" "}
-          {/* End Course Item*/}
-          <div
-            className="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-lg-0"
-            data-aos="zoom-in"
-            data-aos-delay={300}
-          >
-            <div className="course-item">
-              <img
-                src="assets/img/course-3.jpg"
-                className="img-fluid"
-                alt="..."
-              />
-              <div className="course-content">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <p className="category">Content</p>
-                  <p className="price">$180</p>
-                </div>
-                <h3>
-                  <a href="course-details.html">Copywriting</a>
-                </h3>
-                <p className="description">
-                  Et architecto provident deleniti facere repellat nobis iste.
-                  Id facere quia quae dolores dolorem tempore.
-                </p>
-                <div className="trainer d-flex justify-content-between align-items-center">
-                  <div className="trainer-profile d-flex align-items-center">
-                    <img
-                      src="assets/img/trainers/trainer-3-2.jpg"
-                      className="img-fluid"
-                      alt=""
-                    />
-                    <a href="" className="trainer-link">
-                      Brandon
-                    </a>
-                  </div>
-                  <div className="trainer-rank d-flex align-items-center">
-                    <i className="bi bi-person user-icon" />
-                    &nbsp;20 &nbsp;&nbsp;
-                    <i className="bi bi-heart heart-icon" />
-                    &nbsp;85
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>{" "}
-          {/* End Course Item*/}
-        </div>
     </section>
-    {/* /Courses Section */}
-    {/* Trainers Index Section */}
-    <section id="trainers-index" className="section trainers-index">
-        <div className="row">
-          <div
-            className="col-lg-4 col-md-6 d-flex"
-            data-aos="fade-up"
-            data-aos-delay={100}
-          >
-            <div className="member">
-              <img
-                src="assets/img/trainers/trainer-1.jpg"
-                className="img-fluid"
-                alt=""
-              />
-              <div className="member-content">
-                <h4>Walter White</h4>
-                <span>Web Development</span>
-                <p>
-                  Magni qui quod omnis unde et eos fuga et exercitationem. Odio
-                  veritatis perspiciatis quaerat qui aut aut aut
-                </p>
-                <div className="social">
-                  <a href="">
-                    <i className="bi bi-twitter-x" />
-                  </a>
-                  <a href="">
-                    <i className="bi bi-facebook" />
-                  </a>
-                  <a href="">
-                    <i className="bi bi-instagram" />
-                  </a>
-                  <a href="">
-                    <i className="bi bi-linkedin" />
-                  </a>
+     {/* Features Section */}
+     <section id="features" className="features section">
+        <div className="container">
+          <div className="row gy-4">
+            {features.map((feature, index) => (
+              <div className="col-lg-3 col-md-4" data-aos="fade-up" data-aos-delay={(index + 1) * 100} key={index}>
+                <div className="features-item">
+                  <i className={`bi ${feature.icon}`} style={{ color: feature.color }}></i>
+                  <h3><a href="#" className="stretched-link">{feature.title}</a></h3>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-          {/* End Team Member */}
-          <div
-            className="col-lg-4 col-md-6 d-flex"
-            data-aos="fade-up"
-            data-aos-delay={200}
-          >
-            <div className="member">
-              <img
-                src="assets/img/trainers/trainer-2.jpg"
-                className="img-fluid"
-                alt=""
-              />
-              <div className="member-content">
-                <h4>Sarah Jhinson</h4>
-                <span>Marketing</span>
-                <p>
-                  Repellat fugiat adipisci nemo illum nesciunt voluptas
-                  repellendus. In architecto rerum rerum temporibus
-                </p>
-                <div className="social">
-                  <a href="">
-                    <i className="bi bi-twitter-x" />
-                  </a>
-                  <a href="">
-                    <i className="bi bi-facebook" />
-                  </a>
-                  <a href="">
-                    <i className="bi bi-instagram" />
-                  </a>
-                  <a href="">
-                    <i className="bi bi-linkedin" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* End Team Member */}
-          <div
-            className="col-lg-4 col-md-6 d-flex"
-            data-aos="fade-up"
-            data-aos-delay={300}
-          >
-            <div className="member">
-              <img
-                src="assets/img/trainers/trainer-3.jpg"
-                className="img-fluid"
-                alt=""
-              />
-              <div className="member-content">
-                <h4>William Anderson</h4>
-                <span>Content</span>
-                <p>
-                  Voluptas necessitatibus occaecati quia. Earum totam
-                  consequuntur qui porro et laborum toro des clara
-                </p>
-                <div className="social">
-                  <a href="">
-                    <i className="bi bi-twitter-x" />
-                  </a>
-                  <a href="">
-                    <i className="bi bi-facebook" />
-                  </a>
-                  <a href="">
-                    <i className="bi bi-instagram" />
-                  </a>
-                  <a href="">
-                    <i className="bi bi-linkedin" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* End Team Member */}
         </div>
-    </section>
-    {/* /Trainers Index Section */}
-  </main>
- 
-  <a href="“https://themewagon.com">{/* Scroll Top */}</a>
-  <a
-    href="#"
-    id="scroll-top"
-    className="scroll-top d-flex align-items-center justify-content-center"
-  >
-    <i className="bi bi-arrow-up-short" />
-  </a>
-  
-</>
+      </section>
 
+      {/* Courses Section */}
+      <section id="courses" className="courses section">
+        <div className="container section-title" data-aos="fade-up">
+          <h2>Courses</h2>
+          <p>Popular Courses</p>
+        </div>
+        <div className="container">
+          <div className="row">
+            {courses.map((course, index) => (
+              <div className="col-lg-4 col-md-6 d-flex align-items-stretch" data-aos="zoom-in" data-aos-delay={(index + 1) * 100} key={index}>
+                <div className="course-item">
+                  <img src={course.img} className="img-fluid" alt="..." />
+                  <div className="course-content">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <p className="category">{course.category}</p>
+                      <p className="price">{course.price}</p>
+                    </div>
+                    <h3><a href="#">{course.title}</a></h3>
+                    <p className="description">{course.description}</p>
+                    <div className="trainer d-flex justify-content-between align-items-center">
+                      <div className="trainer-profile d-flex align-items-center">
+                        <img src={course.trainer.img} className="img-fluid" alt="" />
+                        <a href="#" className="trainer-link">{course.trainer.name}</a>
+                      </div>
+                      <div className="trainer-rank d-flex align-items-center">
+                        <i className="bi bi-person user-icon"></i>&nbsp;{course.students}
+                        &nbsp;&nbsp;
+                        <i className="bi bi-heart heart-icon"></i>&nbsp;{course.likes}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section id="trainers-index" className="section trainers-index">
+      <div className="container">
+        <div className="row">
+          {trainers.map((trainer, index) => (
+            <div
+              key={index}
+              className="col-lg-4 col-md-6 d-flex"
+              data-aos="fade-up"
+              data-aos-delay={100 * (index + 1)}
+            >
+              <div className="member">
+                <img src={trainer.imgSrc} className="img-fluid" alt={trainer.name} />
+                <div className="member-content">
+                  <h4>{trainer.name}</h4>
+                  <span>{trainer.role}</span>
+                  <p>{trainer.description}</p>
+                  <div className="social">
+                    <a href="#"><i className="bi bi-twitter-x"></i></a>
+                    <a href="#"><i className="bi bi-facebook"></i></a>
+                    <a href="#"><i className="bi bi-instagram"></i></a>
+                    <a href="#"><i className="bi bi-linkedin"></i></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    </>
   );
-};
+}
 
-export default App;
+export default Home;
