@@ -13,7 +13,9 @@ import trainer1 from '../assets/img/trainers/trainer-1.jpg';
 import trainer2 from '../assets/img/trainers/trainer-2.jpg';
 import trainer3 from '../assets/img/trainers/trainer-3.jpg';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+
+import React, { useEffect } from 'react';
+
 
 function Home() {
 
@@ -94,6 +96,35 @@ function Home() {
       likes: 85
     }
   ];
+
+
+
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      console.log("Token reçu:", token);
+
+      // Decode token
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log("Payload décodé:", payload);
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", payload.userId);
+        localStorage.setItem("email", payload.email);
+        localStorage.setItem("role", payload.role);
+        localStorage.setItem("firstName", payload.firstName);
+        localStorage.setItem("lastName", payload.lastName);
+
+        navigate("/home", { replace: true }); // enlève le ?token=... de l'URL
+      } catch (e) {
+        console.error("Erreur de décodage JWT", e);
+      }
+    }
+  }, []);
 
   const trainers = [
     {

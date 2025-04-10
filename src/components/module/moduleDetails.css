@@ -1,0 +1,135 @@
+/* Container styling */
+.module-details-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f9; /* Softer background color for better contrast */
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  /* Card styling */
+  .module-card {
+    background: #ffffff;
+    margin-top: 100px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* Softer shadow for a modern look */
+    overflow: hidden;
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .module-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2); /* Enhanced hover effect */
+  }
+  
+  /* Image styling */
+  .module-image {
+      width: 100%;
+      height: auto; /* Maintain aspect ratio */
+      max-height: 400px; /* Limit the maximum height for large images */
+      object-fit: contain; /* Ensure the entire image is visible */
+      border-bottom: 4px solid #007bff; /* Accent color for separation */
+      background-color: #f0f0f0; /* Add a background color for better contrast */
+    }
+  
+  /* Content styling */
+  .module-content {
+    padding: 30px;
+  }
+  
+  .module-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #222222;
+    margin-bottom: 15px;
+    text-transform: capitalize; /* Capitalize the title for better readability */
+  }
+  
+  .module-description {
+    font-size: 1.2rem;
+    color: #555555;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    text-align: justify; /* Align text for a cleaner look */
+  }
+  
+  /* Button styling */
+  .module-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  .module-actions button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .module-actions button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+  
+  .module-actions button:active {
+    transform: scale(0.95);
+  }
+  
+  /* Loading text styling */
+  .loading-text {
+    font-size: 1.5rem;
+    color: #888888;
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .module-card {
+      max-width: 90%; /* Adjust card width for smaller screens */
+    }
+  
+    .module-image {
+      height: 200px; /* Adjust image height for smaller screens */
+    }
+  
+    .module-title {
+      font-size: 2rem;
+    }
+  
+    .module-description {
+      font-size: 1rem;
+    }
+  
+    .module-actions button {
+      font-size: 0.9rem;
+      padding: 8px 16px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .module-title {
+      font-size: 1.8rem;
+    }
+  
+    .module-description {
+      font-size: 0.9rem;
+    }
+  
+    .module-actions button {
+      font-size: 0.85rem;
+      padding: 6px 12px;
+    }
+  }

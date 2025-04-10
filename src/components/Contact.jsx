@@ -17,123 +17,87 @@ const Contact = () => {
     email: "",
     password: "",
     country: "",
-    photo: "", // L'image de profil est obligatoire
+    photo: "",
+    workCertificate: "",
   });
-  
-  const [extractionImage, setExtractionImage] = useState(null);
-  const [extractionImagePreview, setExtractionImagePreview] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
-  const [profileImagePreview, setProfileImagePreview] = useState(null);
+
+  const [role, setRole] = useState("Student"); // Default role is Student
   const [recaptchaValue, setRecaptchaValue] = useState(null); // Store reCAPTCHA value
+  const [formErrors, setFormErrors] = useState({});
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
-  const handleExtractionImageChange = (e) => {
-    const file = e.target.files[0];
-    setExtractionImage(file);
-    setExtractionImagePreview(URL.createObjectURL(file));
+
+  const handleRoleChange = (role) => {
+    setRole(role);
+    setFormData({
+      firstName: "",
+      lastName: "",
+      age: "",
+      email: "",
+      password: "",
+      country: "",
+      photo: "",
+      workCertificate: "",
+    });
   };
 
-  const handleProfileImageChange = (e) => {
-    const file = e.target.files[0];
-    setProfileImage(file);
-    setProfileImagePreview(URL.createObjectURL(file));
-  };
-
-  const handleExtractionImageUpload = async () => {
-    if (!extractionImage) {
-      alert("Veuillez sélectionner une image pour l'extraction");
-      return;
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.firstName) errors.firstName = "First name is required";
+    if (!formData.lastName) errors.lastName = "Last name is required";
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Valid email is required";
     }
-
-    const formDataImage = new FormData();
-    formDataImage.append("image", extractionImage);
-
-    try {
-      const response = await axios.post("http://localhost:3000/api/auth/upload-image", formDataImage, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (response.data.success) {
-        setFormData({
-          firstName: response.data.prenom || "",
-          lastName: response.data.nom || "",
-          email: response.data.email || "",
-          photo: response.data.image || "",
-          age: "",
-          password: "",
-          country: "",
-        });
-      } else {
-        alert("Échec de l'extraction des informations.");
-      }
-    } catch (error) {
-      console.error("Erreur lors de l’upload :", error);
-      alert("Une erreur est survenue");
+    if (!formData.age || formData.age < 18) {
+      errors.age = "Age must be at least 18";
     }
-  };
-
-  const handleProfileImageUpload = async () => {
-    if (!profileImage) {
-      alert("Veuillez sélectionner une image de profil");
-      return;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!formData.password || !passwordRegex.test(formData.password)) {
+      errors.password = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.";
     }
   
-    const formDataImage = new FormData();
-    formDataImage.append("image", profileImage);
-  
-    try {
-      const response = await axios.post("http://localhost:3000/api/auth/upload-profile-image", formDataImage, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-  
-      if (response.data.success) {
-        setFormData({ ...formData, photo: response.data.imagePath }); // Mettre à jour le chemin de l'image de profil
-        alert("Image de profil uploadée avec succès !");
-      } else {
-        alert("Échec de l'upload de l'image de profil.");
-      }
-    } catch (error) {
-      console.error("Erreur lors de l’upload :", error);
-      alert("Une erreur est survenue lors de l'upload de l'image de profil.");
-    }
+
+    if (!formData.country) errors.country = "Country is required";
+    if (!recaptchaValue) errors.recaptcha = "Please verify reCAPTCHA";
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!recaptchaValue) {
-      alert("Please verify the reCAPTCHA.");
-      return;
-    }
-  
-    console.log("Form Data Submitted:", formData);  // Debugging line
-  
+    if (!validateForm()) return;
 
-    // Vérifier si l'image de profil est uploadée
+    console.log("Form Data Submitted:", formData);
+
+    const dataToSend = {
+      ...formData,
+      role,
+      recaptchaToken: recaptchaValue,
+    };
+    
     if (!formData.photo) {
       alert("Veuillez uploader une image de profil.");
       return;
     }
-
-    console.log("Form Data:", formData); // Log form data to inspect it
+    if (role === "Student") {
+      delete dataToSend.workCertificate;  // Exclure le champ workCertificate
+    }
+  
 
     try {
       const response = await axios.post("http://localhost:3000/api/auth/signup", {
         ...formData,
-        recaptchaToken: recaptchaValue,  // Send recaptchaToken
+        role,
+        recaptchaToken: recaptchaValue,
       });
       console.log("Sign-up successful:", response.data);
     } catch (error) {
       console.error("Error during sign-up:", error.response?.data || error.message);
       alert("Signup failed! Please try again later.");
     }
-  };
-  
-
-  const handleFacebookSignup = () => {
-    window.location.href = "http://localhost:3000/api/auth/facebook";
   };
 
   const inputStyle = {
@@ -162,12 +126,12 @@ const Contact = () => {
     >
       <Logo />
       <Footerpage />
-
+      
       <motion.div
         variants={slideIn("left", "tween", 0.7, 1)}
         style={{
           flex: 1,
-          maxWidth: "1200px",
+          maxWidth: "800px",
           backgroundColor: "#f2f2f2",
           padding: "50px",
           borderRadius: "16px",
@@ -175,81 +139,41 @@ const Contact = () => {
         }}
       >
         <h3 className={styles.sectionSubText} style={{ fontSize: "90px" }}>Welcome</h3>
-        <h1 className={styles.sectionHeadText} style={{ fontSize: "30px" }}>Your informations </h1>
 
-        {/* Upload Extraction Image */}
-        <label style={{ display: "block", marginBottom: "16px", fontSize: "20px" }}>
-          <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Upload Extraction Image</span>
-          <input type="file" onChange={handleExtractionImageChange} accept="image/*" style={inputStyle} />
-        </label>
-        <button
-          onClick={handleExtractionImageUpload}
-          style={{
-            padding: "16px 32px",
-            backgroundColor: "#4CAF50",
-            color: "white",
-            border: "none",
-            borderRadius: "12px",
-            cursor: "pointer",
-            fontSize: "18px",
-            transition: "background-color 0.3s ease",
-          }}
-        >
-          Extract your data
-        </button>
-
-        {extractionImagePreview && (
-          <div style={{ marginTop: "16px" }}>
-            <h3 style={{ fontSize: "24px" }}>Aperçu de l’image d'extraction:</h3>
-            <img src={extractionImagePreview} alt="Aperçu" width="300px" />
-          </div>
-        )}
-
-        {/* Upload Profile Image */}
-        <label style={{ display: "block", marginBottom: "16px", fontSize: "20px" }}>
-          <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Upload Profile Image</span>
-          <input type="file" onChange={handleProfileImageChange} accept="image/*" style={inputStyle} />
-        </label>
-        <button
-          onClick={handleProfileImageUpload}
-          style={{
-            padding: "16px 32px",
-            backgroundColor: "#FF5722",
-            color: "white",
-            border: "none",
-            borderRadius: "12px",
-            cursor: "pointer",
-            fontSize: "18px",
-            transition: "background-color 0.3s ease",
-          }}
-        >
-          Upload Profile Image
-        </button>
-
-        {profileImagePreview && (
-          <div style={{ marginTop: "16px" }}>
-            <h3 style={{ fontSize: "24px" }}>Aperçu de l’image de profil:</h3>
-            <img src={profileImagePreview} alt="Aperçu" width="300px" />
-          </div>
-        )}
-
-        {/* Bouton de connexion avec Facebook */}
-        <button
-          onClick={handleFacebookSignup}
-          className="facebook-button"
-          style={{
-            padding: "16px 32px",
-            backgroundColor: "#4267B2",
-            color: "white",
-            border: "none",
-            borderRadius: "12px",
-            cursor: "pointer",
-            fontSize: "18px",
-            marginTop: "16px",
-          }}
-        >
-          Sign up with Facebook
-        </button>
+        {/* Role Selection */}
+        <div style={{ marginBottom: "20px" }}>
+          <button 
+            onClick={() => handleRoleChange("Student")}
+            style={{
+              padding: "16px 32px",
+              backgroundColor: role === "Student" ? "#4CAF50" : "#ccc",
+              color: "white",
+              border: "none",
+              borderRadius: "12px",
+              cursor: "pointer",
+              fontSize: "18px",
+              transition: "background-color 0.3s ease",
+            }}
+          >
+            Student
+          </button>
+          <button 
+            onClick={() => handleRoleChange("Teacher")}
+            style={{
+              padding: "16px 32px",
+              backgroundColor: role === "Teacher" ? "#4CAF50" : "#ccc",
+              color: "white",
+              border: "none",
+              borderRadius: "12px",
+              cursor: "pointer",
+              fontSize: "18px",
+              transition: "background-color 0.3s ease",
+              marginLeft: "10px"
+            }}
+          >
+            Teacher
+          </button>
+        </div>
 
         <form
           onSubmit={handleSubmit}
@@ -262,7 +186,7 @@ const Contact = () => {
         >
           {/* First Name */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>First Name</span>
+            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>First Name*</span>
             <input
               type="text"
               name="firstName"
@@ -271,11 +195,12 @@ const Contact = () => {
               required
               style={inputStyle}
             />
+            {formErrors.firstName && <span style={{ color: 'red' }}>{formErrors.firstName}</span>}
           </label>
 
           {/* Last Name */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Last Name</span>
+            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Last Name*</span>
             <input
               type="text"
               name="lastName"
@@ -284,24 +209,40 @@ const Contact = () => {
               required
               style={inputStyle}
             />
+            {formErrors.lastName && <span style={{ color: 'red' }}>{formErrors.lastName}</span>}
           </label>
 
-          {/* Age */}
+          {/* Role Specific Fields */}
+          {role === "Teacher" && (
+            <>
+              <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
+                <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Work Certificate*</span>
+                <input
+                  type="file"
+                  name="workCertificate"
+                  onChange={handleChange}
+                  style={inputStyle}
+                />
+              </label>
+            </>
+          )}
+
+          {/* Profile Image */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Age</span>
+            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Profile Image</span>
             <input
-              type="number"
-              name="age"
-              value={formData.age}
+              type="file"
+              name="photo"
+              accept=".jpg,.jpeg,.png"
               onChange={handleChange}
-              required
               style={inputStyle}
             />
+            {formErrors.photo && <span style={{ color: 'red' }}>{formErrors.photo}</span>}
           </label>
 
           {/* Email */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Email</span>
+            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Email*</span>
             <input
               type="email"
               name="email"
@@ -310,11 +251,26 @@ const Contact = () => {
               required
               style={inputStyle}
             />
+            {formErrors.email && <span style={{ color: 'red' }}>{formErrors.email}</span>}
+          </label>
+
+          {/* Age */}
+          <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
+            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Age*</span>
+            <input
+              type="number"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+            />
+            {formErrors.age && <span style={{ color: 'red' }}>{formErrors.age}</span>}
           </label>
 
           {/* Password */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Password</span>
+            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Password*</span>
             <input
               type="password"
               name="password"
@@ -323,11 +279,12 @@ const Contact = () => {
               required
               style={inputStyle}
             />
+            {formErrors.password && <span style={{ color: 'red' }}>{formErrors.password}</span>}
           </label>
 
           {/* Country */}
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Country</span>
+            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Country*</span>
             <input
               type="text"
               name="country"
@@ -336,6 +293,7 @@ const Contact = () => {
               required
               style={inputStyle}
             />
+            {formErrors.country && <span style={{ color: 'red' }}>{formErrors.country}</span>}
           </label>
 
           {/* Google reCAPTCHA */}

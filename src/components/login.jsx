@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import backgroundImage from "../assets/backgroundlogin.jpg";
+
 import GoogleSvg from "../assets/icons8-google.svg";
 import FacebookSVG from "../assets/icons8-facebook.svg";
 import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
 import { EarthCanvas } from "./canvas";
-import { Navigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import GithubSVG from "../assets/icons8-github.svg";
@@ -36,7 +35,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [id, setId] = useState();
-
 
   useEffect(() => {
     const tokenFromLocalStorage = localStorage.getItem("token");
@@ -107,7 +105,6 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear any previous error messages when user types
     if (error) setError(null);
   };
 
@@ -116,8 +113,26 @@ const Login = () => {
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/facebook";
+    localStorage.removeItem('token');
+    localStorage.removeItem('firstName');
+    localStorage.removeItem('lastName');
+    window.location.href = 'http://localhost:3000/api/auth/facebook';
   };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const firstName = urlParams.get('firstName');
+    const lastName = urlParams.get('lastName');
+  
+    if (token) {
+      localStorage.setItem('token', token);
+      localStorage.setItem('firstName', firstName);
+      localStorage.setItem('lastName', lastName);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      navigate('/home');
+    }
+  }, [navigate]);
 
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:3000/api/auth/google";
@@ -130,7 +145,6 @@ const Login = () => {
 
     try {
       console.log("Attempting login with:", { ...formData, password: '****' });
-
       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
       if (!passwordRegex.test(formData.password)) {
         setError("Password must be at least 8 characters with uppercase, lowercase, and numbers");
@@ -242,7 +256,7 @@ const Login = () => {
         draggable: true,
       });
       playNotificationSound();
-    }, 10000); // 1 min in milliseconds
+    }, 100000); // 1 min in milliseconds
   };
 
 
@@ -256,145 +270,141 @@ const Login = () => {
         minHeight: "100vh",
         width: "100vw",
         padding: "20px",
-        paddingBottom: '150px',
-        position: "relative", // Ajoutez cette ligne pour positionner le logo et le footer
+        position: "relative",
+        flexDirection: "column", // Stack elements vertically
       }}
     >
-      <Logo /> {/* Ajoutez le composant Logo ici */}
-      <Footerpage /> {/* Ajoutez le composant Footer ici */}
+      <Logo />
+      <Footerpage />
 
-      <motion.div
-        variants={slideIn("left", "tween", 0.7, 1)}
-        style={{
-          flex: 1,
-          maxWidth: "600px",
-          backgroundColor: "#f2f2f2",
-          padding: "50px",
-          borderRadius: "16px",
-          boxShadow: "0 4px 8px rgba(45, 161, 92, 0.1)",
-        }}
-      >
-        <h3 style={{ fontSize: "48px" }}>Connexion</h3>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <form
-          onSubmit={handleLogin}
+      <div style={{ display: "flex", flexDirection: "row", width: "100%", maxWidth: "1300px", flexWrap: "wrap" }}>
+        <motion.div
+          variants={slideIn("left", "tween", 0.7, 1)}
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "32px",
-            marginTop: "32px",
+            flex: 1,
+            maxWidth: "600px",
+            backgroundColor: "#f2f2f2",
+            padding: "50px",
+            borderRadius: "16px",
+            boxShadow: "0 4px 8px rgba(45, 161, 92, 0.1)",
+            width: "100%",
+            boxSizing: "border-box",
           }}
         >
-          <label style={{ fontSize: "20px" }}>
-            <span>Email</span>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              style={inputStyle}
-            />
-          </label>
+          <h3 style={{ fontSize: "48px" }}>Connexion</h3>
+          
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
-          <label style={{ fontSize: "20px" }}>
-            <span>Password</span>
-            <div style={{ position: "relative" }}>
+          <form
+            onSubmit={handleLogin}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "32px",
+              marginTop: "32px",
+            }}
+          >
+            <label style={{ fontSize: "20px" }}>
+              <span>Email</span>
               <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 required
-                style={{ ...inputStyle, flex: 1, paddingRight: "70px" }}
+                style={inputStyle}
               />
-            <button
-  type="button"
-  onClick={() => setShowPassword(!showPassword)}
-  style={{
-    background: "transparent",
-    border: "none",
-    position: "",
-    top: "50%",
-    right: "10px",
-    transform: "translateY(-50%)",
-    cursor: "pointer",
-    padding: "2px", 
-  }}
->
-  {showPassword ? <FaEyeSlash size={16} color="#555" /> : <FaEye size={16} color="#555" />}
-</button>
+            </label>
 
+            <label style={{ fontSize: "20px" }}>
+              <span>Password</span>
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  style={{ ...inputStyle, paddingRight: "40px" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    position: "absolute",
+                    top: "40%",
+                    right: "-160px",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                  }}
+                >
+                  {showPassword ? (
+                    <FaEyeSlash size={16} color="#555" />
+                  ) : (
+                    <FaEye size={16} color="#555" />
+                  )}
+                </button>
+              </div>
+            </label>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <input
+                type="checkbox"
+                id="remember-checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+              />
+              <label htmlFor="remember-checkbox">Remember me</label>
             </div>
-          </label>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <input
-              type="checkbox"
-              id="remember-checkbox"
-              checked={rememberMe}
-              onChange={() => setRememberMe(!rememberMe)}
-            />
-            <label htmlFor="remember-checkbox">Remember me</label>
+            <button
+              type="submit"
+              style={buttonStyle}
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Connexion"}
+            </button>
+          </form>
+          <p style={{ fontSize: "18px", textAlign: "center", marginTop: "32px" }}>
+            Vous n'avez pas de compte? <Link to="/registration" style={{ color: "#ff6b6b" }}>Inscrivez-vous</Link>
+            <br />
+            <Link to="/forgot-password">Forgot Password</Link>
+          </p>
+
+          <div style={{ display: "flex", gap: "16px", marginTop: "32px", flexWrap: "wrap" }}>
+            <button onClick={handleGoogleLogin} style={socialLoginButtonStyle}>
+              <img src={GoogleSvg} alt="Google" style={{ marginRight: "8px" }} />
+            </button>
+            <button onClick={handleLinkedinLogin} style={socialLoginButtonStyle}>
+              <img src={LinkedinSvg} alt="Linkedin" style={{ marginRight: "8px" }} />
+            </button>
+            <button onClick={handleGitHubLogin} style={socialLoginButtonStyle}>
+              <img src={GithubSVG} alt="GitHub" style={{ marginRight: "8px" }} />
+            </button>
+            <button onClick={handleFacebookLogin} style={socialLoginButtonStyle}>
+              <img src={FacebookSVG} alt="Facebook" style={{ marginRight: "8px" }} />
+            </button>
           </div>
 
-          <button
-            type="submit"
-            style={buttonStyle}
-            disabled={loading}
-          >
-            {loading ? "Signing in..." : "Connexion"}
-          </button>
-        </form>
-        <p style={{ fontSize: "18px", textAlign: "center", marginTop: "32px" }}>
-          Vous n'avez pas de compte? <Link to="/registration" style={{ color: "#ff6b6b" }}>Inscrivez-vous</Link>
-          <br></br>
-          <Link to="/forgot-password">Forgot Password</Link>
-        </p>
+          <p>
+            Vous n'avez pas de compte ? <Link to="/registration">Inscrivez-vous</Link>
+          </p>
+        </motion.div>
 
-        <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-
-          <button onClick={handleGoogleLogin} style={socialLoginButtonStyle}>
-            <img src={GoogleSvg} alt="Google" style={{ marginRight: "8px" }} />
-            Connexion with Google
-          </button>
-
-
-          <button onClick={handleLinkedinLogin} style={socialLoginButtonStyle}>
-            <img src={LinkedinSvg} alt="Linkedin" style={{ marginRight: "8px" }} />
-            Connexion with Linkedin
-          </button>
-
-        </div>
-        <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-          <button onClick={handleGitHubLogin} style={socialLoginButtonStyle}>
-            <img src={GithubSVG} alt="GitHub" style={{ marginRight: "8px" }} />
-            Connexion with GitHub
-          </button>
-          <button onClick={handleFacebookLogin} style={socialLoginButtonStyle}>
-            <img src={FacebookSVG} alt="Facebook" style={{ marginRight: "8px" }} />
-            Connexion with Facebook
-          </button>
-
-        </div>
-
-        <p>
-          Vous n'avez pas de compte ? <Link to="/registration">Inscrivez-vous</Link>
-        </p>
-      </motion.div>
-
-      <motion.div
-        variants={slideIn("right", "tween", 0.2, 1)}
-        style={{
-          flex: 1,
-          maxWidth: "800px",
-          height: "800px",
-        }}
-      >
-        <EarthCanvas />
-      </motion.div>
+        <motion.div
+          variants={slideIn("right", "tween", 0.2, 1)}
+          style={{
+            flex: 1,
+            maxWidth: "800px",
+            height: "800px",
+            width: "100%",
+          }}
+        >
+          <EarthCanvas />
+        </motion.div>
+      </div>
     </div>
   );
 };
