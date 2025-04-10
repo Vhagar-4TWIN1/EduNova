@@ -147,13 +147,14 @@ const ListModules = () => {
                       <div
                         key={module._id}
                         className="module-card1"
-                        onClick={() => handleCLick(module._id)}
+                        
                       >
                         {module.image && (
                           <img
                             src={module.image}
                             alt={module.title}
                             className="module-image1"
+                            onClick={() => handleCLick(module._id)}
                           />
                         )}
                         <div className="module-content">

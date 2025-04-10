@@ -42,7 +42,7 @@ const Sidebar = () => {
   // Récupérer les informations de l'utilisateur depuis localStorage
   const firstName = localStorage.getItem("firstName");
   const lastName = localStorage.getItem("lastName");
-
+  const image = localStorage.getItem("image");
   // Utilisation de useNavigate pour naviguer après le logout
   const navigate = useNavigate();
   const imageSrc = localStorage.getItem("image");
@@ -112,7 +112,7 @@ const Sidebar = () => {
                   alt=""
                   width="100px"
                   height="100px"
-                  src={imageSrc}
+                  src={image}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>
