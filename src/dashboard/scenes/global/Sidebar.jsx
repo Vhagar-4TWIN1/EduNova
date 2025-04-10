@@ -45,7 +45,7 @@ const Sidebar = () => {
 
   // Utilisation de useNavigate pour naviguer après le logout
   const navigate = useNavigate();
-
+  const imageSrc = localStorage.getItem("image");
   const handleLogout = () => {
     // Supprimer les informations de l'utilisateur du localStorage
     localStorage.removeItem("token");
@@ -112,7 +112,7 @@ const Sidebar = () => {
                   alt=""
                   width="100px"
                   height="100px"
-                  src={`../../dashboard/assets/user.png`}
+                  src={imageSrc}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>

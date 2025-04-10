@@ -15,10 +15,15 @@ const ListModules = () => {
   const [selectedModule, setSelectedModule] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [userRole, setUserRole] = useState('');
   const itemsPerPage = 3;
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Get user role from localStorage when component mounts
+    const role = localStorage.getItem('role');
+    setUserRole(role || 'student'); // Default to student if no role is set
+
     const fetchModules = async () => {
       try {
         const response = await axios.get('http://localhost:3000/module/');
@@ -37,7 +42,7 @@ const ListModules = () => {
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
 
     const filtered = modules.filter((module) =>
       module.title.toLowerCase().includes(value) ||
@@ -79,7 +84,7 @@ const ListModules = () => {
       const response = await axios.get('http://localhost:3000/module/');
       setModules(response.data);
       setFilteredModules(response.data);
-      setCurrentPage(1); // Reset to first page after update
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error fetching updated modules:", error);
     }
@@ -87,7 +92,7 @@ const ListModules = () => {
 
   return (
     <>
-    <br/><br/><br/>
+      <br/><br/><br/>
       <div className="container">
         <div className="d-flex justify-content-between align-items-center my-3">
           <h2 className="title">Modules List</h2>
@@ -101,9 +106,12 @@ const ListModules = () => {
             value={searchTerm}
             onChange={handleSearch}
           />
-          <button className="btn btn-primary add-module-btn" onClick={() => navigate('/addModule')}>
-            + Add Module
-          </button>
+          {/* Only show Add Module button for teachers */}
+          {userRole === 'teacher' && (
+            <button className="btn btn-primary add-module-btn" onClick={() => navigate('/addModule')}>
+              + Add Module
+            </button>
+          )}
         </div>
 
         {isEditing ? (
@@ -137,30 +145,35 @@ const ListModules = () => {
                           </button>
 
                           <ul className="dropdown-menu">
-                            <li>
-                              <a
-                                className="dropdown-item"
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleUpdate(module);
-                                }}
-                              >
-                                Update
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                className="dropdown-item"
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleDelete(module._id);
-                                }}
-                              >
-                                Delete
-                              </a>
-                            </li>
+                            {/* Only show Update and Delete for teachers */}
+                            {userRole === 'Teacher' && (
+                              <>
+                                <li>
+                                  <a
+                                    className="dropdown-item"
+                                    href="#"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleUpdate(module);
+                                    }}
+                                  >
+                                    Update
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    className="dropdown-item"
+                                    href="#"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleDelete(module._id);
+                                    }}
+                                  >
+                                    Delete
+                                  </a>
+                                </li>
+                              </>
+                            )}
                             <li>
                               <a
                                 className="dropdown-item"
