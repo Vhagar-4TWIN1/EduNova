@@ -1,135 +1,220 @@
 /* Container styling */
 .module-details-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f4f4f9; /* Softer background color for better contrast */
-    padding: 20px;
-    box-sizing: border-box;
-  }
-  
-  /* Card styling */
-  .module-card {
-    background: #ffffff;
-    margin-top: 100px;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* Softer shadow for a modern look */
-    overflow: hidden;
-    max-width: 700px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f4f4f9; /* Softer background color for better contrast */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Card styling */
+.module-card {
+  background: #ffffff;
+  margin-top: 100px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* Softer shadow for a modern look */
+  overflow: hidden;
+  max-width: 700px;
+  width: 100%;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.module-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2); /* Enhanced hover effect */
+}
+
+/* Image styling */
+.module-image {
     width: 100%;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: auto; /* Maintain aspect ratio */
+    max-height: 400px; /* Limit the maximum height for large images */
+    object-fit: contain; /* Ensure the entire image is visible */
+    border-bottom: 4px solid #007bff; /* Accent color for separation */
+    background-color: #f0f0f0; /* Add a background color for better contrast */
   }
-  
-  .module-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2); /* Enhanced hover effect */
+
+/* Content styling */
+.module-content {
+  padding: 30px;
+}
+
+.module-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #222222;
+  margin-bottom: 15px;
+  text-transform: capitalize; /* Capitalize the title for better readability */
+}
+
+.module-description {
+  font-size: 1.2rem;
+  color: #555555;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  text-align: justify; /* Align text for a cleaner look */
+}
+
+/* Button styling */
+.module-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.module-actions button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.module-actions button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.module-actions button:active {
+  transform: scale(0.95);
+}
+
+/* Loading text styling */
+.loading-text {
+  font-size: 1.5rem;
+  color: #888888;
+  text-align: center;
+  margin-top: 50px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .module-card {
+    max-width: 90%; /* Adjust card width for smaller screens */
   }
-  
-  /* Image styling */
+
   .module-image {
-      width: 100%;
-      height: auto; /* Maintain aspect ratio */
-      max-height: 400px; /* Limit the maximum height for large images */
-      object-fit: contain; /* Ensure the entire image is visible */
-      border-bottom: 4px solid #007bff; /* Accent color for separation */
-      background-color: #f0f0f0; /* Add a background color for better contrast */
-    }
-  
-  /* Content styling */
-  .module-content {
-    padding: 30px;
+    height: 200px; /* Adjust image height for smaller screens */
   }
-  
+
   .module-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #222222;
-    margin-bottom: 15px;
-    text-transform: capitalize; /* Capitalize the title for better readability */
+    font-size: 2rem;
   }
-  
+
   .module-description {
-    font-size: 1.2rem;
-    color: #555555;
-    line-height: 1.8;
-    margin-bottom: 20px;
-    text-align: justify; /* Align text for a cleaner look */
-  }
-  
-  /* Button styling */
-  .module-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-  }
-  
-  .module-actions button {
-    padding: 10px 20px;
     font-size: 1rem;
-    font-weight: bold;
-    color: #ffffff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
   }
-  
-  .module-actions button:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
+
+  .module-actions button {
+    font-size: 0.9rem;
+    padding: 8px 16px;
   }
-  
-  .module-actions button:active {
-    transform: scale(0.95);
+}
+
+@media (max-width: 480px) {
+  .module-title {
+    font-size: 1.8rem;
   }
-  
-  /* Loading text styling */
-  .loading-text {
-    font-size: 1.5rem;
-    color: #888888;
-    text-align: center;
-    margin-top: 50px;
+
+  .module-description {
+    font-size: 0.9rem;
   }
-  
-  /* Responsive design */
-  @media (max-width: 768px) {
-    .module-card {
-      max-width: 90%; /* Adjust card width for smaller screens */
-    }
-  
-    .module-image {
-      height: 200px; /* Adjust image height for smaller screens */
-    }
-  
-    .module-title {
-      font-size: 2rem;
-    }
-  
-    .module-description {
-      font-size: 1rem;
-    }
-  
-    .module-actions button {
-      font-size: 0.9rem;
-      padding: 8px 16px;
-    }
+
+  .module-actions button {
+    font-size: 0.85rem;
+    padding: 6px 12px;
   }
-  
-  @media (max-width: 480px) {
-    .module-title {
-      font-size: 1.8rem;
-    }
-  
-    .module-description {
-      font-size: 0.9rem;
-    }
-  
-    .module-actions button {
-      font-size: 0.85rem;
-      padding: 6px 12px;
-    }
-  }
+}
+/* Lesson section inside the module card */
+.module-lessons {
+  margin-top: 30px;
+  text-align: left;
+}
+
+.module-lessons h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 5px;
+}
+
+/* Lesson card items */
+.lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.lesson-item {
+  background-color: #f9f9f9;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border-left: 5px solid #007bff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.lesson-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.lesson-item h3 {
+  font-size: 1.3rem;
+  margin: 0 0 5px;
+  color: #222;
+}
+
+.lesson-item p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.lesson-type {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 8px;
+  font-style: italic;
+}
+.lesson-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.download-icon {
+  font-size: 1.2rem;
+  color: #007bff;
+  text-decoration: none;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.download-icon:hover {
+  transform: scale(1.2);
+  color: #0056b3;
+}
+.lesson-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.download-icon {
+  font-size: 1.2rem;
+  color: #007bff;
+  text-decoration: none;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.download-icon:hover {
+  transform: scale(1.2);
+  color: #0056b3;
+}
