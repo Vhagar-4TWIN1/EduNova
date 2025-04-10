@@ -218,7 +218,7 @@ const Performance = () => {
         >
           Lessons
         </button>
-        <button
+        {/* <button
           onClick={() => setActiveTab("students")}
           style={{
             padding: "0.5rem 1rem",
@@ -230,7 +230,7 @@ const Performance = () => {
           }}
         >
           Students
-        </button>
+        </button> */}
       </div>
 
       {loading && (

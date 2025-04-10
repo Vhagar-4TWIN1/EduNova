@@ -77,7 +77,7 @@ function Header() {
               <a href="">Evaluations</a>
             </li>
             <li>
-              <a href="">Budges</a>
+              <a href="/badges">Budges</a>
             </li>
             <li className="dropdown">
               <button className="btn-getstarted" onClick={toggleDropdown}>

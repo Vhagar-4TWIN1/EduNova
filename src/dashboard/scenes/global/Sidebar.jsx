@@ -169,7 +169,7 @@ const Sidebar = () => {
 
 
             <Item
-              title="Contacts Information"
+              title="Questions"
               to="/dashboard/contacts"
               icon={<ContactsOutlinedIcon />}
               selected={selected}

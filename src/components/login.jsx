@@ -291,7 +291,7 @@ const Login = () => {
             boxSizing: "border-box",
           }}
         >
-          <h3 style={{ fontSize: "48px" }}>Connexion</h3>
+          <h3 style={{ fontSize: "48px" }}>Sign In</h3>
           
           {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -364,11 +364,11 @@ const Login = () => {
               style={buttonStyle}
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Connexion"}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
           <p style={{ fontSize: "18px", textAlign: "center", marginTop: "32px" }}>
-            Vous n'avez pas de compte? <Link to="/registration" style={{ color: "#ff6b6b" }}>Inscrivez-vous</Link>
+            Are you not already one of us? <Link to="/registration" style={{ color: "#ff6b6b" }}>Sign up</Link>
             <br />
             <Link to="/forgot-password">Forgot Password</Link>
           </p>
@@ -388,9 +388,7 @@ const Login = () => {
             </button>
           </div>
 
-          <p>
-            Vous n'avez pas de compte ? <Link to="/registration">Inscrivez-vous</Link>
-          </p>
+         
         </motion.div>
 
         <motion.div

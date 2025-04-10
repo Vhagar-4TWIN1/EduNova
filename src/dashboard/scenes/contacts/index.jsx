@@ -54,43 +54,47 @@ const Contacts = () => {
 
   // Fonction pour rediriger vers la page de mise à jour
   const handleUpdate = (id) => {
-    navigate(`/update-question/${id}`);
+    navigate(`/dashboard/update-question/${id}`);
   };
 
-  // Fonction pour gérer l'upload du fichier CSV
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) {
-      setMessage("Veuillez sélectionner un fichier CSV.");
+      setMessage("Please select a CSV file");
       return;
     }
-
+  
     const formData = new FormData();
-    formData.append("csvFile", file);
-
+    formData.append('file', file); // Assurez-vous que 'csvFile' correspond au nom du champ de votre backend
+  
     try {
-      const response = await fetch("http://localhost:3000/api/questions/upload-csv", {
+      const response = await fetch("http://localhost:3000/api/questions/import", {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
-      if (response.ok) {
-        setMessage(data.message);
-        fetchQuestions(); // Rafraîchir la liste des questions après l'importation
-      } else {
-        setMessage("Erreur lors de l'importation du fichier CSV.");
+  
+      // Vérifiez si la réponse est ok (status 200-299)
+      if (!response.ok) {
+        const errorText = await response.text(); // Lire la réponse sous forme de texte
+        throw new Error(`Error: ${response.status} - ${errorText}`); // Afficher l'erreur
       }
+  
+      const data = await response.json(); // Si la réponse est OK, la traiter comme JSON
+      setMessage(data.message);
+      fetchQuestions(); // Rafraîchir la liste des questions après l'importation
     } catch (error) {
-      setMessage("Erreur lors de l'envoi du fichier CSV.");
+      setMessage(error.message);
+      console.error("Upload error:", error);
     }
   };
+  
 
   // Colonnes pour la DataGrid
   const columns = [
     { field: "questionText", headerName: "Question", flex: 1, minWidth: 300 },
     {
       field: "answers",
-      headerName: "Réponses",
+      headerName: "Answer",
       flex: 2,
       minWidth: 500,
       renderCell: (params) => {
@@ -129,7 +133,7 @@ const Contacts = () => {
     <Box m="20px">
       <Header
         title="QUESTIONS"
-        subtitle="Liste des questions et leurs réponses"
+        subtitle="Question and answers"
       />
       {/* Bouton pour uploader un fichier CSV */}
       <Box mb="20px">
@@ -142,7 +146,7 @@ const Contacts = () => {
         />
         <label htmlFor="csv-upload">
           <Button variant="contained" color="secondary" component="span">
-            Importer un fichier CSV
+            Importe CSV file
           </Button>
         </label>
         {message && (
@@ -201,3 +205,4 @@ const Contacts = () => {
 };
 
 export default Contacts;
+

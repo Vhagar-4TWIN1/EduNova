@@ -115,10 +115,7 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                 <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
-                <Route
-                  path="/update-question/:id"
-                  element={<UpdateQuestion />}
-                />
+              
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
                 <Route path="/create-lesson/:id" element={<CreateLesson />} />
@@ -151,7 +148,9 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                       </PrivateRoute>
                     }
                   />
-                   <Route
+                   
+                        <Route path="/update-question/:id" element={<UpdateQuestion />} />
+                        <Route
                           path="/lessons"
                           element={
                             <PrivateRoute>
@@ -159,6 +158,9 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                             </PrivateRoute>
                           }
                         />
+
+
+                        
                         <Route
                           path="create-lesson"
                           element={
@@ -201,6 +203,7 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                             </PrivateRoute>
                           }
                         />
+   
                         <Route
                           path="/invoices"
                           element={

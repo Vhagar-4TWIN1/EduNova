@@ -6,8 +6,11 @@ import Header from "../../components/header";
 import { useState } from "react";
 import axios from "axios";
 import "./badgeForm.css";
+import { useNavigate } from "react-router-dom";
+
 
 const BadgeForm = () => {
+   const navigate = useNavigate();
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [image, setImage] = useState(null);
 const [preview, setPreview] = useState(null);
@@ -33,13 +36,15 @@ const handleImageChange = (event) => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/api/badges/create", formData, {
+      const response = await axios.post("http://localhost:3000/api/badges", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       console.log("Badge Created:", response.data);
       alert("Badge Created Successfully!");
+      navigate("/dashboard");
+      
     } catch (error) {
       console.error("Error creating badge:", error.response?.data || error);
       alert("Failed to create badge.");

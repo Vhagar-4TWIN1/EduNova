@@ -20,10 +20,10 @@ const Footerpage = () => {
       <div style={{ marginBottom: '10px' }}>
         {/* Liens utiles */}
         <a href="/privacy-policy" style={linkStyle}>
-          Politique de confidentialité
+        Privacy Policy
         </a>
         <a href="/terms-of-service" style={linkStyle}>
-          Conditions d'utilisation
+        Terms of Use
         </a>
         <a href="/contact" style={linkStyle}>
           Contact
@@ -46,7 +46,7 @@ const Footerpage = () => {
 
       {/* Texte de copyright */}
       <p style={{ margin: '0', color: '#666' }}>
-        &copy; 2025 Votre Entreprise. Tous droits réservés.
+        &copy; 2025 Vhagar..
       </p>
     </footer>
   );
