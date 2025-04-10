@@ -18,14 +18,23 @@ import { tokens } from "../../theme";
 import Header from "../../components/header";
 import { useNavigate } from "react-router-dom";
 
-const Team = () => {
+const Team = ({ searchQuery }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [users, setUsers] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
   const [editForm, setEditForm] = useState({});
-  const navigate = useNavigate();
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    firstName: "",
+    lastName: "",
+    age: "",
+    email: "",
+    country: "",
+    role: "Student",
+    password: "",
+  });
 
   const fetchUsers = async () => {
     try {
@@ -71,6 +80,28 @@ const Team = () => {
       console.error("Failed to delete users:", error);
     }
   };
+
+  const handleAddUserChange = (e) => {
+    setNewUser({ ...newUser, [e.target.name]: e.target.value });
+  };
+
+  const handleAddUserSubmit = async () => {
+    try {
+      await axios.post("http://localhost:3000/api/auth/signup", newUser);
+      setAddUserModalOpen(false);
+      fetchUsers(); // refresh list
+    } catch (error) {
+      console.error("Failed to add user:", error);
+    }
+  };
+
+  const filteredUsers = users.filter((user) =>
+    Object.values(user).some(
+      (val) =>
+        typeof val === "string" &&
+        val.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
 
   const handleUpdateClick = (user) => {
     setEditingUser(user);
@@ -147,6 +178,14 @@ const Team = () => {
   return (
     <Box m="20px">
       <Header title="TEAM" subtitle="List of Users" />
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2, mb: 2 }}
+        onClick={() => setAddUserModalOpen(true)}
+      >
+        Add User
+      </Button>
 
       {selectionModel.length > 0 && (
         <Button
@@ -182,7 +221,7 @@ const Team = () => {
         }}
       >
         <DataGrid
-          rows={users}
+          rows={filteredUsers}
           columns={columns}
           getRowId={(row) => row._id}
           checkboxSelection
@@ -229,6 +268,60 @@ const Team = () => {
               color="primary"
             >
               Save
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+      <Modal open={addUserModalOpen} onClose={() => setAddUserModalOpen(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="h6" mb={2}>
+            Add New User
+          </Typography>
+
+          {["firstName", "lastName", "age", "email", "country", "role"].map(
+            (field) => (
+              <TextField
+                key={field}
+                label={field.charAt(0).toUpperCase() + field.slice(1)}
+                fullWidth
+                name={field}
+                value={newUser[field] || ""}
+                onChange={handleAddUserChange}
+                sx={{ mb: 2 }}
+              />
+            )
+          )}
+
+          {/* Password Field */}
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            name="password"
+            value={newUser.password || ""}
+            onChange={handleAddUserChange}
+            sx={{ mb: 2 }}
+          />
+
+          <Box display="flex" justifyContent="flex-end">
+            <Button
+              onClick={handleAddUserSubmit}
+              variant="contained"
+              color="primary"
+            >
+              Add
             </Button>
           </Box>
         </Box>

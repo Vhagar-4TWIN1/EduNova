@@ -42,10 +42,10 @@ const Sidebar = () => {
   // Récupérer les informations de l'utilisateur depuis localStorage
   const firstName = localStorage.getItem("firstName");
   const lastName = localStorage.getItem("lastName");
-
+  const image = localStorage.getItem("image");
   // Utilisation de useNavigate pour naviguer après le logout
   const navigate = useNavigate();
-
+  const imageSrc = localStorage.getItem("image");
   const handleLogout = () => {
     // Supprimer les informations de l'utilisateur du localStorage
     localStorage.removeItem("token");
@@ -112,7 +112,7 @@ const Sidebar = () => {
                   alt=""
                   width="100px"
                   height="100px"
-                  src={`../../dashboard/assets/user.png`}
+                  src={image}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>
@@ -182,6 +182,14 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+            <Item
+              title="Badges"
+              to="/dashboard/badgeForm"
+              icon={<MenuOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            
 
             <Typography
               variant="h6"

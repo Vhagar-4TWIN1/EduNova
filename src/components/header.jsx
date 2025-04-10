@@ -69,9 +69,7 @@ function Header() {
             <li>
               <a href="">About</a>
             </li>
-            <li>
-              <a href="/lesson">Courses</a>
-            </li>
+
             <li>
               <a href="/listModules">Modules</a>
             </li>
