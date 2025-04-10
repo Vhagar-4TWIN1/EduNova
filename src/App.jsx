@@ -48,15 +48,18 @@ const LessonsDashboard = lazy(() =>
   import("./dashboard/scenes/lessons/LessonsDashboard")
 );
 const CreateLesson = lazy(() =>
-  import("./dashboard/scenes/lessons/CreateLesson")
+  import("./dashboard/scenes/lessons/CreateLesson.jsx")
 );
 const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx"));
 
 const SelectGoogleLessons = lazy(() =>
   import("./dashboard/scenes/lessons/SelectGoogleLessons.jsx"));
-  import("./dashboard/scenes/lessons/LessonDetails.jsx")
-);
+  
+
+const ModuleDetails = lazy(() => import("./components/module/moduleDetails") );
+const ListModulesBack = lazy(() => import("./components/module/listModulesBack"));
+const ModuleDetailsBack = lazy(() => import("./components/module/moduleDetailsBack"));
 
 const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 function App() {
