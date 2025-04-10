@@ -45,6 +45,18 @@ const LessonsPage = () => {
       return 0;
     });
 
+  const handleDeleteLesson = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/lessons/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setLessons((prev) => prev.filter((lesson) => lesson._id !== id));
+    } catch (err) {
+      console.error("Failed to delete lesson:", err);
+      alert("Failed to delete lesson. Please try again.");
+    }
+  };
+
   const handleTypeFilterChange = (type) => {
     setTypeFilter((prev) => ({ ...prev, [type]: !prev[type] }));
   };
@@ -222,21 +234,62 @@ const LessonsPage = () => {
                 >
                   {lesson.content.slice(0, 80)}...
                 </p>
-                <a
-                  href={lesson.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <div
                   style={{
-                    display: "inline-block",
                     marginTop: "0.5rem",
-                    color: "#2563eb",
-                    fontWeight: "500",
-                    fontSize: "0.9rem",
-                    textDecoration: "none",
+                    display: "flex",
+                    gap: "0.75rem",
                   }}
                 >
-                  📂 View File
-                </a>
+                  <button
+                    onClick={() =>
+                      navigate("/lesson-details", { state: { lesson } })
+                    }
+                    style={{
+                      backgroundColor: "#4ade80",
+                      color: "white",
+                      padding: "0.4rem 0.8rem",
+                      borderRadius: "0.375rem",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    🔍 View Details
+                  </button>
+                  <a
+                    href={lesson.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      backgroundColor: "#3b82f6",
+                      color: "white",
+                      padding: "0.4rem 0.8rem",
+                      borderRadius: "0.375rem",
+                      textDecoration: "none",
+                      fontSize: "0.9rem",
+                      display: "inline-block",
+                    }}
+                  >
+                    📂 View File
+                  </a>
+                  {role === "Teacher" && (
+                    <button
+                      onClick={() => handleDeleteLesson(lesson._id)}
+                      style={{
+                        backgroundColor: "#ef4444",
+                        color: "white",
+                        padding: "0.4rem 0.8rem",
+                        borderRadius: "0.375rem",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                      }}
+                    >
+                      🗑️ Delete
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}

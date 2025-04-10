@@ -1,27 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Header from '../Header';
-import Footer from '../Footer';
-import AddModule from './addModule';
-import './ListModules.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Header from "../Header";
+import Footer from "../Footer";
+import AddModule from "./addModule";
+import "./ListModules.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
 
 const ListModules = () => {
   const [modules, setModules] = useState([]);
   const [filteredModules, setFilteredModules] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedModule, setSelectedModule] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
   const navigate = useNavigate();
+  const handleCLick = (idModule) => {
+    try {
+      const response = axios.get(`http://localhost:3000/module/${idModule}`);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching module details:", error);
+    }
+    navigate(`/moduleDetails/${idModule}`);
+  };
 
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/module/');
+        const response = await axios.get("http://localhost:3000/module/");
         setModules(response.data);
         setFilteredModules(response.data);
         setLoading(false);
@@ -39,9 +48,10 @@ const ListModules = () => {
     setSearchTerm(value);
     setCurrentPage(1); // Reset to first page when searching
 
-    const filtered = modules.filter((module) =>
-      module.title.toLowerCase().includes(value) ||
-      module.description.toLowerCase().includes(value)
+    const filtered = modules.filter(
+      (module) =>
+        module.title.toLowerCase().includes(value) ||
+        module.description.toLowerCase().includes(value)
     );
     setFilteredModules(filtered);
   };
@@ -57,8 +67,12 @@ const ListModules = () => {
 
     try {
       await axios.delete(`http://localhost:3000/module/${moduleId}`);
-      setModules((prevModules) => prevModules.filter((module) => module._id !== moduleId));
-      setFilteredModules((prevModules) => prevModules.filter((module) => module._id !== moduleId));
+      setModules((prevModules) =>
+        prevModules.filter((module) => module._id !== moduleId)
+      );
+      setFilteredModules((prevModules) =>
+        prevModules.filter((module) => module._id !== moduleId)
+      );
       alert("Module deleted successfully!");
     } catch (error) {
       console.error("Error deleting module:", error);
@@ -76,7 +90,7 @@ const ListModules = () => {
     setSelectedModule(null);
 
     try {
-      const response = await axios.get('http://localhost:3000/module/');
+      const response = await axios.get("http://localhost:3000/module/");
       setModules(response.data);
       setFilteredModules(response.data);
       setCurrentPage(1); // Reset to first page after update
@@ -87,7 +101,9 @@ const ListModules = () => {
 
   return (
     <>
-    <br/><br/><br/>
+      <br />
+      <br />
+      <br />
       <div className="container">
         <div className="d-flex justify-content-between align-items-center my-3">
           <h2 className="title">Modules List</h2>
@@ -101,13 +117,19 @@ const ListModules = () => {
             value={searchTerm}
             onChange={handleSearch}
           />
-          <button className="btn btn-primary add-module-btn" onClick={() => navigate('/addModule')}>
+          <button
+            className="btn btn-primary add-module-btn"
+            onClick={() => navigate("/addModule")}
+          >
             + Add Module
           </button>
         </div>
 
         {isEditing ? (
-          <AddModule existingModule={selectedModule} onClose={handleCloseEdit} />
+          <AddModule
+            existingModule={selectedModule}
+            onClose={handleCloseEdit}
+          />
         ) : (
           <>
             {loading ? (
@@ -119,9 +141,17 @@ const ListModules = () => {
                     <p>No modules found.</p>
                   ) : (
                     currentItems.map((module) => (
-                      <div key={module._id} className="module-card1">
+                      <div
+                        key={module._id}
+                        className="module-card1"
+                        onClick={() => handleCLick(module._id)}
+                      >
                         {module.image && (
-                          <img src={module.image} alt={module.title} className="module-image1" />
+                          <img
+                            src={module.image}
+                            alt={module.title}
+                            className="module-image1"
+                          />
                         )}
                         <div className="module-content">
                           <h3>{module.title}</h3>
@@ -133,8 +163,7 @@ const ListModules = () => {
                             type="button"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
-                          >
-                          </button>
+                          ></button>
 
                           <ul className="dropdown-menu">
                             <li>
@@ -185,7 +214,11 @@ const ListModules = () => {
                   <div className="d-flex justify-content-center mt-4">
                     <nav aria-label="Module pagination">
                       <ul className="pagination">
-                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <li
+                          className={`page-item ${
+                            currentPage === 1 ? "disabled" : ""
+                          }`}
+                        >
                           <button
                             className="page-link"
                             onClick={() => setCurrentPage(currentPage - 1)}
@@ -194,9 +227,17 @@ const ListModules = () => {
                             Previous
                           </button>
                         </li>
-                        
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-                          <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
+
+                        {Array.from(
+                          { length: totalPages },
+                          (_, i) => i + 1
+                        ).map((number) => (
+                          <li
+                            key={number}
+                            className={`page-item ${
+                              currentPage === number ? "active" : ""
+                            }`}
+                          >
                             <button
                               className="page-link"
                               onClick={() => setCurrentPage(number)}
@@ -205,8 +246,12 @@ const ListModules = () => {
                             </button>
                           </li>
                         ))}
-                        
-                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+
+                        <li
+                          className={`page-item ${
+                            currentPage === totalPages ? "disabled" : ""
+                          }`}
+                        >
                           <button
                             className="page-link"
                             onClick={() => setCurrentPage(currentPage + 1)}
