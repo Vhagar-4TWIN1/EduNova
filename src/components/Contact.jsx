@@ -8,8 +8,12 @@ import { slideIn } from "../utils/motion";
 import ReCAPTCHA from "react-google-recaptcha";
 import Logo from "./Logo";
 import Footerpage from "./Footerpage";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Contact = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -17,7 +21,6 @@ const Contact = () => {
     email: "",
     password: "",
     country: "",
-    photo: "",
   });
 
   const [role, setRole] = useState("Student");
@@ -27,9 +30,6 @@ const Contact = () => {
   const [verificationResult, setVerificationResult] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [profileImageFile, setProfileImageFile] = useState(null);
-  const [isUploadingProfile, setIsUploadingProfile] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -44,11 +44,9 @@ const Contact = () => {
       email: "",
       password: "",
       country: "",
-      photo: "",
     });
     setDiplomaFile(null);
     setVerificationResult(null);
-    setProfileImageFile(null);
   };
 
   const validateForm = () => {
@@ -75,9 +73,8 @@ const Contact = () => {
   const handleDiplomaUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Vérification de la taille du fichier (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert("Le fichier est trop volumineux (max 5MB)");
+        alert("File is too large (max 5MB)");
         return;
       }
       setDiplomaFile(file);
@@ -85,66 +82,13 @@ const Contact = () => {
     }
   };
 
-  const handleProfileImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Vérification de la taille du fichier (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        alert("Le fichier est trop volumineux (max 2MB)");
-        return;
-      }
-      setProfileImageFile(file);
-    }
-  };
-
-  const uploadProfileImage = async () => {
-    if (!profileImageFile) return null;
-
-    setIsUploadingProfile(true);
-    setUploadProgress(0);
-
-    try {
-      const formData = new FormData();
-      formData.append('image', profileImageFile);
-
-      const response = await axios.post(
-        'http://localhost:3000/api/auth/upload-profile-image',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(percentCompleted);
-          }
-        }
-      );
-
-      if (response.data.success) {
-        return response.data.imagePath;
-      }
-      return null;
-    } catch (error) {
-      console.error('Profile image upload error:', error);
-      alert("Échec de l'upload de l'image de profil");
-      return null;
-    } finally {
-      setIsUploadingProfile(false);
-      setUploadProgress(0);
-    }
-  };
-
   const verifyDiploma = async () => {
     if (!diplomaFile) {
-      alert('Veuillez télécharger un fichier de diplôme');
+      alert('Please upload a diploma file');
       return;
     }
 
     setIsVerifying(true);
-    setUploadProgress(0);
 
     try {
       const formData = new FormData();
@@ -156,12 +100,6 @@ const Contact = () => {
         {
           headers: {
             'Content-Type': 'multipart/form-data'
-          },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(percentCompleted);
           }
         }
       );
@@ -169,14 +107,14 @@ const Contact = () => {
       if (response.data.success) {
         setVerificationResult({
           success: true,
-          message: 'Diplôme vérifié avec succès!',
+          message: 'Diploma verified successfully!',
           info: response.data.diplomaInfo,
           certificateURL: response.data.certificateURL
         });
       } else {
         setVerificationResult({
           success: false,
-          message: response.data.message || 'Échec de la vérification du diplôme',
+          message: response.data.message || 'Diploma verification failed',
           errors: response.data.errors || {}
         });
       }
@@ -184,13 +122,39 @@ const Contact = () => {
       console.error('Verification error:', error);
       setVerificationResult({
         success: false,
-        message: 'Erreur lors de la vérification du diplôme',
-        errors: { system: 'Erreur réseau' }
+        message: 'Error during diploma verification',
+        errors: { system: 'Network error' }
       });
     } finally {
       setIsVerifying(false);
-      setUploadProgress(0);
     }
+  };
+
+  const parseJwt = (token) => {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const playNotificationSound = () => {
+    const audio = new Audio("/sounds/notification.wav");
+    audio.play();
+  };
+
+  const startBreakTimer = () => {
+    console.log(`Break timer started`);
+    setInterval(() => {
+      toast.warn("⏳ Time for a break! You've been active for an hour.", {
+        position: "top-right",
+        autoClose: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      playNotificationSound();
+    }, 10000); // 1 min in milliseconds
   };
 
   const handleSubmit = async (e) => {
@@ -199,12 +163,12 @@ const Contact = () => {
 
     if (role === "Teacher") {
       if (!diplomaFile) {
-        alert('Veuillez télécharger votre diplôme');
+        alert('Please upload your diploma');
         return;
       }
 
       if (!verificationResult || !verificationResult.success) {
-        alert('Veuillez vérifier votre diplôme avant de soumettre');
+        alert('Please verify your diploma before submitting');
         return;
       }
     }
@@ -212,17 +176,6 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Upload profile image first if selected
-      let photoUrl = formData.photo;
-      if (profileImageFile) {
-        photoUrl = await uploadProfileImage();
-        if (!photoUrl) {
-          alert('Échec du téléchargement de la photo de profil');
-          setIsSubmitting(false);
-          return;
-        }
-      }
-
       const payload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -231,7 +184,6 @@ const Contact = () => {
         password: formData.password,
         country: formData.country,
         role,
-        photo: photoUrl,
       };
 
       if (role === "Teacher") {
@@ -254,8 +206,30 @@ const Contact = () => {
       );
 
       if (response.data.success) {
-        alert('Inscription réussie!');
-        // Reset form
+        const token = response.data.token;
+        localStorage.setItem("token", token);
+        localStorage.setItem("firstName", response.data.user.firstName);
+        localStorage.setItem("lastName", response.data.user.lastName);
+        localStorage.setItem("role", response.data.user.role);
+
+        const decodedToken = parseJwt(token);
+        if (!decodedToken || !decodedToken.userId) {
+          alert("Invalid token.");
+          return;
+        }
+
+        navigate("/home");
+        startBreakTimer();
+
+        toast.success('Registration successful!', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        
         setFormData({
           firstName: "",
           lastName: "",
@@ -263,17 +237,29 @@ const Contact = () => {
           email: "",
           password: "",
           country: "",
-          photo: "",
         });
         setDiplomaFile(null);
         setVerificationResult(null);
-        setProfileImageFile(null);
       } else {
-        alert(response.data.message || 'Échec de l\'inscription');
+        toast.error(response.data.message || 'Registration failed', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
-      alert(error.response?.data?.message || 'Une erreur est survenue lors de l\'inscription');
+      toast.error(error.response?.data?.message || 'An error occurred during registration', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -333,7 +319,7 @@ const Contact = () => {
               transition: "background-color 0.3s ease",
             }}
           >
-            Étudiant
+            Student
           </button>
           <button 
             onClick={() => handleRoleChange("Teacher")}
@@ -349,7 +335,7 @@ const Contact = () => {
               marginLeft: "10px"
             }}
           >
-            Enseignant
+            Teacher
           </button>
         </div>
 
@@ -391,7 +377,7 @@ const Contact = () => {
           {role === "Teacher" && (
             <>
               <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-                <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Diplôme (PDF/Image)*</span>
+                <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Diploma (PDF/Image)*</span>
                 <input
                   type="file"
                   name="diploma"
@@ -400,12 +386,6 @@ const Contact = () => {
                   style={inputStyle}
                   disabled={isVerifying}
                 />
-                {isVerifying && (
-                  <div style={{ marginTop: "8px" }}>
-                    <progress value={uploadProgress} max="100" style={{ width: "100%" }} />
-                    <span>Vérification en cours... {uploadProgress}%</span>
-                  </div>
-                )}
               </label>
               
               <button
@@ -424,7 +404,7 @@ const Contact = () => {
                   opacity: isVerifying || !diplomaFile ? 0.7 : 1
                 }}
               >
-                {isVerifying ? 'Vérification...' : 'Vérifier le diplôme'}
+                {isVerifying ? 'Verifying...' : 'Verify Diploma'}
               </button>
 
               {verificationResult && (
@@ -447,24 +427,6 @@ const Contact = () => {
               )}
             </>
           )}
-
-          <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
-            <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Photo de profil</span>
-            <input
-              type="file"
-              name="photo"
-              accept=".jpg,.jpeg,.png"
-              onChange={handleProfileImageUpload}
-              style={inputStyle}
-              disabled={isUploadingProfile}
-            />
-            {isUploadingProfile && (
-              <div style={{ marginTop: "8px" }}>
-                <progress value={uploadProgress} max="100" style={{ width: "100%" }} />
-                <span>Téléchargement... {uploadProgress}%</span>
-              </div>
-            )}
-          </label>
 
           <label style={{ display: "flex", flexDirection: "column", fontSize: "20px" }}>
             <span style={{ color: "black", marginBottom: "8px", fontSize: "20px" }}>Email*</span>
@@ -526,7 +488,7 @@ const Contact = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting || isUploadingProfile || isVerifying}
+            disabled={isSubmitting || isVerifying}
             style={{
               padding: "16px 32px",
               backgroundColor: "#4CAF50",
@@ -536,10 +498,10 @@ const Contact = () => {
               cursor: "pointer",
               fontSize: "18px",
               transition: "background-color 0.3s ease",
-              opacity: isSubmitting || isUploadingProfile || isVerifying ? 0.7 : 1
+              opacity: isSubmitting || isVerifying ? 0.7 : 1
             }}
           >
-            {isSubmitting ? 'Inscription en cours...' : 'S\'inscrire'}
+            {isSubmitting ? 'Registering...' : 'Register'}
           </button>
         </form>
       </motion.div>
