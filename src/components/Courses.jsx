@@ -15,6 +15,7 @@ const LessonsPage = () => {
 
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
+  const userId = localStorage.getItem("userId"); 
   const navigate = useNavigate();
 
   const fetchLessons = async () => {
@@ -36,7 +37,29 @@ const LessonsPage = () => {
       setError("No token found. Please login.");
     }
   }, [token]);
+  const trackPerformance = async (lessonId, lessonTitle, action) => {
+    try {
+      await axios.post(
+        "http://localhost:3000/api/performance/performance-track",
+        {
+          userId,
+          lessonId,
+          lessonTitle,
+          category: "lesson",
+          action,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+    } catch (err) {
+      console.error("Failed to track performance:", err);
+    }
+  };
 
+  const handleViewFile = (lessonId, lessonTitle) => {
+    trackPerformance(lessonId, lessonTitle, "view_file");
+  };
   const sortedLessons = [...lessons]
     .filter((lesson) => typeFilter[lesson.typeLesson])
     .sort((a, b) => {
@@ -242,9 +265,13 @@ const LessonsPage = () => {
                   }}
                 >
                   <button
-                    onClick={() =>
-                      navigate("/lesson-details", { state: { lesson } })
-                    }
+                 onClick={() => {
+                  handleViewFile(lesson._id, lesson.title);
+                  navigate("/lesson-details", { state: { lesson } });
+                }}
+                
+
+                    
                     style={{
                       backgroundColor: "#4ade80",
                       color: "white",

@@ -189,6 +189,13 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+            <Item
+                          title="Student performance"
+                          to="/dashboard/performance"
+                          icon={<ReceiptOutlinedIcon />}
+                          selected={selected}
+                          setSelected={setSelected}
+                        />
             
 
             <Typography
