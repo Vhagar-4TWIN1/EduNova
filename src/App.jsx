@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useState, lazy, Suspense } from "react"; // Import lazy and Suspense
+import { useState, lazy, Suspense, useEffect } from "react"; // Import lazy, Suspense, et useEffect
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./dashboard/theme";
 import "./App.css";
@@ -10,14 +10,16 @@ import PrivateRoute from "./PrivateRoute";
 import FaceRecognition from "./components/FaceRecognition";
 import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
+import ReactGA from 'react-ga4'; // Utilisation de react-ga4 pour GA4
+import { useLocation } from "react-router-dom";
+import { trackPageView } from './GoogleAnalyticsTracker';
 import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
-
-// Initialize AOS
+// Initialisation de AOS pour les animations
 AOS.init();
-
-// Lazy load all components
+// Chargement paresseux (lazy loading) de tous les composants
+// Cela améliore les performances en chargeant les composants seulement quand nécessaire
 const Login = lazy(() => import("./components/login"));
 const Registration = lazy(() => import("./components/registration"));
 const Home = lazy(() => import("./components/home"));
@@ -26,16 +28,13 @@ const AddModule = lazy(() => import("./components/module/addModule"));
 const ListModules = lazy(() => import("./components/module/listModules"));
 const UserProfile = lazy(() => import("./components/userconnectedupdate"));
 const Lesson = lazy(() => import("./components/Courses"));
-const LessonAdd = lazy(() => import("./components/AddLesson"));
-const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
 const UsersBack = lazy(() => import("./components/usersBack"));
 const Contact = lazy(() => import("./components/Contact"));
-const ListModule = lazy(() => import("./components/module/listModules"));
 const Message = lazy(() => import("./components/messga"));
-const Dashboard = lazy(() => import("./dashboard/scenes/dashboard")); // Corrigé
+const Dashboard = lazy(() => import("./dashboard/scenes/dashboard"));
 const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
-const Contacts = lazy(() => import("./dashboard/scenes/contacts")); // Corrigé
+const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
@@ -49,6 +48,7 @@ const Geography = lazy(() => import("./dashboard/scenes/geography"));
 const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
+const Performance = lazy(() => import("./dashboard/scenes/performance/performance.jsx"));
 const BadgeDetail = lazy(() => import("./components/BadgeDetail"));
 const LessonsDashboard = lazy(() =>
   import("./dashboard/scenes/lessons/LessonsDashboard")
@@ -63,37 +63,58 @@ const LessonDetails = lazy(() =>
 );
 
 const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
+const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(""); // <-- add this line
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <Suspense fallback={<div>Loading...</div>}>
-            <AutoLogout />
+        <AppWithRouter 
+            isSidebar={isSidebar} 
+            setIsSidebar={setIsSidebar}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery} // Passage en prop
+          />
+        </Router>
+      </ThemeProvider>
+      <ToastContainer />
+    </ColorModeContext.Provider>
+  );
+}
 
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Login />} />
-              <Route path="/registration" element={<Contact />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/face" element={<FaceRecognition />} />
+function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery }) {
+  const location = useLocation();
 
-              {/* Protected Routes with Layout */}
-              <Route element={<Layout />}>
-                <Route path="/home" element={<Home />} />
+  useEffect(() => {
+    trackPageView(document.title);
+  }, [location]);
 
-                <Route path="/addModule" element={<AddModule />} />
+  
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AutoLogout />
+      <Routes>
+        {/* Routes publiques */}
+        <Route path="/" element={<Login />} />
+        <Route path="/registration" element={<Contact />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/face" element={<FaceRecognition />} />
+
+        {/* Routes protégées avec layout */}
+        <Route element={<Layout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/addModule" element={<AddModule />} />
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/badges" element={<Badge />} />
                 <Route path="/badge/:id" element={<BadgeDetail />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
                 <Route
                   path="/update-question/:id"
                   element={<UpdateQuestion />}
@@ -105,32 +126,32 @@ function App() {
                   path="/lesson-details"
                   element={<LessonDetailsFront />}
                 />
+                
               </Route>
 
-              {/* Dashboard Routes */}
-              <Route
-                path="/dashboard/*"
-                element={
-                  <div className="app">
-                    <Sidebar isSidebar={isSidebar} className="sidebar" />
-                    <div className="content">
-                      <div className="main-header">
+        {/* Routes du tableau de bord */}
+        <Route
+          path="/dashboard/*"
+          element={
+            <div className="app">
+              <Sidebar isSidebar={isSidebar} className="sidebar" />
+              <div className="content">
+              <div className="main-header">
                         <Topbar
                           setIsSidebar={setIsSidebar}
                           onSearchChange={setSearchQuery}
                         />
                       </div>
-                      <Routes>
-                        {/* PrivateRoute is applied for each dashboard route */}
-                        <Route
-                          path="/"
-                          element={
-                            <PrivateRoute>
-                              <Dashboard />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
+                <Routes>
+                  <Route
+                    path="/"
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    }
+                  />
+                   <Route
                           path="/lessons"
                           element={
                             <PrivateRoute>
@@ -188,90 +209,93 @@ function App() {
                             </PrivateRoute>
                           }
                         />
-
-                        <Route
-                          path="/form"
-                          element={
-                            <PrivateRoute>
-                              <Form />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
-                          path="/Level"
-                          element={
-                            <PrivateRoute>
-                              <Level />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
-                          path="/bar"
-                          element={
-                            <PrivateRoute>
-                              <Bar />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
-                          path="/pie"
-                          element={
-                            <PrivateRoute>
-                              <Pie />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
-                          path="/line"
-                          element={
-                            <PrivateRoute>
-                              <Line />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
-                          path="/faq"
-                          element={
-                            <PrivateRoute>
-                              <FAQ />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
-                          path="/geography"
-                          element={
-                            <PrivateRoute>
-                              <Geography />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
-                          path="/users"
-                          element={
-                            <PrivateRoute>
-                              <UsersBack />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
+                  <Route
+                    path="/performance"
+                    element={
+                      <PrivateRoute>
+                        <Performance />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/form"
+                    element={
+                      <PrivateRoute>
+                        <Form />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/Level"
+                    element={
+                      <PrivateRoute>
+                        <Level />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/bar"
+                    element={
+                      <PrivateRoute>
+                        <Bar />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/pie"
+                    element={
+                      <PrivateRoute>
+                        <Pie />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/line"
+                    element={
+                      <PrivateRoute>
+                        <Line />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/faq"
+                    element={
+                      <PrivateRoute>
+                        <FAQ />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/geography"
+                    element={
+                      <PrivateRoute>
+                        <Geography />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/users"
+                    element={
+                      <PrivateRoute>
+                        <UsersBack />
+                      </PrivateRoute>
+                    }
+                  />
+                   <Route
                           path="/listModulesBack"
                           element={<ListModulesBack />}
-                        />
-                        <Route
-                          path="/moduleDetailsBack/:id"
-                          element={<ModuleDetailsBack />}
-                        />
-                      </Routes>
-                    </div>
-                  </div>
-                }
-              />
-            </Routes>
-          </Suspense>
-        </Router>
-      </ThemeProvider>
-      <ToastContainer />
-    </ColorModeContext.Provider>
+                  />
+                  <Route
+                    path="/moduleDetailsBack/:id"
+                    element={<ModuleDetailsBack />}
+                 />
+                </Routes>
+              </div>
+            </div>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }
 
