@@ -62,7 +62,7 @@ const SelectGoogleLessons = () => {
       });
 
       alert("✅ Selected lessons imported!");
-      navigate("/dashboard/lessons-list");
+      navigate("/dashboard/lessons");
     } catch (err) {
       console.error("❌ Import error:", err);
       alert("Import failed");

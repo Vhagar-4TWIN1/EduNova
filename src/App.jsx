@@ -52,10 +52,12 @@ const CreateLesson = lazy(() =>
 );
 const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx"));
-
+const Badge = lazy(() => import("./components/badges"));
+const BadgeDetail = lazy(() => import("./components/badgeDetail"));
 const SelectGoogleLessons = lazy(() =>
   import("./dashboard/scenes/lessons/SelectGoogleLessons.jsx"));
   
+const Performance = lazy(() => import("./dashboard/scenes/performance/performance.jsx"));
 
 const ModuleDetails = lazy(() => import("./components/module/moduleDetails") );
 const ListModulesBack = lazy(() => import("./components/module/listModulesBack"));
@@ -91,7 +93,8 @@ function App() {
                 <Route path="/face" element={<FaceRecognition />} />
                 <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
 
-              
+                <Route path="/badges" element={<Badge />} />
+                <Route path="/badge/:id" element={<BadgeDetail />} />
                                 <Route path="/lesson" element={<Lesson />} />
                 <Route path="/create-lesson" element={<CreateLesson />} />
 
@@ -106,7 +109,10 @@ function App() {
                     <Sidebar isSidebar={isSidebar} className="sidebar" />
                     <div className="content">
                       <div className="main-header">
-                        <Topbar setIsSidebar={setIsSidebar} />
+                        <Topbar setIsSidebar={setIsSidebar}
+                                                  onSearchChange={setSearchQuery}
+
+/>
                       </div>
                 <Routes>
                   <Route
@@ -123,12 +129,20 @@ function App() {
                           path="/lessons"
                           element={
                             <PrivateRoute>
-                              <LessonsDashboard />
-                            </PrivateRoute>
+      <LessonsDashboard searchQuery={searchQuery} />
+      </PrivateRoute>
                                }
                             />
 <Route path="create-lesson" element={<PrivateRoute><CreateLesson /></PrivateRoute>} />
 <Route path="lesson/:id" element={<PrivateRoute><LessonDetails /></PrivateRoute>} />
+<Route
+                          path="/badgeForm"
+                          element={
+                            <PrivateRoute>
+                              <BadgeForm />
+                            </PrivateRoute>
+                          }
+                        />
 <Route path="select-google-lessons" element={<PrivateRoute><SelectGoogleLessons /></PrivateRoute>} />
 
 
@@ -136,8 +150,8 @@ function App() {
                           path="/team"
                           element={
                             <PrivateRoute>
-                              <Team />
-                            </PrivateRoute>
+                              <Team searchQuery={searchQuery} />
+                              </PrivateRoute>
                           }
                         />
                         <Route
@@ -157,7 +171,14 @@ function App() {
                             </PrivateRoute>
                           }
                         />
-
+  <Route
+                    path="/performance"
+                    element={
+                      <PrivateRoute>
+                        <Performance />
+                      </PrivateRoute>
+                    }
+                  />
                         <Route
                           path="/form"
                           element={
