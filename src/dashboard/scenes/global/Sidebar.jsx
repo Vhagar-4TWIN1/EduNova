@@ -137,6 +137,13 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+             <Item
+              title="Home page"
+              to="/home"
+              icon={<MenuOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
             <Typography
               variant="h6"
@@ -145,6 +152,7 @@ const Sidebar = () => {
             >
               Data
             </Typography>
+           
             <Item
               title="Manage Team"
               to="/dashboard/team"

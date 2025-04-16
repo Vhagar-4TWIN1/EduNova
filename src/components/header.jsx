@@ -66,9 +66,12 @@ function Header() {
                 Home
               </a>
             </li>
-            <li>
-              <a href="">About</a>
-            </li>
+            
+            {localStorage.getItem("role") === "Admin" && (
+          <li>
+            <a href="/dashboard">Dashboard</a>
+          </li>
+            )}
 
             <li>
               <a href="/listModules">Modules</a>

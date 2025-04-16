@@ -204,13 +204,17 @@ const Contact = () => {
           }
         }
       );
+     
 
       if (response.data.success) {
         const token = response.data.token;
         localStorage.setItem("token", token);
+        localStorage.setItem("userId",response.data.user.id);
         localStorage.setItem("firstName", response.data.user.firstName);
         localStorage.setItem("lastName", response.data.user.lastName);
         localStorage.setItem("role", response.data.user.role);
+        const userId = localStorage.getItem("userId");
+        await axios.patch(`http://localhost:3000/api/users/affectbadges/${userId}/67feeecd3cbf72a3d8a29598`);
 
         const decodedToken = parseJwt(token);
         if (!decodedToken || !decodedToken.userId) {
@@ -229,6 +233,7 @@ const Contact = () => {
           pauseOnHover: true,
           draggable: true,
         });
+        
         
         setFormData({
           firstName: "",

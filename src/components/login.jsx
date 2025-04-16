@@ -178,9 +178,11 @@ const Login = () => {
           localStorage.removeItem("rememberedEmail");
           localStorage.removeItem("rememberedPassword");
         }
+        localStorage.setItem("userId",response.data.user.id);
         localStorage.setItem("firstName", response.data.user.firstName);
         localStorage.setItem("lastName", response.data.user.lastName);
         localStorage.setItem('role', response.data.user.role);
+
 
         const parseJwt = (token) => {
           try {
