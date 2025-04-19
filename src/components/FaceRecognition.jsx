@@ -12,6 +12,7 @@ const FaceRecognition = () => {
   const [storedImage, setStoredImage] = useState(null);
   const [imageDescriptor, setImageDescriptor] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentEmotion, setCurrentEmotion] = useState(null);
 
   // Load Face-API models
   useEffect(() => {
@@ -20,7 +21,8 @@ const FaceRecognition = () => {
         await Promise.all([
           faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
           faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
-          faceapi.nets.faceRecognitionNet.loadFromUri("/models")
+          faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+          faceapi.nets.faceExpressionNet.loadFromUri("/models/face_expression"),
         ]);
         setIsModelLoaded(true);
       } catch (error) {
@@ -44,6 +46,26 @@ const FaceRecognition = () => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
+
+        // ➕ Add this emotion detection interval
+        const detectEmotion = async () => {
+          const result = await faceapi
+            .detectSingleFace(
+              videoRef.current,
+              new faceapi.TinyFaceDetectorOptions()
+            )
+            .withFaceExpressions();
+          if (result?.expressions) {
+            const topEmotion = Object.entries(result.expressions).sort(
+              (a, b) => b[1] - a[1]
+            )[0][0];
+            setCurrentEmotion(topEmotion);
+          }
+        };
+        const intervalId = setInterval(detectEmotion, 1000);
+
+        // ➕ Clear on unmount
+        return () => clearInterval(intervalId);
       } catch (error) {
         console.error("Error accessing webcam:", error);
         alert("Could not access webcam. Please check permissions.");
@@ -54,7 +76,7 @@ const FaceRecognition = () => {
 
     return () => {
       if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       }
     };
   }, [isModelLoaded]);
@@ -90,8 +112,10 @@ const FaceRecognition = () => {
         return;
       }
 
-      const img = await faceapi.bufferToImage(await (await fetch(dataURL)).blob());
-      
+      const img = await faceapi.bufferToImage(
+        await (await fetch(dataURL)).blob()
+      );
+
       const imageDetection = await faceapi
         .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
         .withFaceLandmarks()
@@ -141,7 +165,10 @@ const FaceRecognition = () => {
     setIsProcessing(true);
     try {
       const webcamDetection = await faceapi
-        .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+        .detectSingleFace(
+          videoRef.current,
+          new faceapi.TinyFaceDetectorOptions()
+        )
         .withFaceLandmarks()
         .withFaceDescriptor();
 
@@ -158,10 +185,10 @@ const FaceRecognition = () => {
 
       const similarityThreshold = 0.5;
       const role = localStorage.getItem("role");
-      
+
       if (distance < similarityThreshold) {
         alert("✅ Match Found! The face matches the stored profile image.");
-        navigate(role === 'Admin' ? "/dashboard" : "/home");
+        navigate(role === "Admin" ? "/dashboard" : "/home");
       } else {
         alert("❌ No Match. The face does not match the stored image.");
         // Clear user data
@@ -180,17 +207,21 @@ const FaceRecognition = () => {
   };
 
   return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "100vh",
-      width: "100vw",
-      padding: "20px",
-      position: "relative",
-      flexDirection: "column",
-    }}>
-      <div style={{ position: "absolute", top: "75px", left: "10px", zIndex: 10 }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        width: "100vw",
+        padding: "20px",
+        position: "relative",
+        flexDirection: "column",
+      }}
+    >
+      <div
+        style={{ position: "absolute", top: "75px", left: "10px", zIndex: 10 }}
+      >
         <Logo />
       </div>
       <Footerpage />
@@ -202,11 +233,11 @@ const FaceRecognition = () => {
         {storedImage ? (
           <div>
             <h5>Stored Profile Image</h5>
-            <img 
-              src={storedImage} 
-              alt="Stored Profile" 
-              width="200" 
-              className="mt-2 border rounded" 
+            <img
+              src={storedImage}
+              alt="Stored Profile"
+              width="200"
+              className="mt-2 border rounded"
             />
           </div>
         ) : (
@@ -225,6 +256,16 @@ const FaceRecognition = () => {
             className="border border-primary rounded"
           />
           <canvas ref={canvasRef} className="position-absolute top-0 start-0" />
+          {currentEmotion && (
+            <div className="mt-3">
+              <h5>
+                Detected Emotion:{" "}
+                <span className="text-info">
+                  {currentEmotion.toUpperCase()}
+                </span>
+              </h5>
+            </div>
+          )}
         </div>
 
         {!isModelLoaded && (
@@ -237,14 +278,18 @@ const FaceRecognition = () => {
         )}
 
         {/* Compare Faces Button */}
-        <button 
-          className="btn btn-primary mt-3" 
+        <button
+          className="btn btn-primary mt-3"
           onClick={compareFaceWithStoredImage}
           disabled={!isModelLoaded || isProcessing}
         >
           {isProcessing ? (
             <>
-              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
               Processing...
             </>
           ) : (

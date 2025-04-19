@@ -1,10 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+const translations = {
+  fr: "fr-FR",
+  de: "de-DE",
+  es: "es-ES",
+  it: "it-IT",
+  ar: "ar-SA",
+  en: "en-US",
+};
 
 const LessonDetailsFront = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { lesson } = location.state || {};
+  const [translatedContent, setTranslatedContent] = useState(
+    lesson?.content || ""
+  );
+  const [selectedLang, setSelectedLang] = useState("en");
 
   const speakText = (text) => {
     if (!window.speechSynthesis) {
@@ -13,17 +26,28 @@ const LessonDetailsFront = () => {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
+    utterance.lang = translations[selectedLang] || "en-US";
     utterance.rate = 1;
     utterance.pitch = 1;
 
-    window.speechSynthesis.cancel(); // Stop previous speech
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   };
 
   const stopSpeech = () => {
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
+    }
+  };
+
+  const handleTranslation = (lang) => {
+    setSelectedLang(lang);
+    if (lang === "en") {
+      setTranslatedContent(lesson.content);
+    } else {
+      setTranslatedContent(
+        "🔄 Translation is not available offline. Please refer to the original text or use browser extensions."
+      );
     }
   };
 
@@ -76,8 +100,36 @@ const LessonDetailsFront = () => {
           <strong>Type:</strong> {lesson.typeLesson.toUpperCase()}
         </p>
 
+        <div style={{ margin: "1rem 0" }}>
+          <label
+            htmlFor="language"
+            style={{ fontWeight: 600, marginRight: "0.5rem" }}
+          >
+            🌐 Translate to:
+          </label>
+          <select
+            id="language"
+            onChange={(e) => handleTranslation(e.target.value)}
+            value={selectedLang}
+            style={{
+              padding: "0.5rem",
+              borderRadius: "0.375rem",
+              border: "1px solid #d1d5db",
+              fontSize: "1rem",
+              backgroundColor: "#f1f5f9",
+            }}
+          >
+            <option value="en">English</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="es">Spanish</option>
+            <option value="it">Italian</option>
+            <option value="ar">Arabic</option>
+          </select>
+        </div>
+
         <p style={{ marginBottom: "1.5rem", color: "#374151" }}>
-          {lesson.content}
+          {translatedContent}
         </p>
 
         <div style={{ marginBottom: "2rem" }}>
@@ -89,7 +141,7 @@ const LessonDetailsFront = () => {
             style={{ border: "1px solid #ccc", borderRadius: "0.5rem" }}
           />
           <button
-            onClick={() => speakText(lesson.content)}
+            onClick={() => speakText(translatedContent)}
             style={{
               backgroundColor: "#3b82f6",
               color: "white",
