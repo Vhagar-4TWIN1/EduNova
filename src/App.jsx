@@ -14,6 +14,7 @@ import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 import ChangePassword from "./components/changePassword.jsx";
+import ExamPage from "./components/ExamPage.jsx";
 
 // Initialize AOS
 AOS.init();
@@ -83,6 +84,7 @@ function App() {
               <Route path="/registration" element={<Contact />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/face" element={<FaceRecognition />} />
+              <Route path="/exam" element={<ExamPage/>} />
 
               {/* Protected Routes with Layout */}
               <Route element={<Layout />}>
