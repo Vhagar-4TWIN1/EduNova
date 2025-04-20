@@ -13,6 +13,7 @@ import AutoLogout from "./components/AutoLogout";
 import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
+import ChangePassword from "./components/changePassword.jsx";
 
 // Initialize AOS
 AOS.init();
@@ -86,7 +87,7 @@ function App() {
               {/* Protected Routes with Layout */}
               <Route element={<Layout />}>
                 <Route path="/home" element={<Home />} />
-
+                <Route path="/changePassword" element={<ChangePassword />} />
                 <Route path="/addModule" element={<AddModule />} />
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
