@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const translations = {
   fr: "fr-FR",
@@ -13,6 +14,7 @@ const translations = {
 const LessonDetailsFront = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const { lesson } = location.state || {};
   const [translatedContent, setTranslatedContent] = useState(
     lesson?.content || ""
@@ -42,11 +44,13 @@ const LessonDetailsFront = () => {
 
   const handleTranslation = (lang) => {
     setSelectedLang(lang);
+    i18n.changeLanguage(lang);
     if (lang === "en") {
       setTranslatedContent(lesson.content);
     } else {
       setTranslatedContent(
-        "🔄 Translation is not available offline. Please refer to the original text or use browser extensions."
+        t("translationUnavailable") ||
+          "🔄 Translation is not available offline. Please refer to the original text or use browser extensions."
       );
     }
   };
@@ -54,7 +58,7 @@ const LessonDetailsFront = () => {
   if (!lesson) {
     return (
       <div style={{ padding: "6rem 2rem" }}>
-        <h2 style={{ color: "#ef4444" }}>No lesson data found.</h2>
+        <h2 style={{ color: "#ef4444" }}>{t("noLesson")}</h2>
         <button
           onClick={() => navigate("/lesson")}
           style={{
@@ -67,7 +71,7 @@ const LessonDetailsFront = () => {
             cursor: "pointer",
           }}
         >
-          ⬅ Back to Lessons
+          {t("buttons.back")}
         </button>
       </div>
     );
@@ -97,7 +101,7 @@ const LessonDetailsFront = () => {
         </h1>
 
         <p style={{ margin: "1rem 0", color: "#4b5563", fontSize: "1rem" }}>
-          <strong>Type:</strong> {lesson.typeLesson.toUpperCase()}
+          <strong>{t("type")}:</strong> {lesson.typeLesson.toUpperCase()}
         </p>
 
         <div style={{ margin: "1rem 0" }}>
@@ -105,7 +109,7 @@ const LessonDetailsFront = () => {
             htmlFor="language"
             style={{ fontWeight: 600, marginRight: "0.5rem" }}
           >
-            🌐 Translate to:
+            🌐 {t("translateTo")}:
           </label>
           <select
             id="language"
@@ -153,7 +157,7 @@ const LessonDetailsFront = () => {
               marginRight: "1rem",
             }}
           >
-            🔊 Read Aloud
+            {t("buttons.readAloud")}
           </button>
           <button
             onClick={stopSpeech}
@@ -167,7 +171,7 @@ const LessonDetailsFront = () => {
               cursor: "pointer",
             }}
           >
-            🔇 Stop Reading
+            {t("buttons.stop")}
           </button>
         </div>
 
@@ -183,7 +187,7 @@ const LessonDetailsFront = () => {
             cursor: "pointer",
           }}
         >
-          ⬅ Back to Lessons
+          {t("buttons.back")}
         </button>
       </div>
     </div>
