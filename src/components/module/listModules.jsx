@@ -6,7 +6,7 @@ import Footer from "../Footer";
 import AddModule from "./addModule";
 import "./ListModules.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-
+import { jwtDecode } from "jwt-decode";
 const ListModules = () => {
   const [modules, setModules] = useState([]);
   const [filteredModules, setFilteredModules] = useState([]);
@@ -18,9 +18,16 @@ const ListModules = () => {
   const [userRole, setUserRole] = useState('');
   const itemsPerPage = 3;
   const navigate = useNavigate();
+  
   const handleCLick = (idModule) => {
     try {
-      const response = axios.get(`http://localhost:3000/module/${idModule}`);
+      const response = axios.get(`http://localhost:3000/module/${idModule}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
       console.log(response.data);
     } catch (error) {
       console.error("Error fetching module details:", error);
@@ -31,14 +38,39 @@ const ListModules = () => {
   useEffect(() => {
     // Get user role from localStorage when component mounts
     const role = localStorage.getItem('role');
-    setUserRole(role || 'student'); // Default to student if no role is set
+    setUserRole(role || 'student');
+    const token = localStorage.getItem('token');
+    const decoded = jwtDecode(token);
+    const userId = decoded.userId; // Default to student if no role is set
 
     const fetchModules = async () => {
+      console.log('role: ', role);
+      
       try {
-        const response = await axios.get("http://localhost:3000/module/");
+        if ( role == 'Student'){
+           const response = await axios.get("http://localhost:3000/module/",{
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
         setModules(response.data);
         setFilteredModules(response.data);
         setLoading(false);
+        }else{
+             const response = await axios.get(`http://localhost:3000/module/modules/`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          }
+        )
+        setModules(response.data);
+        setFilteredModules(response.data);
+        setLoading(false); 
+        }
+    
+
+       
       } catch (error) {
         console.error("Error fetching modules:", error);
         setLoading(false);
@@ -71,7 +103,13 @@ const ListModules = () => {
     if (!window.confirm("Are you sure you want to delete this module?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/module/${moduleId}`);
+      await axios.delete(`http://localhost:3000/module/${moduleId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
       setModules((prevModules) =>
         prevModules.filter((module) => module._id !== moduleId)
       );
@@ -95,7 +133,13 @@ const ListModules = () => {
     setSelectedModule(null);
 
     try {
-      const response = await axios.get("http://localhost:3000/module/");
+      const response = await axios.get("http://localhost:3000/module/",
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
       setModules(response.data);
       setFilteredModules(response.data);
       setCurrentPage(1);

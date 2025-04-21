@@ -15,6 +15,7 @@ import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 import ChangePassword from "./components/changePassword.jsx";
 import ExamPage from "./components/ExamPage.jsx";
+import ChangePasswordBack from "./components/changePasswordBack.jsx";
 
 // Initialize AOS
 AOS.init();
@@ -154,6 +155,14 @@ function App() {
                           element={
                             <PrivateRoute>
                               <LessonDetails />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="changePassword"
+                          element={
+                            <PrivateRoute>
+                              <ChangePasswordBack />
                             </PrivateRoute>
                           }
                         />

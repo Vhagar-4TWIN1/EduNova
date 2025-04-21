@@ -201,14 +201,16 @@ const FaceRecognition = () => {
         {/* Display Stored Image */}
         {storedImage ? (
           <div>
-            <h5>Stored Profile Image</h5>
-            <img 
-              src={storedImage} 
-              alt="Stored Profile" 
-              width="200" 
-              className="mt-2 border rounded" 
-            />
-          </div>
+          <h5>Stored Profile Image</h5>
+          <img 
+            src={storedImage} 
+            alt="Stored Profile" 
+            width="200" 
+            height="200"
+            className="mt-2 border rounded-circle"
+            style={{ objectFit: 'cover' }}
+          />
+        </div>
         ) : (
           <p className="text-danger">No stored profile image found.</p>
         )}
