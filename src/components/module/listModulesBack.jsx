@@ -7,7 +7,7 @@ import AddModule from "./addModule";
 import "./ListModules.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 
-const ListModules = () => {
+const ListModulesBack = () => {
   const [modules, setModules] = useState([]);
   const [filteredModules, setFilteredModules] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,24 +15,10 @@ const ListModules = () => {
   const [selectedModule, setSelectedModule] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [userRole, setUserRole] = useState('');
   const itemsPerPage = 3;
   const navigate = useNavigate();
-  const handleCLick = (idModule) => {
-    try {
-      const response = axios.get(`http://localhost:3000/module/${idModule}`);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error fetching module details:", error);
-    }
-    navigate(`/moduleDetails/${idModule}`);
-  };
 
   useEffect(() => {
-    // Get user role from localStorage when component mounts
-    const role = localStorage.getItem('role');
-    setUserRole(role || 'student'); // Default to student if no role is set
-
     const fetchModules = async () => {
       try {
         const response = await axios.get("http://localhost:3000/module/");
@@ -51,7 +37,7 @@ const ListModules = () => {
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to first page when searching
 
     const filtered = modules.filter(
       (module) =>
@@ -93,12 +79,12 @@ const ListModules = () => {
   const handleCloseEdit = async () => {
     setIsEditing(false);
     setSelectedModule(null);
+    setCurrentPage(1); // Reset to first page after update
 
     try {
       const response = await axios.get("http://localhost:3000/module/");
       setModules(response.data);
       setFilteredModules(response.data);
-      setCurrentPage(1);
     } catch (error) {
       console.error("Error fetching updated modules:", error);
     }
@@ -106,7 +92,6 @@ const ListModules = () => {
 
   return (
     <>
-      <br/><br/><br/>
       <div className="container">
         <div className="d-flex justify-content-between align-items-center my-3">
           <h2 className="title">Modules List</h2>
@@ -120,12 +105,6 @@ const ListModules = () => {
             value={searchTerm}
             onChange={handleSearch}
           />
-          {/* Only show Add Module button for teachers */}
-          {userRole === 'teacher' && (
-            <button className="btn btn-primary add-module-btn" onClick={() => navigate('/addModule')}>
-              + Add Module
-            </button>
-          )}
         </div>
 
         {isEditing ? (
@@ -144,17 +123,12 @@ const ListModules = () => {
                     <p>No modules found.</p>
                   ) : (
                     currentItems.map((module) => (
-                      <div
-                        key={module._id}
-                        className="module-card1"
-                        
-                      >
+                      <div key={module._id} className="module-card1">
                         {module.image && (
                           <img
                             src={module.image}
                             alt={module.title}
                             className="module-image1"
-                            onClick={() => handleCLick(module._id)}
                           />
                         )}
                         <div className="module-content">
@@ -170,42 +144,15 @@ const ListModules = () => {
                           ></button>
 
                           <ul className="dropdown-menu">
-                            {/* Only show Update and Delete for teachers */}
-                            {userRole === 'Teacher' && (
-                              <>
-                                <li>
-                                  <a
-                                    className="dropdown-item"
-                                    href="#"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      handleUpdate(module);
-                                    }}
-                                  >
-                                    Update
-                                  </a>
-                                </li>
-                                <li>
-                                  <a
-                                    className="dropdown-item"
-                                    href="#"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      handleDelete(module._id);
-                                    }}
-                                  >
-                                    Delete
-                                  </a>
-                                </li>
-                              </>
-                            )}
                             <li>
                               <a
                                 className="dropdown-item"
                                 href="#"
                                 onClick={(e) => {
                                   e.preventDefault();
-                                  navigate(`/moduleDetails/${module._id}`);
+                                  navigate(
+                                    `/dashboard/moduleDetailsBack/${module._id}`
+                                  );
                                 }}
                               >
                                 Details
@@ -282,4 +229,4 @@ const ListModules = () => {
   );
 };
 
-export default ListModules;
+export default ListModulesBack;

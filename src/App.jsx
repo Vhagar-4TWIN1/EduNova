@@ -8,11 +8,13 @@ import "aos/dist/aos.css";
 import Layout from "./components/layout";
 import PrivateRoute from "./PrivateRoute";
 import FaceRecognition from "./components/FaceRecognition";
-import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
 import ReactGA from 'react-ga4'; // Utilisation de react-ga4 pour GA4
 import { useLocation } from "react-router-dom";
 import { trackPageView } from './GoogleAnalyticsTracker';
+import ModuleDetails from "./components/module/moduleDetails.jsx";
+import ListModulesBack from "./components/module/listModulesBack.jsx";
+import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 // Initialisation de AOS pour les animations
 AOS.init();
 // Chargement paresseux (lazy loading) de tous les composants
@@ -32,47 +34,67 @@ const Dashboard = lazy(() => import("./dashboard/scenes/dashboard"));
 const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
-const UpdateQuestion = lazy(() => import("./dashboard/scenes/contacts/UpdateQuestion"));
+const Badge = lazy(() => import("./components/badges"));
+const UpdateQuestion = lazy(() =>
+  import("./dashboard/scenes/contacts/UpdateQuestion")
+);
+const QuestionForm = lazy(() =>
+  import("./dashboard/scenes/contacts/new")
+);
 const Bar = lazy(() => import("./dashboard/scenes/bar"));
 const Form = lazy(() => import("./dashboard/scenes/form"));
 const Line = lazy(() => import("./dashboard/scenes/line"));
 const Pie = lazy(() => import("./dashboard/scenes/pie"));
 const FAQ = lazy(() => import("./dashboard/scenes/faq"));
 const Geography = lazy(() => import("./dashboard/scenes/geography"));
-const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
 const Performance = lazy(() => import("./dashboard/scenes/performance/performance.jsx"));
-const LessonsDashboard = lazy(() => import("./dashboard/scenes/lessons/LessonsDashboard"));
-const CreateLesson = lazy(() => import("./dashboard/scenes/lessons/CreateLesson"));
-const LessonDetails = lazy(() => import("./dashboard/scenes/lessons/LessonDetails.jsx"));
-const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
+const BadgeDetail = lazy(() => import("./components/BadgeDetail"));
+const LessonsDashboard = lazy(() =>
+  import("./dashboard/scenes/lessons/LessonsDashboard")
+);
+const CreateLessonBack = lazy(() =>
+  import("./dashboard/scenes/lessons/CreateLesson")
+);
 
+const CreateLesson = lazy(() => import("./components/AddLesson"));
+const LessonDetails = lazy(() =>
+  import("./dashboard/scenes/lessons/LessonDetails.jsx")
+);
+
+const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
+const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <AppWithRouter isSidebar={isSidebar} setIsSidebar={setIsSidebar} />
+        <AppWithRouter 
+            isSidebar={isSidebar} 
+            setIsSidebar={setIsSidebar}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery} // Passage en prop
+          />
         </Router>
       </ThemeProvider>
-      <ToastContainer />
     </ColorModeContext.Provider>
   );
 }
 
-function AppWithRouter({ isSidebar, setIsSidebar }) {
+function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery }) {
   const location = useLocation();
 
   useEffect(() => {
     trackPageView(document.title);
   }, [location]);
 
-
+  
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <AutoLogout />
@@ -87,14 +109,22 @@ function AppWithRouter({ isSidebar, setIsSidebar }) {
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/addModule" element={<AddModule />} />
-          <Route path="/listModules" element={<ListModules />} />
-          <Route path="/update" element={<UserProfile />} />
+                <Route path="/listModules" element={<ListModules />} />
+                <Route path="/update" element={<UserProfile />} />
+                <Route path="/badges" element={<Badge />} />
+                <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/update-question/:id" element={<UpdateQuestion />} />
-          <Route path="/message" element={<Message />} />
-          <Route path="/lesson" element={<Lesson />} />
-          <Route path="/create-lesson" element={<CreateLesson />} />
-        </Route>
+          <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
+              
+                <Route path="/message" element={<Message />} />
+                <Route path="/lesson" element={<Lesson />} />
+                <Route path="/create-lesson/:id" element={<CreateLesson />} />
+                <Route
+                  path="/lesson-details"
+                  element={<LessonDetailsFront />}
+                />
+                
+              </Route>
 
         {/* Routes du tableau de bord */}
         <Route
@@ -103,9 +133,9 @@ function AppWithRouter({ isSidebar, setIsSidebar }) {
             <div className="app">
               <Sidebar isSidebar={isSidebar} className="sidebar" />
               <div className="content">
-                <div className="main-header">
-                  <Topbar setIsSidebar={setIsSidebar} />
-                </div>
+              <div className="main-header">
+                        
+                      </div>
                 <Routes>
                   <Route
                     path="/"
@@ -115,54 +145,76 @@ function AppWithRouter({ isSidebar, setIsSidebar }) {
                       </PrivateRoute>
                     }
                   />
-                  <Route
-                    path="/lessons"
-                    element={
-                      <PrivateRoute>
-                        <LessonsDashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="create-lesson"
-                    element={
-                      <PrivateRoute>
-                        <CreateLesson />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="lesson/:id"
-                    element={
-                      <PrivateRoute>
-                        <LessonDetails />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/team"
-                    element={
-                      <PrivateRoute>
-                        <Team />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/contacts"
-                    element={
-                      <PrivateRoute>
-                        <Contacts />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/invoices"
-                    element={
-                      <PrivateRoute>
-                        <Invoices />
-                      </PrivateRoute>
-                    }
-                  />
+                   
+                        <Route path="/update-question/:id" element={<UpdateQuestion />} />
+                        <Route
+                          path="/lessons"
+                          element={
+                            <PrivateRoute>
+                              <LessonsDashboard />
+                            </PrivateRoute>
+                          }
+                        />
+
+
+                        
+                        <Route
+                          path="create-lesson"
+                          element={
+                            <PrivateRoute>
+                              <CreateLessonBack />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="lesson/:id"
+                          element={
+                            <PrivateRoute>
+                              <LessonDetails />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/badgeForm"
+                          element={
+                            <PrivateRoute>
+                              <BadgeForm />
+                            </PrivateRoute>
+                          }
+                        />
+
+                        <Route
+                          path="/team"
+                          element={
+                            <PrivateRoute>
+                              <Team searchQuery={searchQuery} />
+                            </PrivateRoute>
+                          }
+                        />
+
+                        <Route
+                          path="/contacts"
+                          element={
+                            <PrivateRoute>
+                              <Contacts />
+                            </PrivateRoute>
+                          }
+                        />
+
+                       <Route 
+                       path="contacts/new" 
+                       element={<QuestionForm />} />
+
+                        
+   
+                        <Route
+                          path="/invoices"
+                          element={
+                            <PrivateRoute>
+                              <Invoices />
+                            </PrivateRoute>
+                          }
+                        />
                   <Route
                     path="/performance"
                     element={
@@ -235,6 +287,14 @@ function AppWithRouter({ isSidebar, setIsSidebar }) {
                       </PrivateRoute>
                     }
                   />
+                   <Route
+                          path="/listModulesBack"
+                          element={<ListModulesBack />}
+                  />
+                  <Route
+                    path="/moduleDetailsBack/:id"
+                    element={<ModuleDetailsBack />}
+                 />
                 </Routes>
               </div>
             </div>

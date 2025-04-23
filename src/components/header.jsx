@@ -66,12 +66,13 @@ function Header() {
                 Home
               </a>
             </li>
-            <li>
-              <a href="">About</a>
-            </li>
-            <li>
-              <a href="/lesson">Courses</a>
-            </li>
+            
+            {localStorage.getItem("role") === "Admin" && (
+          <li>
+            <a href="/dashboard">Dashboard</a>
+          </li>
+            )}
+
             <li>
               <a href="/listModules">Modules</a>
             </li>
@@ -79,7 +80,7 @@ function Header() {
               <a href="">Evaluations</a>
             </li>
             <li>
-              <a href="">Budges</a>
+              <a href="/badges">Budges</a>
             </li>
             <li className="dropdown">
               <button className="btn-getstarted" onClick={toggleDropdown}>
