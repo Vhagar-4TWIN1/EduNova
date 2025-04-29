@@ -16,6 +16,8 @@ import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 import ChangePassword from "./components/changePassword.jsx";
 import ExamPage from "./components/ExamPage.jsx";
 import ChangePasswordBack from "./components/changePasswordBack.jsx";
+import ForumMain from "./components/forum/ForumMain.jsx";
+import PostDetail from "./components/forum/PostDetail.jsx";
 
 // Initialize AOS
 AOS.init();
@@ -85,11 +87,13 @@ function App() {
               <Route path="/registration" element={<Contact />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/face" element={<FaceRecognition />} />
-              <Route path="/exam" element={<ExamPage/>} />
-
+              <Route path="/exam" element={<ExamPage />} />
+             
               {/* Protected Routes with Layout */}
               <Route element={<Layout />}>
                 <Route path="/home" element={<Home />} />
+                <Route path="/forum" element={<ForumMain />} />
+                <Route path="/forum/posts/:id" element={<PostDetail />} />
                 <Route path="/changePassword" element={<ChangePassword />} />
                 <Route path="/addModule" element={<AddModule />} />
                 <Route path="/listModules" element={<ListModules />} />
@@ -98,6 +102,7 @@ function App() {
                 <Route path="/badge/:id" element={<BadgeDetail />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
+             
                 <Route
                   path="/update-question/:id"
                   element={<UpdateQuestion />}
