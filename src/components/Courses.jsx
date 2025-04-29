@@ -133,23 +133,7 @@ const LessonsPage = () => {
           ))}
         </ul>
 
-        {role === "Teacher" && (
-          <button
-            onClick={() => navigate("/create-lesson")}
-            style={{
-              marginTop: "2rem",
-              padding: "0.5rem 1rem",
-              backgroundColor: "#2563eb",
-              color: "white",
-              border: "none",
-              borderRadius: "0.375rem",
-              cursor: "pointer",
-              fontWeight: 500,
-            }}
-          >
-            + Add Lesson
-          </button>
-        )}
+
       </aside>
 
       <main style={{ flex: 1, padding: "2rem" }}>

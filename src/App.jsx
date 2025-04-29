@@ -16,6 +16,7 @@ import { trackPageView } from './GoogleAnalyticsTracker';
 import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
+import MusicPage from './components/MusicPage';
 // Initialisation de AOS pour les animations
 AOS.init();
 // Chargement paresseux (lazy loading) de tous les composants
@@ -115,7 +116,7 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                 <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
-              
+          <Route path="/music-player" element={<MusicPage />} />
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
                 <Route path="/create-lesson/:id" element={<CreateLesson />} />
