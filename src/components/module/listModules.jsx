@@ -8,39 +8,72 @@ import "./ListModules.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 
 const ListModules = () => {
-  const [modules, setModules] = useState([]);
+  const [allModules, setAllModules] = useState([]);
   const [filteredModules, setFilteredModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedModule, setSelectedModule] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [userRole, setUserRole] = useState('');
+  const [userRole, setUserRole] = useState("");
   const itemsPerPage = 3;
   const navigate = useNavigate();
-  const handleCLick = (idModule) => {
-    try {
-      const response = axios.get(`http://localhost:3000/module/${idModule}`);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error fetching module details:", error);
+  const email = localStorage.getItem("email");
+
+  const handleCLick = (module) => {
+    if (module.source === "moodle") {
+
+    navigate(`/moduleDetails/moodle/${module._id}`);
     }
-    navigate(`/moduleDetails/${idModule}`);
+    else 
+    navigate(`/moduleDetails/course/${module._id}`);
   };
 
   useEffect(() => {
-    // Get user role from localStorage when component mounts
-    const role = localStorage.getItem('role');
-    setUserRole(role || 'student'); // Default to student if no role is set
+    const role = localStorage.getItem("role");
+    setUserRole(role || "student");
 
     const fetchModules = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/module/");
-        setModules(response.data);
-        setFilteredModules(response.data);
+        const [localRes, moodleUserRes] = await Promise.all([
+          axios.get("http://localhost:3000/module/"),
+          fetch(
+            `http://localhost/moodle/webservice/rest/server.php?wstoken=7ccfd931c34a195d815957a0759ce508&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=${email}&moodlewsrestformat=json`
+          ).then((res) => res.json()),
+        ]);
+
+        const localModules = localRes.data.map((mod) => ({
+          ...mod,
+          source: "local",
+        }));
+
+        let moodleModules = [];
+        if (moodleUserRes.users && moodleUserRes.users.length > 0) {
+          const moodleUserId = moodleUserRes.users[0].id;
+
+          const moodleCoursesRes = await fetch(
+            `http://localhost/moodle/webservice/rest/server.php?wstoken=7ccfd931c34a195d815957a0759ce508&wsfunction=core_enrol_get_users_courses&userid=${moodleUserId}&moodlewsrestformat=json`
+          );
+
+          const moodleCourses = await moodleCoursesRes.json();
+          console.log("Moodle Courses: aaaa", moodleCourses);
+
+          moodleModules = moodleCourses.map((course) => ({
+            _id: course.id,
+            title: course.fullname,
+            description: course.summary || "No description available.",
+            image: course.courseimage,
+            source: "moodle",
+            moodleUrl: `http://localhost/moodle/course/view.php?id=${course.id}`,
+          }));
+        }
+
+        const combinedModules = [...localModules, ...moodleModules];
+        setAllModules(combinedModules);
+        setFilteredModules(combinedModules);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching modules:", error);
+        console.error("Error fetching modules or Moodle courses:", error);
         setLoading(false);
       }
     };
@@ -53,7 +86,7 @@ const ListModules = () => {
     setSearchTerm(value);
     setCurrentPage(1);
 
-    const filtered = modules.filter(
+    const filtered = allModules.filter(
       (module) =>
         module.title.toLowerCase().includes(value) ||
         module.description.toLowerCase().includes(value)
@@ -61,7 +94,6 @@ const ListModules = () => {
     setFilteredModules(filtered);
   };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredModules.slice(indexOfFirstItem, indexOfLastItem);
@@ -72,12 +104,9 @@ const ListModules = () => {
 
     try {
       await axios.delete(`http://localhost:3000/module/${moduleId}`);
-      setModules((prevModules) =>
-        prevModules.filter((module) => module._id !== moduleId)
-      );
-      setFilteredModules((prevModules) =>
-        prevModules.filter((module) => module._id !== moduleId)
-      );
+      const updatedModules = allModules.filter((mod) => mod._id !== moduleId);
+      setAllModules(updatedModules);
+      setFilteredModules(updatedModules);
       alert("Module deleted successfully!");
     } catch (error) {
       console.error("Error deleting module:", error);
@@ -93,12 +122,15 @@ const ListModules = () => {
   const handleCloseEdit = async () => {
     setIsEditing(false);
     setSelectedModule(null);
-
     try {
       const response = await axios.get("http://localhost:3000/module/");
-      setModules(response.data);
-      setFilteredModules(response.data);
-      setCurrentPage(1);
+      const localModules = response.data.map((mod) => ({
+        ...mod,
+        source: "local",
+      }));
+      const updatedModules = [...localModules, ...allModules.filter((m) => m.source === "moodle")];
+      setAllModules(updatedModules);
+      setFilteredModules(updatedModules);
     } catch (error) {
       console.error("Error fetching updated modules:", error);
     }
@@ -106,10 +138,12 @@ const ListModules = () => {
 
   return (
     <>
-      <br/><br/><br/>
+      <br />
+      <br />
+      <br />
       <div className="container">
         <div className="d-flex justify-content-between align-items-center my-3">
-          <h2 className="title">Modules List</h2>
+          <h2 className="title">Modules & Moodle Courses</h2>
         </div>
 
         <div className="d-flex justify-content-between align-items-center my-3">
@@ -120,160 +154,146 @@ const ListModules = () => {
             value={searchTerm}
             onChange={handleSearch}
           />
-          {/* Only show Add Module button for teachers */}
-          {userRole === 'teacher' && (
-            <button className="btn btn-primary add-module-btn" onClick={() => navigate('/addModule')}>
+          {userRole === "teacher" && (
+            <button
+              className="btn btn-primary add-module-btn"
+              onClick={() => navigate("/addModule")}
+            >
               + Add Module
             </button>
           )}
         </div>
 
         {isEditing ? (
-          <AddModule
-            existingModule={selectedModule}
-            onClose={handleCloseEdit}
-          />
+          <AddModule existingModule={selectedModule} onClose={handleCloseEdit} />
+        ) : loading ? (
+          <p>Loading modules...</p>
         ) : (
           <>
-            {loading ? (
-              <p>Loading modules...</p>
-            ) : (
-              <>
-                <div className="module-list">
-                  {currentItems.length === 0 ? (
-                    <p>No modules found.</p>
-                  ) : (
-                    currentItems.map((module) => (
-                      <div
-                        key={module._id}
-                        className="module-card1"
-                        
+            <div className="module-list">
+              {currentItems.length === 0 ? (
+                <p>No modules found.</p>
+              ) : (
+                currentItems.map((module) => (
+                  <div key={module._id} className="module-card1">
+                    {module.image && (
+                      <img
+                        src={module.image}
+                        alt={module.title}
+                        className="module-image1"
+                        onClick={() => handleCLick(module)}
+                      />
+                    )}
+                    <div className="module-content">
+                      <h3>{module.title}</h3>
+                      <p>{module.description}</p>
+                    </div>
+
+                    {module.source === "moodle" ? (
+                      <button
+                        className="btn btn-info"
+                        onClick={() => window.open(module._id, "_blank")}
                       >
-                        {module.image && (
-                          <img
-                            src={module.image}
-                            alt={module.title}
-                            className="module-image1"
-                            onClick={() => handleCLick(module._id)}
-                          />
-                        )}
-                        <div className="module-content">
-                          <h3>{module.title}</h3>
-                          <p>{module.description}</p>
-                        </div>
-                        <div className="dropdown">
-                          <button
-                            className="btn btn-secondary dropdown-toggle"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          ></button>
-
-                          <ul className="dropdown-menu">
-                            {/* Only show Update and Delete for teachers */}
-                            {userRole === 'Teacher' && (
-                              <>
-                                <li>
-                                  <a
-                                    className="dropdown-item"
-                                    href="#"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      handleUpdate(module);
-                                    }}
-                                  >
-                                    Update
-                                  </a>
-                                </li>
-                                <li>
-                                  <a
-                                    className="dropdown-item"
-                                    href="#"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      handleDelete(module._id);
-                                    }}
-                                  >
-                                    Delete
-                                  </a>
-                                </li>
-                              </>
-                            )}
-                            <li>
-                              <a
-                                className="dropdown-item"
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  navigate(`/moduleDetails/${module._id}`);
-                                }}
-                              >
-                                Details
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                {/* Pagination controls */}
-                {filteredModules.length > itemsPerPage && (
-                  <div className="d-flex justify-content-center mt-4">
-                    <nav aria-label="Module pagination">
-                      <ul className="pagination">
-                        <li
-                          className={`page-item ${
-                            currentPage === 1 ? "disabled" : ""
-                          }`}
-                        >
-                          <button
-                            className="page-link"
-                            onClick={() => setCurrentPage(currentPage - 1)}
-                            disabled={currentPage === 1}
-                          >
-                            Previous
-                          </button>
-                        </li>
-
-                        {Array.from(
-                          { length: totalPages },
-                          (_, i) => i + 1
-                        ).map((number) => (
-                          <li
-                            key={number}
-                            className={`page-item ${
-                              currentPage === number ? "active" : ""
-                            }`}
-                          >
-                            <button
-                              className="page-link"
-                              onClick={() => setCurrentPage(number)}
+                        View on Moodle
+                      </button>
+                    ) : (
+                      <div className="dropdown">
+                        <button
+                          className="btn btn-secondary dropdown-toggle"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        ></button>
+                        <ul className="dropdown-menu">
+                          {userRole === "Teacher" && (
+                            <>
+                              <li>
+                                <a
+                                  className="dropdown-item"
+                                  href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleUpdate(module);
+                                  }}
+                                >
+                                  Update
+                                </a>
+                              </li>
+                              <li>
+                                <a
+                                  className="dropdown-item"
+                                  href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleDelete(module._id);
+                                  }}
+                                >
+                                  Delete
+                                </a>
+                              </li>
+                            </>
+                          )}
+                          <li>
+                            <a
+                              className="dropdown-item"
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                navigate(`/moduleDetails/${module._id}`);
+                              }}
                             >
-                              {number}
-                            </button>
+                              Details
+                            </a>
                           </li>
-                        ))}
-
-                        <li
-                          className={`page-item ${
-                            currentPage === totalPages ? "disabled" : ""
-                          }`}
-                        >
-                          <button
-                            className="page-link"
-                            onClick={() => setCurrentPage(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                          >
-                            Next
-                          </button>
-                        </li>
-                      </ul>
-                    </nav>
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                )}
-              </>
+                ))
+              )}
+            </div>
+
+            {filteredModules.length > itemsPerPage && (
+              <div className="d-flex justify-content-center mt-4">
+                <nav aria-label="Module pagination">
+                  <ul className="pagination">
+                    <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                      >
+                        Previous
+                      </button>
+                    </li>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+                      <li
+                        key={number}
+                        className={`page-item ${currentPage === number ? "active" : ""}`}
+                      >
+                        <button className="page-link" onClick={() => setCurrentPage(number)}>
+                          {number}
+                        </button>
+                      </li>
+                    ))}
+
+                    <li
+                      className={`page-item ${
+                        currentPage === totalPages ? "disabled" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
             )}
           </>
         )}

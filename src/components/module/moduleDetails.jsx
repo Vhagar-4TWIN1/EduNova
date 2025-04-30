@@ -11,6 +11,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { FiActivity } from "react-icons/fi";
+import { useLocation } from "react-router-dom";
 
 const ModuleDetails = () => {
   const { id } = useParams();
@@ -22,14 +23,18 @@ const ModuleDetails = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [userRole, setUserRole] = useState("student");
+  const [error, setError] = useState(null);
+  const location = useLocation();
 
+  const isCourse = location.pathname.includes('course');
+  const isMoodle = location.pathname.includes('moodle');
   const userId = "123";
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  useEffect(() => {
+  useEffect(() => { 
     const fetchModuleLessons = async () => {
-      try {
+      if(isCourse) {
         const [moduleRes, lessonRes, enrollmentRes, completedRes] =
           await Promise.all([
             axios.get(`http://localhost:3000/module/${id}`),
@@ -41,18 +46,75 @@ const ModuleDetails = () => {
               `http://localhost:3000/api/progress/completed/${userId}/${id}`
             ),
           ]);
-
-        setModule(moduleRes.data);
-        setLessons(lessonRes.data);
-        setIsEnrolled(enrollmentRes.data.enrolled);
-        setCompletedLessons(completedRes.data.completedLessons);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching module lessons:", error);
-        setLoading(false);
+          try {
+            setModule(moduleRes.data);
+            console.log("Module data:", moduleRes.data);  
+            setLessons(lessonRes.data);
+            console.log("Lessons data:", lessonRes.data);
+            setIsEnrolled(enrollmentRes.data.enrolled);
+            setCompletedLessons(completedRes.data.completedLessons);
+            setLoading(false);
+          } catch (error) {
+            console.error("Error fetching module lessons:", error);
+            setLoading(false);
+          }
+      }
+      else if (isMoodle) {
+        try {
+          const response = await axios.get("http://localhost/moodle/webservice/rest/server.php", {
+            params: {
+              wstoken: '7ccfd931c34a195d815957a0759ce508', // Replace with your valid token
+              wsfunction: 'core_course_get_contents',
+              courseid: id,
+              moodlewsrestformat: 'json'
+            }
+          });
+  
+          // Process Moodle data
+          const moodleData = response.data;
+          if (moodleData && moodleData.length > 0) {
+            // Extract relevant information to create a module object
+            const firstSection = moodleData[0];
+            const moodleModule = {
+              title: firstSection.name || "Moodle Course",
+              description: firstSection.summary || "Moodle course content",
+              category: "Moodle",
+              image: "https://via.placeholder.com/300x200?text=Moodle+Course",
+              difficulty: "All Levels"
+            };
+            
+            // Process sections and modules to create lessons array
+            const moodleLessons = [];
+            moodleData.forEach(section => {
+              if (section.modules && section.modules.length > 0) {
+                section.modules.forEach(mod => {
+                  moodleLessons.push({
+                    _id: mod.id,
+                    title: mod.name,
+                    typeLesson: mod.modname,
+                    content: mod.description || "Moodle content",
+                    
+                    fileUrl:"https://www.edunao.com/app/uploads/2022/07/Moodle-Logo-sur-fond-gris-fafafa.webp"
+                  });
+                });
+              }
+              console.log("Moodle section data:", moodleLessons);
+            });
+            
+            setModule(moodleModule);
+            setLessons(moodleLessons);
+            // For Moodle, we'll assume user is always "enrolled"
+            setIsEnrolled(true);
+          }
+        } catch (error) {
+          console.error("Error fetching Moodle lessons:", error);
+          setError("Failed to load Moodle data.");
+        } finally {
+          setLoading(false);
+        }
       }
     };
-
+     
     fetchModuleLessons();
   }, [id]);
 
@@ -110,6 +172,17 @@ const ModuleDetails = () => {
       </div>
     );
 
+  if (error)
+    return (
+      <div className="error-container">
+        <h2>Error Loading Content</h2>
+        <p>{error}</p>
+        <button onClick={() => navigate(-1)} className="back-button">
+          <FaArrowLeft /> Go Back
+        </button>
+      </div>
+    );
+
   if (!module)
     return (
       <div className="not-found-container">
@@ -133,7 +206,7 @@ const ModuleDetails = () => {
     <div className="module-details-container">
       <div className="module-header">
         <button onClick={() => navigate(-1)} className="back-button">
-          <FaArrowLeft /> Back to Modules
+          <FaArrowLeft /> Back to {isMoodle ? "Courses" : "Modules"}
         </button>
 
         <div className="module-meta">
@@ -169,23 +242,23 @@ const ModuleDetails = () => {
           </div>
         )}
 
-        {!isEnrolled ? (
+        {!isEnrolled && !isMoodle ? (
           <button onClick={handleEnroll} className="enroll-button">
             <FaLockOpen /> Enroll in Module
           </button>
-        ) : (
+        ) : isEnrolled ? (
           <div className="enrolled-badge">
             <FaLock /> Enrolled
           </div>
-        )}
+        ) : null}
       </div>
 
       <div className="lessons-section">
         <div className="section-header">
           <h2>
-            <FaBook /> Lessons
+            <FaBook /> {isMoodle ? "Course Content" : "Lessons"}
           </h2>
-          {role === "Teacher" && (
+          {role === "Teacher" && !isMoodle && (
             <button
               onClick={() => navigate(`/create-lesson/${id}`)}
               className="add-lesson-button"
@@ -197,7 +270,7 @@ const ModuleDetails = () => {
 
         {lessons.length === 0 ? (
           <div className="empty-lessons">
-            <p>No lessons available in this module yet.</p>
+            <p>No {isMoodle ? "content" : "lessons"} available in this {isMoodle ? "course" : "module"} yet.</p>
           </div>
         ) : (
           <div className="lessons-grid">
@@ -207,28 +280,40 @@ const ModuleDetails = () => {
                 <div
                   key={lesson._id}
                   className={`lesson-card ${isCompleted ? "completed" : ""}`}
-                  onClick={() =>
-                    navigate("/lesson-details", { state: { lesson } })
-                  }
+                  onClick={() => {
+                    if (isMoodle) {
+                      // For Moodle, open the URL directly
+                      if (lesson.fileUrl) {
+                        window.open(lesson.fileUrl, '_blank');
+                      }
+                    } else {
+                      navigate("/lesson-details", { state: { lesson } });
+                    }
+                  }}
                 >
                   {lesson.fileUrl && (
                     <div className="lesson-image">
-                      <img src={lesson.fileUrl} alt="lesson preview" />
+                      <img 
+                        src={lesson.fileUrl} 
+                        alt="lesson preview" 
+                      />
                     </div>
                   )}
                   <div className="lesson-content">
                     <h3>{lesson.title}</h3>
-                    <p className="lesson-type">{lesson.typeLesson}</p>
-                    <p className="lesson-excerpt">
-                      {lesson.content.substring(0, 100)}...
-                    </p>
+                    <p className="lesson-type">{lesson.typeLesson || "Moodle Content"}</p>
+                    {!isMoodle && (
+                      <p className="lesson-excerpt">
+                        {lesson.content.substring(0, 100)}...
+                      </p>
+                    )}
 
                     <div className="lesson-footer">
                       {isCompleted ? (
                         <span className="completed-badge">
                           <FaCheckCircle /> Completed
                         </span>
-                      ) : isEnrolled ? (
+                      ) : isEnrolled && !isMoodle ? (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -240,7 +325,7 @@ const ModuleDetails = () => {
                         </button>
                       ) : null}
 
-                      {role === "Teacher" && (
+                      {role === "Teacher" && !isMoodle && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

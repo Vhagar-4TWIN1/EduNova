@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 
 const LessonsPage = () => {
   const [lessons, setLessons] = useState([]);
@@ -20,6 +20,7 @@ const LessonsPage = () => {
 
   const fetchLessons = async () => {
     try {
+      
       const res = await axios.get("http://localhost:3000/api/lessons", {
         headers: { Authorization: `Bearer ${token}` },
       });

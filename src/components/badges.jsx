@@ -9,6 +9,27 @@ const UserBadges = () => {
   const [error, setError] = useState(null);
   const [unachievedBadges, setUnachievedBadges] = useState([]);
   const navigate = useNavigate();
+  fetch('http://localhost/moodle/webservice/rest/server.php?wstoken=7ccfd931c34a195d815957a0759ce508&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=oussamaawledsalem98724@gmail.com&moodlewsrestformat=json')
+  .then(res => res.json())
+  .then(data => {
+    console.log(data); 
+    if (data.users && data.users.length > 0) {
+      const userId = data.users[0].id;
+      console.log("User ID:", userId);  // Make sure the user ID is correct
+      // Now proceed to fetch courses with this userId
+      return fetch(`http://localhost/moodle/webservice/rest/server.php?wstoken=7ccfd931c34a195d815957a0759ce508&wsfunction=core_enrol_get_users_courses&userid=${userId}&moodlewsrestformat=json`);
+    } else {
+      throw new Error('User not found!');
+    }
+  })
+  .then(res => res.json())
+  .then(courses => {
+    console.log("Courses:", courses);  // Courses will be logged here
+  })
+  .catch(error => {
+    console.error("Error:", error);
+  });
+
 
   const handleBadgeClick = (badgeId) => {
     console.log('Badge clicked:', badgeId);

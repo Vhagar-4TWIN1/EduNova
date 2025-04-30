@@ -11,6 +11,7 @@ import FaceRecognition from "./components/FaceRecognition";
 import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
 import ReactGA from 'react-ga4'; // Utilisation de react-ga4 pour GA4
+import VideoChat from "./components/VideChat.jsx";
 import { useLocation } from "react-router-dom";
 import { trackPageView } from './GoogleAnalyticsTracker';
 import ModuleDetails from "./components/module/moduleDetails.jsx";
@@ -112,9 +113,10 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/badges" element={<Badge />} />
+                <Route path="/videoChat" element={<VideoChat />} />
                 <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
+          <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
               
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
