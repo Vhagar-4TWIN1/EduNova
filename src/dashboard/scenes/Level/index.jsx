@@ -1,78 +1,97 @@
-import { useState, useEffect, useContext } from "react";
-import { Button, TextField, Card, CardContent, Typography, Stack, Container } from "@mui/material";
+import { useState, useEffect } from "react";
+import { 
+  Button, 
+  TextField, 
+  Card, 
+  CardContent, 
+  Typography, 
+  Stack, 
+  Container,
+  CircularProgress,
+  Alert,
+  Snackbar,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl
+} from "@mui/material";
 import axios from "axios";
-import { ColorModeContext } from "../../theme"; // Assuming the theme context is in the same directory
 
 const LevelManagement = () => {
   const [levels, setLevels] = useState([]);
   const [newLevel, setNewLevel] = useState({ name: "", description: "" });
   const [editLevel, setEditLevel] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const { toggleColorMode } = useContext(ColorModeContext); // Access color mode toggle
+  // Valeurs prédéfinies pour le champ name
+  const levelOptions = ['beginner', 'intermediate', 'advanced'];
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/level/levels")
-      .then(response => {
-        if (Array.isArray(response.data)) {
-          console.log("Levels data:", response.data); // Log the data
-          setLevels(response.data);
-        } else {
-          console.error("Expected an array, but got:", response.data);
-        }
-      })
-      .catch(error => console.error("Error fetching levels", error));
+    fetchLevels();
   }, []);
 
-  const handleCreateLevel = () => {
-    axios.post("http://localhost:3000/api/level/levels", newLevel)
-      .then(response => {
-        if (response.data.newLevel) {
-          setLevels([...levels, response.data.newLevel]);
-          setNewLevel({ name: "", description: "" });
-        }
-      })
-      .catch(error => console.error("Error creating level", error));
-  };
-
-  const handleUpdateLevel = () => {
-    if (editLevel) {
-      axios.put(`http://localhost:3000/api/level/levels/${editLevel._id}`, editLevel) // Use _id here
-        .then(response => {
-          const updatedLevels = levels.map(level =>
-            level._id === editLevel._id ? response.data.updatedLevel : level // Use _id here
-          );
-          setLevels(updatedLevels);
-          setEditLevel(null);
-        })
-        .catch(error => console.error("Error updating level", error));
+  const fetchLevels = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:3000/api/level");
+      setLevels(response.data.data);
+      setError(null);
+    } catch (err) {
+      setError(err.response?.data?.error || "Error fetching levels");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDeleteLevel = (id) => {
-    console.log("Deleting level with ID:", id); // Log the ID
-    if (!id) {
-      console.error("ID is undefined or null");
-      return;
+  const handleCreateLevel = async () => {
+    try {
+      const response = await axios.post("http://localhost:3000/api/level", newLevel);
+      setLevels([...levels, response.data.data]);
+      setNewLevel({ name: "", description: "" });
+      setSuccess("Level created successfully");
+    } catch (err) {
+      setError(err.response?.data?.error || "Error creating level");
     }
-    axios.delete(`http://localhost:3000/api/level/levels/${id}`)
-      .then(() => {
-        const updatedLevels = levels.filter(level => level._id !== id); // Use _id here
-        setLevels(updatedLevels);
-      })
-      .catch(error => console.error("Error deleting level", error));
+  };
+
+  const handleUpdateLevel = async () => {
+    try {
+      const response = await axios.put(
+        `http://localhost:3000/api/level/${editLevel._id}`,
+        editLevel
+      );
+      setLevels(levels.map(l => l._id === editLevel._id ? response.data.data : l));
+      setEditLevel(null);
+      setSuccess("Level updated successfully");
+    } catch (err) {
+      setError(err.response?.data?.error || "Error updating level");
+    }
+  };
+
+  const handleDeleteLevel = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/level/${id}`);
+      setLevels(levels.filter(l => l._id !== id));
+      setSuccess("Level deleted successfully");
+    } catch (err) {
+      setError(err.response?.data?.error || "Error deleting level");
+    }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (editLevel) {
-      setEditLevel(prevState => ({ ...prevState, [name]: value }));
+      setEditLevel(prev => ({ ...prev, [name]: value }));
     } else {
-      setNewLevel(prevState => ({ ...prevState, [name]: value }));
+      setNewLevel(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleEditClick = (level) => {
-    setEditLevel({ ...level }); // Ensure the id is included when setting editLevel
+  const handleCloseSnackbar = () => {
+    setError(null);
+    setSuccess(null);
   };
 
   return (
@@ -81,71 +100,118 @@ const LevelManagement = () => {
         Level Management
       </Typography>
 
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="error" onClose={handleCloseSnackbar}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={!!success}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="success" onClose={handleCloseSnackbar}>
+          {success}
+        </Alert>
+      </Snackbar>
+
       <Card sx={{ mb: 3, p: 2 }}>
         <CardContent>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>Add New Level</Typography>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+            {editLevel ? "Edit Level" : "Add New Level"}
+          </Typography>
           <Stack spacing={2}>
-            <TextField label="Name" name="name" value={newLevel.name} onChange={handleInputChange} fullWidth />
-            <TextField label="Description" name="description" value={newLevel.description} onChange={handleInputChange} fullWidth />
-            <Button 
-               variant="contained" 
-               sx={{
-                backgroundColor: "#3da58a",
-                color: "#fff",
-                "&:hover": { backgroundColor: "#2e846f" } 
-              }}
-                 onClick={handleCreateLevel}
+            <FormControl fullWidth>
+              <InputLabel id="level-name-label">Name *</InputLabel>
+              <Select
+                labelId="level-name-label"
+                label="Name *"
+                name="name"
+                value={editLevel ? editLevel.name : newLevel.name}
+                onChange={handleInputChange}
+                required
+              >
+                {levelOptions.map(option => (
+                  <MenuItem key={option} value={option}>
+                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Description"
+              name="description"
+              value={editLevel ? editLevel.description : newLevel.description}
+              onChange={handleInputChange}
+              fullWidth
+              multiline
+              rows={3}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={editLevel ? handleUpdateLevel : handleCreateLevel}
+              disabled={loading}
             >
-              Add Level
+              {editLevel ? "Update Level" : "Add Level"}
             </Button>
+            {editLevel && (
+              <Button
+                variant="outlined"
+                onClick={() => setEditLevel(null)}
+              >
+                Cancel
+              </Button>
+            )}
           </Stack>
         </CardContent>
       </Card>
 
-      {editLevel && (
-        <Card sx={{ mb: 3, p: 2, bgcolor: "background.paper" }}>
-          <CardContent>
-            <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>Edit Level</Typography>
-            <Stack spacing={2}>
-              <TextField label="Name" name="name" value={editLevel.name} onChange={handleInputChange} fullWidth />
-              <TextField label="Description" name="description" value={editLevel.description} onChange={handleInputChange} fullWidth />
-              <Button 
-  variant="contained" 
-  sx={{
-    backgroundColor: "#3da58a",
-    color: "#fff",
-    "&:hover": { backgroundColor: "#2e846f" } 
-  }} 
-  onClick={handleUpdateLevel}
->
-  Update Level
-</Button>
+      <Typography variant="h5" sx={{ mt: 3, mb: 2, fontWeight: "bold" }}>
+        Levels List
+      </Typography>
 
-            </Stack>
-          </CardContent>
-        </Card>
-      )}
-
-      <Typography variant="h5" sx={{ mt: 3, mb: 2, fontWeight: "bold" }}>Levels List</Typography>
-      {Array.isArray(levels) && levels.length > 0 ? (
+      {loading ? (
+        <CircularProgress />
+      ) : levels.length === 0 ? (
+        <Typography>No levels available.</Typography>
+      ) : (
         levels.map(level => (
-          <Card key={level._id} sx={{ mb: 2, p: 2 }}> {/* Use _id here */}
+          <Card key={level._id} sx={{ mb: 2, p: 2 }}>
             <CardContent>
-              <Typography variant="h6">{level.name}</Typography>
-              <Typography variant="body2" color="text.secondary">{level.description}</Typography>
+              <Typography variant="h6">
+                {level.name.charAt(0).toUpperCase() + level.name.slice(1)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {level.description || "No description"}
+              </Typography>
               <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                <Button variant="contained" sx={{
-    backgroundColor: "#3da58a",
-    color: "#fff",
-    "&:hover": { backgroundColor: "#2e846f" } 
-  }} onClick={() => handleEditClick(level)}>Edit</Button>
-                <Button variant="contained" color="error" onClick={() => handleDeleteLevel(level._id)}>Delete</Button> {/* Use _id here */}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setEditLevel(level)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => handleDeleteLevel(level._id)}
+                >
+                  Delete
+                </Button>
               </Stack>
             </CardContent>
           </Card>
         ))
-      ) : (
-        <Typography>No levels available.</Typography>
       )}
     </Container>
   );
