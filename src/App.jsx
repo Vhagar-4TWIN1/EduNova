@@ -35,6 +35,7 @@ const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
+const Quiz = lazy(() => import("./components/Quiz"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
 );
@@ -116,6 +117,9 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
           <Route path="/contact" element={<Contact />} />
           <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
               
+          <Route path="/quiz" element={<Quiz />} />
+          <Route path="/quiz/:type" element={<Quiz />} />
+          
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
                 <Route path="/create-lesson/:id" element={<CreateLesson />} />
