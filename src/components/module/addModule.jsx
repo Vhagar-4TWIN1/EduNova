@@ -39,13 +39,19 @@ const AddModule = ({ existingModule, onClose }) => {
       if (existingModule) {
         // Update Module (PUT request)
         await axios.put(`http://localhost:3000/module/${existingModule._id}`, formData, {
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+
+           }
         });
         alert('Module updated successfully!');
       } else {
         // Add New Module (POST request)
         await axios.post('http://localhost:3000/module/add', formData, {
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+
+           }
         });
         alert('Module added successfully!');
       }

@@ -48,6 +48,7 @@ function Header() {
 
     navigate("/"); // Rediriger après la déconnexion
   };
+  
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible); // Alterne la visibilité du dropdown
@@ -85,7 +86,13 @@ function Header() {
             </li>
             <li>
               <a href="/badges">Budges</a>
+              
             </li>
+            <li>
+
+            <a href="/forum">Forum</a>
+            </li>
+            
             <li className="dropdown">
               <button className="btn-getstarted" onClick={toggleDropdown}>
                 {firstName && lastName
@@ -98,6 +105,10 @@ function Header() {
                   <li>
                     <a href="/update">Profile</a>
                   </li>
+                  <li>
+                    <a href="/changePassword">Change password</a>
+                  </li>
+                  <br/>
                   <li>
                     <button className="btn-getstarted" onClick={handleLogout}>
                       Logout

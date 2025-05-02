@@ -235,9 +235,10 @@ const Sidebar = () => {
             >
               Charts
             </Typography>
+           
             <Item
-              title="Bar Chart"
-              to="/dashboard/bar"
+              title="change Password"
+              to="/dashboard/changePassword"
               icon={<BarChartOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}

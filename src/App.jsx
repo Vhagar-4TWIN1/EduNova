@@ -18,7 +18,11 @@ import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 import DyslexiaAssessmentCard from "./components/DyslexiaAssessmentCard.jsx";
-
+import ExamPage from "./components/ExamPage.jsx";
+import ChangePassword from "./components/changePassword.jsx";
+import ChangePasswordBack from "./components/changePasswordBack.jsx";
+import ForumMain from "./components/forum/ForumMain.jsx";
+import PostDetail from "./components/forum/PostDetail.jsx";
 // Initialisation de AOS pour les animations
 AOS.init();
 // Chargement paresseux (lazy loading) de tous les composants
@@ -116,10 +120,13 @@ function AppWithRouter({
         <Route path="/registration" element={<Contact />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/face" element={<FaceRecognition />} />
-
+        <Route path="/exam" element={<ExamPage />} />
         {/* Routes protégées avec layout */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/forum" element={<ForumMain />} />
+          <Route path="/forum/posts/:id" element={<PostDetail />} />
+          <Route path="/changePassword" element={<ChangePassword />} />
           <Route path="/addModule" element={<AddModule />} />
           <Route path="/listModules" element={<ListModules />} />
           <Route path="/update" element={<UserProfile />} />
@@ -188,6 +195,14 @@ function AppWithRouter({
                     element={
                       <PrivateRoute>
                         <LessonDetails />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="changePassword"
+                    element={
+                      <PrivateRoute>
+                        <ChangePasswordBack />
                       </PrivateRoute>
                     }
                   />

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Header from "../Header";
+import Header from "../header";
 import Footer from "../Footer";
 import AddModule from "./addModule";
 import "./ListModules.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-
+import { jwtDecode } from "jwt-decode";
 const ListModules = () => {
   const [allModules, setAllModules] = useState([]);
   const [filteredModules, setFilteredModules] = useState([]);
@@ -18,31 +18,59 @@ const ListModules = () => {
   const [userRole, setUserRole] = useState("");
   const itemsPerPage = 3;
   const navigate = useNavigate();
-  const email = localStorage.getItem("email");
-
-  const handleCLick = (module) => {
-    if (module.source === "moodle") {
-      navigate(`/moduleDetails/moodle/${module._id}`);
-    } else navigate(`/moduleDetails/course/${module._id}`);
+  
+  const handleCLick = (idModule) => {
+    try {
+      const response = axios.get(`http://localhost:3000/module/${idModule}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching module details:", error);
+    }
+    navigate(`/moduleDetails/${idModule}`);
   };
 
   useEffect(() => {
-    const role = localStorage.getItem("role");
-    setUserRole(role || "Student");
+    // Get user role from localStorage when component mounts
+    const role = localStorage.getItem('role');
+    setUserRole(role || 'student');
+    const token = localStorage.getItem('token');
+    const decoded = jwtDecode(token);
+    const userId = decoded.userId; // Default to student if no role is set
 
     const fetchModules = async () => {
+      console.log('role: ', role);
+      
       try {
-        const localRes = await axios.get("http://localhost:3000/module/");
-        const localModules = localRes.data.map((mod) => ({
-          ...mod,
-          source: "local",
-        }));
-
-        // Comment out Moodle logic completely for now
-        const combinedModules = [...localModules];
-        setAllModules(combinedModules);
-        setFilteredModules(combinedModules);
+        if ( role == 'Student'){
+           const response = await axios.get("http://localhost:3000/module/",{
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        setModules(response.data);
+        setFilteredModules(response.data);
         setLoading(false);
+        }else{
+             const response = await axios.get(`http://localhost:3000/module/modules/`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          }
+        )
+        setModules(response.data);
+        setFilteredModules(response.data);
+        setLoading(false); 
+        }
+    
+
+       
       } catch (error) {
         console.error("Error fetching modules:", error);
         setLoading(false);
@@ -74,10 +102,19 @@ const ListModules = () => {
     if (!window.confirm("Are you sure you want to delete this module?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/module/${moduleId}`);
-      const updatedModules = allModules.filter((mod) => mod._id !== moduleId);
-      setAllModules(updatedModules);
-      setFilteredModules(updatedModules);
+      await axios.delete(`http://localhost:3000/module/${moduleId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setModules((prevModules) =>
+        prevModules.filter((module) => module._id !== moduleId)
+      );
+      setFilteredModules((prevModules) =>
+        prevModules.filter((module) => module._id !== moduleId)
+      );
       alert("Module deleted successfully!");
     } catch (error) {
       console.error("Error deleting module:", error);
@@ -94,17 +131,16 @@ const ListModules = () => {
     setIsEditing(false);
     setSelectedModule(null);
     try {
-      const response = await axios.get("http://localhost:3000/module/");
-      const localModules = response.data.map((mod) => ({
-        ...mod,
-        source: "local",
-      }));
-      const updatedModules = [
-        ...localModules,
-        ...allModules.filter((m) => m.source === "moodle"),
-      ];
-      setAllModules(updatedModules);
-      setFilteredModules(updatedModules);
+      const response = await axios.get("http://localhost:3000/module/",
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setModules(response.data);
+      setFilteredModules(response.data);
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error fetching updated modules:", error);
     }
