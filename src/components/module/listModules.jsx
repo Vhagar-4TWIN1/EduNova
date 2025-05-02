@@ -22,58 +22,29 @@ const ListModules = () => {
 
   const handleCLick = (module) => {
     if (module.source === "moodle") {
-
-    navigate(`/moduleDetails/moodle/${module._id}`);
-    }
-    else 
-    navigate(`/moduleDetails/course/${module._id}`);
+      navigate(`/moduleDetails/moodle/${module._id}`);
+    } else navigate(`/moduleDetails/course/${module._id}`);
   };
 
   useEffect(() => {
     const role = localStorage.getItem("role");
-    setUserRole(role || "student");
+    setUserRole(role || "Student");
 
     const fetchModules = async () => {
       try {
-        const [localRes, moodleUserRes] = await Promise.all([
-          axios.get("http://localhost:3000/module/"),
-          fetch(
-            `http://localhost/moodle/webservice/rest/server.php?wstoken=7ccfd931c34a195d815957a0759ce508&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=${email}&moodlewsrestformat=json`
-          ).then((res) => res.json()),
-        ]);
-
+        const localRes = await axios.get("http://localhost:3000/module/");
         const localModules = localRes.data.map((mod) => ({
           ...mod,
           source: "local",
         }));
 
-        let moodleModules = [];
-        if (moodleUserRes.users && moodleUserRes.users.length > 0) {
-          const moodleUserId = moodleUserRes.users[0].id;
-
-          const moodleCoursesRes = await fetch(
-            `http://localhost/moodle/webservice/rest/server.php?wstoken=7ccfd931c34a195d815957a0759ce508&wsfunction=core_enrol_get_users_courses&userid=${moodleUserId}&moodlewsrestformat=json`
-          );
-
-          const moodleCourses = await moodleCoursesRes.json();
-          console.log("Moodle Courses: aaaa", moodleCourses);
-
-          moodleModules = moodleCourses.map((course) => ({
-            _id: course.id,
-            title: course.fullname,
-            description: course.summary || "No description available.",
-            image: course.courseimage,
-            source: "moodle",
-            moodleUrl: `http://localhost/moodle/course/view.php?id=${course.id}`,
-          }));
-        }
-
-        const combinedModules = [...localModules, ...moodleModules];
+        // Comment out Moodle logic completely for now
+        const combinedModules = [...localModules];
         setAllModules(combinedModules);
         setFilteredModules(combinedModules);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching modules or Moodle courses:", error);
+        console.error("Error fetching modules:", error);
         setLoading(false);
       }
     };
@@ -128,7 +99,10 @@ const ListModules = () => {
         ...mod,
         source: "local",
       }));
-      const updatedModules = [...localModules, ...allModules.filter((m) => m.source === "moodle")];
+      const updatedModules = [
+        ...localModules,
+        ...allModules.filter((m) => m.source === "moodle"),
+      ];
       setAllModules(updatedModules);
       setFilteredModules(updatedModules);
     } catch (error) {
@@ -154,18 +128,21 @@ const ListModules = () => {
             value={searchTerm}
             onChange={handleSearch}
           />
-          {userRole === "teacher" && (
-            <button
+          {userRole === "Teacher" && (
+            <button-
               className="btn btn-primary add-module-btn"
               onClick={() => navigate("/addModule")}
             >
               + Add Module
-            </button>
+            </button->
           )}
         </div>
 
         {isEditing ? (
-          <AddModule existingModule={selectedModule} onClose={handleCloseEdit} />
+          <AddModule
+            existingModule={selectedModule}
+            onClose={handleCloseEdit}
+          />
         ) : loading ? (
           <p>Loading modules...</p>
         ) : (
@@ -257,7 +234,11 @@ const ListModules = () => {
               <div className="d-flex justify-content-center mt-4">
                 <nav aria-label="Module pagination">
                   <ul className="pagination">
-                    <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                    <li
+                      className={`page-item ${
+                        currentPage === 1 ? "disabled" : ""
+                      }`}
+                    >
                       <button
                         className="page-link"
                         onClick={() => setCurrentPage(currentPage - 1)}
@@ -267,16 +248,23 @@ const ListModules = () => {
                       </button>
                     </li>
 
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-                      <li
-                        key={number}
-                        className={`page-item ${currentPage === number ? "active" : ""}`}
-                      >
-                        <button className="page-link" onClick={() => setCurrentPage(number)}>
-                          {number}
-                        </button>
-                      </li>
-                    ))}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (number) => (
+                        <li
+                          key={number}
+                          className={`page-item ${
+                            currentPage === number ? "active" : ""
+                          }`}
+                        >
+                          <button
+                            className="page-link"
+                            onClick={() => setCurrentPage(number)}
+                          >
+                            {number}
+                          </button>
+                        </li>
+                      )
+                    )}
 
                     <li
                       className={`page-item ${

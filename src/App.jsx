@@ -10,14 +10,15 @@ import PrivateRoute from "./PrivateRoute";
 import FaceRecognition from "./components/FaceRecognition";
 import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
-import ReactGA from 'react-ga4'; // Utilisation de react-ga4 pour GA4
-import VideoChat from "./components/VideChat.jsx";
+import ReactGA from "react-ga4"; // Utilisation de react-ga4 pour GA4
+/*import VideoChat from "./components/VideChat.jsx";*/
 import { useLocation } from "react-router-dom";
 import { trackPageView } from "./GoogleAnalyticsTracker";
 import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 import DyslexiaAssessmentCard from "./components/DyslexiaAssessmentCard.jsx";
+
 // Initialisation de AOS pour les animations
 AOS.init();
 // Chargement paresseux (lazy loading) de tous les composants
@@ -42,9 +43,7 @@ const Quiz = lazy(() => import("./components/Quiz"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
 );
-const QuestionForm = lazy(() =>
-  import("./dashboard/scenes/contacts/new")
-);
+const QuestionForm = lazy(() => import("./dashboard/scenes/contacts/new"));
 const Bar = lazy(() => import("./dashboard/scenes/bar"));
 const Form = lazy(() => import("./dashboard/scenes/form"));
 const Line = lazy(() => import("./dashboard/scenes/line"));
@@ -63,7 +62,7 @@ const LessonsDashboard = lazy(() =>
 const CreateLessonBack = lazy(() =>
   import("./dashboard/scenes/lessons/CreateLesson")
 );
-
+const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const CreateLesson = lazy(() => import("./components/AddLesson"));
 const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx")
@@ -122,27 +121,23 @@ function AppWithRouter({
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/addModule" element={<AddModule />} />
-                <Route path="/listModules" element={<ListModules />} />
-                <Route path="/update" element={<UserProfile />} />
-                <Route path="/badges" element={<Badge />} />
-                <Route path="/videoChat" element={<VideoChat />} />
-                <Route path="/badge/:id" element={<BadgeDetail />} />
+          <Route path="/listModules" element={<ListModules />} />
+          <Route path="/update" element={<UserProfile />} />
+          <Route path="/badges" element={<Badge />} />
+          {/*<Route path="/videoChat" element={<VideoChat />} />*/}
+          <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
-              
+
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/quiz/:type" element={<Quiz />} />
-          
-                <Route path="/message" element={<Message />} />
-                <Route path="/lesson" element={<Lesson />} />
-                <Route path="/create-lesson/:id" element={<CreateLesson />} />
-                <Route
-                  path="/lesson-details"
-                  element={<LessonDetailsFront />}
-                />
-                <Route path="/dys" element={<DyslexiaAssessmentCard />} />
-                
-              </Route>
+
+          <Route path="/message" element={<Message />} />
+          <Route path="/lesson" element={<Lesson />} />
+          <Route path="/create-lesson/:id" element={<CreateLesson />} />
+          <Route path="/lesson-details" element={<LessonDetailsFront />} />
+          <Route path="/dys" element={<DyslexiaAssessmentCard />} />
+        </Route>
 
         {/* Routes du tableau de bord */}
         <Route
@@ -214,29 +209,25 @@ function AppWithRouter({
                     }
                   />
 
-                        <Route
-                          path="/contacts"
-                          element={
-                            <PrivateRoute>
-                              <Contacts />
-                            </PrivateRoute>
-                          }
-                        />
+                  <Route
+                    path="/contacts"
+                    element={
+                      <PrivateRoute>
+                        <Contacts />
+                      </PrivateRoute>
+                    }
+                  />
 
-                       <Route 
-                       path="contacts/new" 
-                       element={<QuestionForm />} />
+                  <Route path="contacts/new" element={<QuestionForm />} />
 
-                        
-   
-                        <Route
-                          path="/invoices"
-                          element={
-                            <PrivateRoute>
-                              <Invoices />
-                            </PrivateRoute>
-                          }
-                        />
+                  <Route
+                    path="/invoices"
+                    element={
+                      <PrivateRoute>
+                        <Invoices />
+                      </PrivateRoute>
+                    }
+                  />
                   <Route
                     path="/performance"
                     element={

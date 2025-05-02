@@ -17,7 +17,6 @@ const LessonDetailsFront = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const { lesson } = location.state || {};
 
   const [selectedLang, setSelectedLang] = useState(i18n.language || "en");
   const [showStickyNotes, setShowStickyNotes] = useState(false);
@@ -27,6 +26,7 @@ const LessonDetailsFront = () => {
   const [modalPosition, setModalPosition] = useState({ x: 520, y: 350 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const { lesson, moduleId } = location.state || {};
 
   const userId = localStorage.getItem("userId");
 
@@ -164,7 +164,13 @@ const LessonDetailsFront = () => {
       <div style={{ padding: "6rem 2rem" }}>
         <h2 style={{ color: "#ef4444" }}>{t("noLesson")}</h2>
         <button
-          onClick={() => navigate("/lesson")}
+          onClick={() =>
+            navigate(
+              `/moduleDetails/course/${
+                moduleId || lesson.moduleId || lesson._id
+              }`
+            )
+          }
           style={{
             marginTop: "1rem",
             padding: "0.5rem 1rem",
@@ -186,7 +192,7 @@ const LessonDetailsFront = () => {
   return (
     <div
       style={{
-        paddingTop: "6rem",
+        paddingTop: "10rem",
         minHeight: "100vh",
         backgroundColor: "#f9fafb",
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
@@ -423,7 +429,12 @@ const LessonDetailsFront = () => {
         </div>
 
         <button
-          onClick={() => navigate("/lesson")}
+          onClick={() => {
+            const modId =
+              moduleId || lesson.moduleId || lesson.module || lesson._id;
+            console.log("Going back to module:", modId); // DEBUG
+            navigate(`/moduleDetails/course/${modId}`);
+          }}
           style={{
             backgroundColor: "#4ade80",
             color: "white",

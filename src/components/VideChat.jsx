@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+/*import React, { useRef, useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:3000');
@@ -78,7 +78,9 @@ export default function VideoChat() {
     socket.emit('join-room', secretCode);
   };
 
-  return (
+  return (*/
+{
+  /*
     <div className="container py-4">
       <div className="video-chat-container">
         <h2 className="text-center mb-4">2-Person Video Chat</h2>
@@ -149,4 +151,5 @@ export default function VideoChat() {
       `}</style>
     </div>
   );
+}*/
 }
