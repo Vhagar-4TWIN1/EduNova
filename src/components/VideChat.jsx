@@ -22,7 +22,9 @@ export default function VideoChat() {
     });
     socket.on('joined-room', code => setRoomId(code));
     socket.on('user-joined', async () => {
-      if (isCreator) await makeOffer();
+      if (isCreator) {
+        await makeOffer();
+      }
     });
     socket.on('offer', async offer => {
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
@@ -38,6 +40,16 @@ export default function VideoChat() {
     });
     return () => socket.removeAllListeners();
   }, [pc, isCreator, roomId]);
+
+  const makeOffer = async () => {
+    try {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      socket.emit('offer', { roomId, offer });
+    } catch (error) {
+      console.error('Error creating offer:', error);
+    }
+  };
 
   const initConnection = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
