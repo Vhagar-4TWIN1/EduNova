@@ -78,6 +78,9 @@ function Header() {
               <a href="">Evaluations</a>
             </li>
             <li>
+              <a href="/forum">Forum</a>
+            </li>
+            <li>
               <a href="">Budges</a>
             </li>
             <li className="dropdown">

@@ -24,6 +24,22 @@ const PostDetail = () => {
     };
     fetchPost();
   }, [id]);
+  const handleUpvote = async (replyId) => {
+    try {
+      await axios.post(`http://localhost:3000/api/forum/replies/${replyId}/upvote`, null, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}` // or your auth method
+        }
+      });
+
+      // Refresh replies after upvote
+      const updatedPost = await axios.get(`http://localhost:3000/api/forum/posts/${id}`);
+      setPost(updatedPost.data);
+
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to upvote');
+    }
+  };
 
   const handleNewReply = (newReply) => {
     setPost(prev => ({
@@ -103,6 +119,16 @@ const PostDetail = () => {
           margin: 0 auto;
           padding: 24px 16px;
         }
+          button {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            font-weight: 500;
+          }
+          button:hover {
+            text-decoration: underline;
+          }
+
         
         .back-button {
           display: inline-flex;
@@ -251,19 +277,24 @@ const PostDetail = () => {
           <div className="replies-list">
             {post.replies.map((reply) => (
               <div key={reply._id} className="reply-card">
-                <p className="reply-content">{reply.content}</p>
+                <div className="reply-content">{reply.content}</div>
                 <div className="reply-meta">
-                  <div className="meta-item">
-                    <FiUser size={12} />
-                    <span>{reply.author?.name || 'Anonymous'}</span>
-                  </div>
-                  <div className="meta-item">
-                    <FiClock size={12} />
-                    <span>{formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}</span>
-                  </div>
+                  <span>
+                    <FiUser /> {reply.author?.username || 'Anonymous'}
+                  </span>
+                  <span>
+                    <FiClock /> {formatDistanceToNow(new Date(reply.createdAt))} ago
+                  </span>
+                  <span>
+                    👍 {reply.upvotedBy?.length || 0}
+                    <button onClick={() => handleUpvote(reply._id)} style={{ marginLeft: '8px', cursor: 'pointer' }}>
+                      Upvote
+                    </button>
+                  </span>
                 </div>
               </div>
             ))}
+
           </div>
         ) : (
           <div className="no-replies">
