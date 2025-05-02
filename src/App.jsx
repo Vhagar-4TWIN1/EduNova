@@ -13,10 +13,11 @@ import AutoLogout from "./components/AutoLogout";
 import ReactGA from 'react-ga4'; // Utilisation de react-ga4 pour GA4
 import VideoChat from "./components/VideChat.jsx";
 import { useLocation } from "react-router-dom";
-import { trackPageView } from './GoogleAnalyticsTracker';
+import { trackPageView } from "./GoogleAnalyticsTracker";
 import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
+import DyslexiaAssessmentCard from "./components/DyslexiaAssessmentCard.jsx";
 // Initialisation de AOS pour les animations
 AOS.init();
 // Chargement paresseux (lazy loading) de tous les composants
@@ -52,7 +53,9 @@ const FAQ = lazy(() => import("./dashboard/scenes/faq"));
 const Geography = lazy(() => import("./dashboard/scenes/geography"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
-const Performance = lazy(() => import("./dashboard/scenes/performance/performance.jsx"));
+const Performance = lazy(() =>
+  import("./dashboard/scenes/performance/performance.jsx")
+);
 const BadgeDetail = lazy(() => import("./components/BadgeDetail"));
 const LessonsDashboard = lazy(() =>
   import("./dashboard/scenes/lessons/LessonsDashboard")
@@ -65,6 +68,7 @@ const CreateLesson = lazy(() => import("./components/AddLesson"));
 const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx")
 );
+import SecurityGate from "./components/SecurityGate";
 
 const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
@@ -78,8 +82,9 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-        <AppWithRouter 
-            isSidebar={isSidebar} 
+          <SecurityGate />
+          <AppWithRouter
+            isSidebar={isSidebar}
             setIsSidebar={setIsSidebar}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery} // Passage en prop
@@ -91,14 +96,18 @@ function App() {
   );
 }
 
-function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery }) {
+function AppWithRouter({
+  isSidebar,
+  setIsSidebar,
+  searchQuery,
+  setSearchQuery,
+}) {
   const location = useLocation();
 
   useEffect(() => {
     trackPageView(document.title);
   }, [location]);
 
-  
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <AutoLogout />
@@ -131,6 +140,7 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                   path="/lesson-details"
                   element={<LessonDetailsFront />}
                 />
+                <Route path="/dys" element={<DyslexiaAssessmentCard />} />
                 
               </Route>
 
@@ -141,9 +151,12 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
             <div className="app">
               <Sidebar isSidebar={isSidebar} className="sidebar" />
               <div className="content">
-              <div className="main-header">
-                        
-                      </div>
+                <div className="main-header">
+                  <Topbar
+                    setIsSidebar={setIsSidebar}
+                    onSearchChange={setSearchQuery}
+                  />
+                </div>
                 <Routes>
                   <Route
                     path="/"
@@ -153,52 +166,53 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                       </PrivateRoute>
                     }
                   />
-                   
-                        <Route path="/update-question/:id" element={<UpdateQuestion />} />
-                        <Route
-                          path="/lessons"
-                          element={
-                            <PrivateRoute>
-                              <LessonsDashboard />
-                            </PrivateRoute>
-                          }
-                        />
 
+                  <Route
+                    path="/update-question/:id"
+                    element={<UpdateQuestion />}
+                  />
+                  <Route
+                    path="/lessons"
+                    element={
+                      <PrivateRoute>
+                        <LessonsDashboard />
+                      </PrivateRoute>
+                    }
+                  />
 
-                        
-                        <Route
-                          path="create-lesson"
-                          element={
-                            <PrivateRoute>
-                              <CreateLessonBack />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
-                          path="lesson/:id"
-                          element={
-                            <PrivateRoute>
-                              <LessonDetails />
-                            </PrivateRoute>
-                          }
-                        />
-                        <Route
-                          path="/badgeForm"
-                          element={
-                            <PrivateRoute>
-                              <BadgeForm />
-                            </PrivateRoute>
-                          }
-                        />
+                  <Route
+                    path="create-lesson"
+                    element={
+                      <PrivateRoute>
+                        <CreateLessonBack />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="lesson/:id"
+                    element={
+                      <PrivateRoute>
+                        <LessonDetails />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/badgeForm"
+                    element={
+                      <PrivateRoute>
+                        <BadgeForm />
+                      </PrivateRoute>
+                    }
+                  />
 
-                        <Route
-                          path="/team"
-                          element={
-                            <PrivateRoute>
-                              <Team searchQuery={searchQuery} />
-                            </PrivateRoute>
-                          }
-                        />
+                  <Route
+                    path="/team"
+                    element={
+                      <PrivateRoute>
+                        <Team searchQuery={searchQuery} />
+                      </PrivateRoute>
+                    }
+                  />
 
                         <Route
                           path="/contacts"
@@ -295,14 +309,14 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                       </PrivateRoute>
                     }
                   />
-                   <Route
-                          path="/listModulesBack"
-                          element={<ListModulesBack />}
+                  <Route
+                    path="/listModulesBack"
+                    element={<ListModulesBack />}
                   />
                   <Route
                     path="/moduleDetailsBack/:id"
                     element={<ModuleDetailsBack />}
-                 />
+                  />
                 </Routes>
               </div>
             </div>

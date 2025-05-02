@@ -1,0 +1,22 @@
+{
+  "welcome": "¡Bienvenido a nuestra aplicación!",
+  "description": {
+    "part1": "Para comenzar, edita <1>src/App.js</1> y guarda para recargar.",
+    "part2": "Cambia el idioma entre inglés, francés y español usando los botones de arriba."
+  },
+  "lesson": {
+    "title": "Título de la lección",
+    "type": "Tipo de lección",
+    "content": "Contenido de la lección",
+    "file": "Archivo de la lección"
+  },
+  "buttons": {
+    "back": "⬅ Volver a las lecciones",
+    "readAloud": "🔊 Leer en voz alta",
+    "stopReading": "🔇 Detener lectura"
+  },
+  "translation": {
+    "label": "🌐 Traducir a:",
+    "unavailable": "❌ Traducción no disponible. Por favor, inténtalo de nuevo más tarde."
+  }
+}
