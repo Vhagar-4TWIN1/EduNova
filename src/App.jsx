@@ -11,6 +11,7 @@ import FaceRecognition from "./components/FaceRecognition";
 import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
 import ReactGA from 'react-ga4'; // Utilisation de react-ga4 pour GA4
+import VideoChat from "./components/VideChat.jsx";
 import { useLocation } from "react-router-dom";
 import { trackPageView } from './GoogleAnalyticsTracker';
 import ModuleDetails from "./components/module/moduleDetails.jsx";
@@ -36,8 +37,12 @@ const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
+const Quiz = lazy(() => import("./components/Quiz"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
+);
+const QuestionForm = lazy(() =>
+  import("./dashboard/scenes/contacts/new")
 );
 const Bar = lazy(() => import("./dashboard/scenes/bar"));
 const Form = lazy(() => import("./dashboard/scenes/form"));
@@ -45,7 +50,6 @@ const Line = lazy(() => import("./dashboard/scenes/line"));
 const Pie = lazy(() => import("./dashboard/scenes/pie"));
 const FAQ = lazy(() => import("./dashboard/scenes/faq"));
 const Geography = lazy(() => import("./dashboard/scenes/geography"));
-const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
 const Performance = lazy(() => import("./dashboard/scenes/performance/performance.jsx"));
@@ -112,10 +116,14 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                 <Route path="/listModules" element={<ListModules />} />
                 <Route path="/update" element={<UserProfile />} />
                 <Route path="/badges" element={<Badge />} />
+                <Route path="/videoChat" element={<VideoChat />} />
                 <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
+          <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
               
+          <Route path="/quiz" element={<Quiz />} />
+          <Route path="/quiz/:type" element={<Quiz />} />
+          
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
                 <Route path="/create-lesson/:id" element={<CreateLesson />} />
@@ -134,10 +142,7 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
               <Sidebar isSidebar={isSidebar} className="sidebar" />
               <div className="content">
               <div className="main-header">
-                        <Topbar
-                          setIsSidebar={setIsSidebar}
-                          onSearchChange={setSearchQuery}
-                        />
+                        
                       </div>
                 <Routes>
                   <Route
@@ -203,6 +208,12 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                             </PrivateRoute>
                           }
                         />
+
+                       <Route 
+                       path="contacts/new" 
+                       element={<QuestionForm />} />
+
+                        
    
                         <Route
                           path="/invoices"
