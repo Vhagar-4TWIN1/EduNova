@@ -4,11 +4,11 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./dashboard/theme";
 import "./App.css";
 import AOS from "aos";
+
 import "aos/dist/aos.css";
 import Layout from "./components/layout";
 import PrivateRoute from "./PrivateRoute";
 import FaceRecognition from "./components/FaceRecognition";
-import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
 import ReactGA from 'react-ga4'; // Utilisation de react-ga4 pour GA4
 import { useLocation } from "react-router-dom";
@@ -16,6 +16,7 @@ import { trackPageView } from './GoogleAnalyticsTracker';
 import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
+
 // Initialisation de AOS pour les animations
 AOS.init();
 // Chargement paresseux (lazy loading) de tous les composants
@@ -23,7 +24,7 @@ AOS.init();
 const Login = lazy(() => import("./components/login"));
 const Registration = lazy(() => import("./components/registration"));
 const Home = lazy(() => import("./components/home"));
-const ForgotPassword = lazy(() => import("./components/forgotPassword"));
+const ForgotPassword = lazy(() => import("./components/ForgotPassword"));
 const AddModule = lazy(() => import("./components/module/addModule"));
 const ListModules = lazy(() => import("./components/module/listModules"));
 const UserProfile = lazy(() => import("./components/userconnectedupdate"));
@@ -56,7 +57,9 @@ const LessonsDashboard = lazy(() =>
 const CreateLessonBack = lazy(() =>
   import("./dashboard/scenes/lessons/CreateLesson")
 );
-
+const SelectGoogleLessons = lazy(() =>
+  import("./dashboard/scenes/lessons/SelectGoogleLessons.jsx"));
+const CalendarPage = lazy(() => import("./components/calendar/CalendarPage.jsx"));
 const CreateLesson = lazy(() => import("./components/AddLesson"));
 const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx")
@@ -82,7 +85,6 @@ function App() {
           />
         </Router>
       </ThemeProvider>
-      <ToastContainer />
     </ColorModeContext.Provider>
   );
 }
@@ -115,7 +117,8 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                 <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
-              
+          <Route path="/calendar" element={  <PrivateRoute><CalendarPage />  </PrivateRoute>} />
+
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
                 <Route path="/create-lesson/:id" element={<CreateLesson />} />
@@ -159,7 +162,6 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                           }
                         />
 
-
                         
                         <Route
                           path="create-lesson"
@@ -177,6 +179,7 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                             </PrivateRoute>
                           }
                         />
+                        <Route path="select-google-lessons" element={<PrivateRoute><SelectGoogleLessons /></PrivateRoute>} />
                         <Route
                           path="/badgeForm"
                           element={

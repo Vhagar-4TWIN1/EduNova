@@ -294,7 +294,13 @@ const Contact = () => {
         position: "relative",
       }}
     >
-      <Logo />
+  <Logo 
+        customStyle={{
+          top: '-120px',    // choose the distance from the top
+          right: '0px',  // choose the distance from the right
+          // you can override other properties if needed
+        }}
+      />
       <Footerpage />
       
       <motion.div
@@ -308,7 +314,7 @@ const Contact = () => {
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <h3 className={styles.sectionSubText} style={{ fontSize: "90px" }}>Welcome</h3>
+        <h3 className={styles.sectionSubText} style={{ fontSize: "50px" }}>Welcome</h3>
 
         <div style={{ marginBottom: "20px" }}>
           <button 
