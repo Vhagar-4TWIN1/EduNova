@@ -18,7 +18,7 @@ import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
 import DyslexiaAssessmentCard from "./components/DyslexiaAssessmentCard.jsx";
-
+import VideoRoom from "./components/VideoRoom.jsx";
 // Initialisation de AOS pour les animations
 AOS.init();
 // Chargement paresseux (lazy loading) de tous les composants
@@ -124,7 +124,7 @@ function AppWithRouter({
           <Route path="/listModules" element={<ListModules />} />
           <Route path="/update" element={<UserProfile />} />
           <Route path="/badges" element={<Badge />} />
-          {/*<Route path="/videoChat" element={<VideoChat />} />*/}
+          <Route path="/videoChat" element={<VideoRoom />} />
           <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
