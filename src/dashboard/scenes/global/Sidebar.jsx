@@ -27,7 +27,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
       onClick={() => setSelected(title)}
       icon={icon}
     >
-      <Typography>{title}</Typography>
+      <Typography  fontSize="0.75rem">{title}</Typography>
       <Link to={to} />
     </MenuItem>
   );
@@ -95,7 +95,7 @@ const Sidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Typography variant="h3" color={colors.grey[100]}>
+                <Typography  fontSize="0.75rem" variant="h3" color={colors.grey[100]}>
                   ADMINIS
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -117,7 +117,7 @@ const Sidebar = () => {
                 />
               </Box>
               <Box textAlign="center">
-                <Typography
+                <Typography  fontSize="0.75rem"
                   variant="h6"
                   color={colors.grey[100]}
                   fontWeight="bold"
@@ -145,7 +145,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
 
-            <Typography
+            <Typography  fontSize="0.75rem"
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
@@ -206,7 +206,7 @@ const Sidebar = () => {
                         />
             
 
-            <Typography
+            <Typography  fontSize="0.75rem"
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
@@ -228,7 +228,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
 
-            <Typography
+            <Typography  fontSize="0.75rem"
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}

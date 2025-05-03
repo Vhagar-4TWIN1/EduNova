@@ -7,6 +7,7 @@ import "../assets/vendor/swiper/swiper-bundle.min.css";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import NavbarNotifications from '../components/Notifications.jsx';
 
 function Header() {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ function Header() {
   return (
     <header id="header" className="header d-flex align-items-center fixed-top">
       <div className="container-fluid container-xl position-relative d-flex align-items-center">
-        <a href="index.html" className="logo d-flex align-items-center me-auto">
+        <a href="/home" className="logo d-flex align-items-center me-auto">
           <h1 className="sitename">EduNova</h1>
         </a>
         <nav id="navmenu" className="navmenu">
@@ -92,7 +93,8 @@ function Header() {
 
             <a href="/forum">Forum</a>
             </li>
-            
+            <NavbarNotifications />
+
             <li className="dropdown">
               <button className="btn-getstarted" onClick={toggleDropdown}>
                 {firstName && lastName
@@ -104,6 +106,9 @@ function Header() {
                 <ul>
                   <li>
                     <a href="/update">Profile</a>
+                  </li>
+                  <li>
+                    <a href="/calendar ">Calendar </a>
                   </li>
                   <li>
                     <a href="/changePassword">Change password</a>

@@ -3,18 +3,25 @@ import React from 'react';
 import './Footer.css';
 
 const Footer = () => (
-  <footer id="footer" className="footer position-relative light-background">
-    <div className="container footer-top">
+  <footer
+    id="footer"
+    className="footer bg-light w-100 fixed-bottom"    style={{ zIndex: 1000 }}            /* ensure it sits on top */
+  >
+    <div className="container-fluid footer-top py-4">
       <div className="row gy-4">
         <div className="col-lg-4 col-md-6 footer-about">
-          <a href="/" className="logo d-flex align-items-center">
+          <a href="index.html" className="logo d-flex align-items-center">
             <span className="sitename">Mentor</span>
           </a>
           <div className="footer-contact pt-3">
             <p>ESPRIT</p>
             <p>Little Ariana</p>
-            <p className="mt-3"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
-            <p><strong>Email:</strong> <span>info@example.com</span></p>
+            <p className="mt-3">
+              <strong>Phone:</strong> <span>+1 5589 55488 55</span>
+            </p>
+            <p>
+              <strong>Email:</strong> <span>info@example.com</span>
+            </p>
           </div>
           <div className="social-links d-flex mt-4">
             <a href="#"><i className="bi bi-twitter-x"></i></a>
@@ -49,10 +56,10 @@ const Footer = () => (
         <div className="col-lg-4 col-md-12 footer-newsletter">
           <h4>Our Newsletter</h4>
           <p>Subscribe to our newsletter and receive the latest news about our products and services!</p>
-          <form action="#" method="post" className="php-email-form">
-            <div className="newsletter-form">
-              <input type="email" name="email" placeholder="Enter your email" />
-              <input type="submit" value="Subscribe" />
+          <form action="forms/newsletter.php" method="post" className="php-email-form">
+            <div className="newsletter-form d-flex">
+              <input type="email" name="email" placeholder="Enter your email" className="flex-grow-1 me-2" />
+              <input type="submit" value="Subscribe" className="btn btn-primary" />
             </div>
             <div className="loading">Loading</div>
             <div className="error-message"></div>

@@ -4,11 +4,11 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./dashboard/theme";
 import "./App.css";
 import AOS from "aos";
+
 import "aos/dist/aos.css";
 import Layout from "./components/layout";
 import PrivateRoute from "./PrivateRoute";
 import FaceRecognition from "./components/FaceRecognition";
-import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
 import ReactGA from "react-ga4"; // Utilisation de react-ga4 pour GA4
 /*import VideoChat from "./components/VideChat.jsx";*/
@@ -17,6 +17,7 @@ import { trackPageView } from "./GoogleAnalyticsTracker";
 import ModuleDetails from "./components/module/moduleDetails.jsx";
 import ListModulesBack from "./components/module/listModulesBack.jsx";
 import ModuleDetailsBack from "./components/module/moduleDetailsBack.jsx";
+
 import DyslexiaAssessmentCard from "./components/DyslexiaAssessmentCard.jsx";
 import ExamPage from "./components/ExamPage.jsx";
 import ChangePassword from "./components/changePassword.jsx";
@@ -30,7 +31,7 @@ AOS.init();
 const Login = lazy(() => import("./components/login"));
 const Registration = lazy(() => import("./components/registration"));
 const Home = lazy(() => import("./components/home"));
-const ForgotPassword = lazy(() => import("./components/forgotPassword"));
+const ForgotPassword = lazy(() => import("./components/ForgotPassword"));
 const AddModule = lazy(() => import("./components/module/addModule"));
 const ListModules = lazy(() => import("./components/module/listModules"));
 const UserProfile = lazy(() => import("./components/userconnectedupdate"));
@@ -66,7 +67,9 @@ const LessonsDashboard = lazy(() =>
 const CreateLessonBack = lazy(() =>
   import("./dashboard/scenes/lessons/CreateLesson")
 );
-const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
+const SelectGoogleLessons = lazy(() =>
+  import("./dashboard/scenes/lessons/SelectGoogleLessons.jsx"));
+const CalendarPage = lazy(() => import("./components/calendar/CalendarPage.jsx"));const Topbar = lazy(() => import("./dashboard/scenes/global/Topbar"));
 const CreateLesson = lazy(() => import("./components/AddLesson"));
 const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx")
@@ -94,7 +97,6 @@ function App() {
           />
         </Router>
       </ThemeProvider>
-      <ToastContainer />
     </ColorModeContext.Provider>
   );
 }
@@ -134,6 +136,8 @@ function AppWithRouter({
           {/*<Route path="/videoChat" element={<VideoChat />} />*/}
           <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/calendar" element={  <PrivateRoute><CalendarPage />  </PrivateRoute>} />
+
           <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
 
           <Route path="/quiz" element={<Quiz />} />
@@ -206,6 +210,8 @@ function AppWithRouter({
                       </PrivateRoute>
                     }
                   />
+                                          <Route path="select-google-lessons" element={<PrivateRoute><SelectGoogleLessons /></PrivateRoute>} />
+
                   <Route
                     path="/badgeForm"
                     element={

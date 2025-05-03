@@ -31,17 +31,25 @@ const Footerpage = () => {
       </div>
 
       {/* Icônes sociales */}
-      <div style={{ marginBottom: '10px' }}>
-        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={iconLinkStyle}>
-          <FaFacebook size={20} />
-        </a>
-       
-        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={iconLinkStyle}>
-          <FaInstagram size={20} />
-        </a>
-        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={iconLinkStyle}>
-          <FaLinkedin size={20} />
-        </a>
+     
+      <div 
+        style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          gap: '10px',       // space between icons 
+         marginBottom: '10px' 
+        }} 
+      > 
+        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={iconLinkStyle}> 
+         <FaFacebook size={20} /> 
+      </a> 
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={iconLinkStyle}> 
+          <FaInstagram size={20} /> 
+        </a> 
+       <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={iconLinkStyle}> 
+          <FaLinkedin size={20} /> 
+        </a> 
       </div>
 
       {/* Texte de copyright */}
