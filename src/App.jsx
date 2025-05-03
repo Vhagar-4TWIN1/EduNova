@@ -68,6 +68,7 @@ const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx")
 );
 import SecurityGate from "./components/SecurityGate";
+import TeacherList from "./components/TeacherList.jsx";
 
 const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
@@ -137,6 +138,7 @@ function AppWithRouter({
           <Route path="/create-lesson/:id" element={<CreateLesson />} />
           <Route path="/lesson-details" element={<LessonDetailsFront />} />
           <Route path="/dys" element={<DyslexiaAssessmentCard />} />
+          <Route path="/Trainers" element={<TeacherList />} />
         </Route>
 
         {/* Routes du tableau de bord */}

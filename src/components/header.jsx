@@ -80,6 +80,11 @@ function Header() {
             <li>
               <a href="/lesson">Courses</a>
             </li>
+
+            <li>
+              <a href="/Trainers">Trainers</a>
+            </li>
+
             <li>
               <a href="">Evaluations</a>
             </li>
