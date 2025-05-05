@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, use } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { setupWebSocket, onMessage } from "@/lib/websocket";
@@ -101,12 +101,12 @@ export default function CalendarPage() {
     staleTime: 300_000,
     retry: false,
   });
-
+  
   const createEventMutation = useMutation({
     mutationFn: async (data) => {
       const userId = localStorage.getItem("userId");
       if (!userId) throw new Error("No userId in localStorage; please log in");
-  
+      
       if (data.type === "lesson" && data.lessonId) {
         const lesson = await apiRequest(`/api/lessons/${data.lessonId}`);
   

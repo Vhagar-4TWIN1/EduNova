@@ -45,6 +45,7 @@ const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
 const Quiz = lazy(() => import("./components/Quiz"));
+const VideoRoom = lazy(() => import("./components/VideoRoom"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
 );
@@ -137,6 +138,7 @@ function AppWithRouter({
           <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/calendar" element={<CalendarPage /> } />
+          <Route path="/videochat" element={<VideoRoom />} /> 
 
           <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
 
