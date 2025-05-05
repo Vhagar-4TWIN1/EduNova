@@ -86,8 +86,17 @@ function Header() {
             <ul>
               <li><a href="/quiz">Level Test</a></li>
               <li><a href="/quizz">Test</a></li>
+              <li>
+              <a href="/Trainers">Trainers</a>
+            </li>
             </ul>
           </li>
+
+            <li>
+              <a href="/Trainers">Trainers</a>
+            </li>
+
+          
             <li>
               <a href="/badges">Budges</a>
               
