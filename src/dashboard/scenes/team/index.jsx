@@ -22,6 +22,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { tokens } from "../../theme";
 import Header from "../../components/header";
+import { useNavigate } from "react-router-dom";
 
 const Team = ({ searchQuery }) => {
   const theme = useTheme();

@@ -345,8 +345,8 @@ const QuestionList = () => {
   return (
     <Box m={isMobile ? "10px" : "20px"}>
       <Header
-        title="GESTION DES QUESTIONS"
-        subtitle="Liste complète des questions"
+        title=" QUESTIONS"
+        subtitle="Questions list"
       />
       
       <Box 

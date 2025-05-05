@@ -60,7 +60,6 @@ const LessonsPage = () => {
   const handleViewFile = (lessonId, lessonTitle) => {
     trackPerformance(lessonId, lessonTitle, "view_file");
   };
-
   const sortedLessons = [...lessons]
     .filter((lesson) => typeFilter[lesson.typeLesson])
     .sort((a, b) => {

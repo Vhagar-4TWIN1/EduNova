@@ -44,11 +44,12 @@ const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
-const Quiz = lazy(() => import("./components/Quiz"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
 );
-const QuestionForm = lazy(() => import("./dashboard/scenes/contacts/new"));
+const QuestionForm = lazy(() =>
+  import("./dashboard/scenes/contacts/new")
+);
 const Bar = lazy(() => import("./dashboard/scenes/bar"));
 const Form = lazy(() => import("./dashboard/scenes/form"));
 const Line = lazy(() => import("./dashboard/scenes/line"));
@@ -57,9 +58,8 @@ const FAQ = lazy(() => import("./dashboard/scenes/faq"));
 const Geography = lazy(() => import("./dashboard/scenes/geography"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
-const Performance = lazy(() =>
-  import("./dashboard/scenes/performance/performance.jsx")
-);
+const Performance = lazy(() => import("./dashboard/scenes/performance/performance.jsx"));
+const QuizResult = lazy(() => import("./dashboard/scenes/performance/quizResult.jsx"));
 const BadgeDetail = lazy(() => import("./components/BadgeDetail"));
 const LessonsDashboard = lazy(() =>
   import("./dashboard/scenes/lessons/LessonsDashboard")
@@ -78,6 +78,11 @@ import SecurityGate from "./components/SecurityGate";
 
 const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
+
+const ClassicWordGame = lazy(() => import("./components/quiz/games/ClassicWordGame.jsx"));
+const Quizz = lazy(() => import("./components/quiz/quiz.jsx"));
+const Quiz = lazy(() => import("./components/quiz/quizPage.jsx"));
+
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
@@ -140,8 +145,9 @@ function AppWithRouter({
 
           <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
 
+          <Route path="/quizz" element={<Quizz />} />
           <Route path="/quiz" element={<Quiz />} />
-          <Route path="/quiz/:type" element={<Quiz />} />
+          <Route path="/ClassicWordGame" element={<ClassicWordGame />} />
 
           <Route path="/message" element={<Message />} />
           <Route path="/lesson" element={<Lesson />} />
@@ -254,6 +260,15 @@ function AppWithRouter({
                     element={
                       <PrivateRoute>
                         <Performance />
+                      </PrivateRoute>
+                    }
+                  />
+
+                   <Route
+                    path="/quizResult"
+                    element={
+                      <PrivateRoute>
+                        <QuizResult />
                       </PrivateRoute>
                     }
                   />

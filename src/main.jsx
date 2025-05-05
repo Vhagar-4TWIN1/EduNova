@@ -15,6 +15,9 @@ import { NotificationProvider } from "@/contexts/NotificationContext";
 // Initialisation de Google Analytics
 ReactGA.initialize('G-2ZXG67XCYF') // Remplacez par votre ID GA4
 ReactGA.send('pageview')
+import "./responsive.css";
+// import './assets/dashboard/css/portal.css';
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <QueryClientProvider client={queryClient}>
