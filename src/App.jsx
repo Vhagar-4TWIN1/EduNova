@@ -44,7 +44,6 @@ const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
-const Quiz = lazy(() => import("./components/Quiz"));
 const VideoRoom = lazy(() => import("./components/VideoRoom"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
@@ -84,7 +83,6 @@ const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
 const ClassicWordGame = lazy(() => import("./components/quiz/games/ClassicWordGame.jsx"));
 const Quizz = lazy(() => import("./components/quiz/quiz.jsx"));
 const Quiz = lazy(() => import("./components/quiz/quizPage.jsx"));
-
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
