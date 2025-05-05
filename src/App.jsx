@@ -136,7 +136,7 @@ function AppWithRouter({
           {/*<Route path="/videoChat" element={<VideoChat />} />*/}
           <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/calendar" element={  <PrivateRoute><CalendarPage />  </PrivateRoute>} />
+          <Route path="/calendar" element={<CalendarPage /> } />
 
           <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
 
@@ -210,7 +210,7 @@ function AppWithRouter({
                       </PrivateRoute>
                     }
                   />
-                                          <Route path="select-google-lessons" element={<PrivateRoute><SelectGoogleLessons /></PrivateRoute>} />
+                  <Route path="select-google-lessons" element={<PrivateRoute><SelectGoogleLessons /></PrivateRoute>} />
 
                   <Route
                     path="/badgeForm"

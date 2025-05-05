@@ -13,7 +13,6 @@ export default defineConfig({
   plugins: [react(),    tsconfigPaths()],
   resolve: {
     alias: {
-      fs: false,                       // disable any "fs" polyfills
       '@':         path.resolve(__dirname, 'src'),
       '@calendar': path.resolve(__dirname, 'src/components/calendar'),
       '@lib':      path.resolve(__dirname, 'src/lib'),

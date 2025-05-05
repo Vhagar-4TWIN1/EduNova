@@ -110,20 +110,20 @@ export default function CalendarPage() {
       if (data.type === "lesson" && data.lessonId) {
         const lesson = await apiRequest(`/api/lessons/${data.lessonId}`);
   
-        const moduleId = lesson.module; 
-  
-        if (!moduleId || moduleId.length !== 24) {
+        const lessonId = lesson._id;
+        console.log("Lesson ID:", lessonId);
+        if (!lessonId) {
           throw new Error("Lesson is not linked to a valid module.");
         }
   
-        const enrollment = await apiRequest(`/api/progress/enrollment/${userId}/${moduleId}`);
+        const enrollment = await apiRequest(`/api/progress/enrollment/${userId}/${lessonId}`);
   
         if (!enrollment.enrolled) {
           const enrollRes = await apiRequest(`/api/progress/enroll`, {  method: "POST",
 
             body: {
               userId: String(userId),
-              moduleId: String(moduleId),
+              lessonId: String(lessonId),
             },});
           console.log("✅ Enrollment result:", enrollRes);
         } else {
