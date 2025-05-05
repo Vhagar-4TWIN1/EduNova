@@ -8,6 +8,7 @@ import "aos/dist/aos.css";
 import Layout from "./components/layout";
 import PrivateRoute from "./PrivateRoute";
 import FaceRecognition from "./components/FaceRecognition";
+import { ToastContainer } from "react-toastify";
 import AutoLogout from "./components/AutoLogout";
 import ReactGA from 'react-ga4'; // Utilisation de react-ga4 pour GA4
 import { useLocation } from "react-router-dom";
@@ -35,7 +36,6 @@ const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
-const Quiz = lazy(() => import("./components/Quiz"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
 );
@@ -51,6 +51,7 @@ const Geography = lazy(() => import("./dashboard/scenes/geography"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
 const Performance = lazy(() => import("./dashboard/scenes/performance/performance.jsx"));
+const QuizResult = lazy(() => import("./dashboard/scenes/performance/quizResult.jsx"));
 const BadgeDetail = lazy(() => import("./components/BadgeDetail"));
 const LessonsDashboard = lazy(() =>
   import("./dashboard/scenes/lessons/LessonsDashboard")
@@ -66,6 +67,12 @@ const LessonDetails = lazy(() =>
 
 const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
+
+const ClassicWordGame = lazy(() => import("./components/quiz/games/ClassicWordGame.jsx"));
+const Quizz = lazy(() => import("./components/quiz/quiz.jsx"));
+const Quiz = lazy(() => import("./components/quiz/quizPage.jsx"));
+
+
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
@@ -84,6 +91,7 @@ function App() {
           />
         </Router>
       </ThemeProvider>
+      <ToastContainer />
     </ColorModeContext.Provider>
   );
 }
@@ -117,9 +125,10 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
           <Route path="/contact" element={<Contact />} />
           <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
               
+          <Route path="/quizz" element={<Quizz />} />
           <Route path="/quiz" element={<Quiz />} />
-          <Route path="/quiz/:type" element={<Quiz />} />
-          
+          <Route path="/ClassicWordGame" element={<ClassicWordGame />} />
+
                 <Route path="/message" element={<Message />} />
                 <Route path="/lesson" element={<Lesson />} />
                 <Route path="/create-lesson/:id" element={<CreateLesson />} />
@@ -224,6 +233,15 @@ function AppWithRouter({ isSidebar, setIsSidebar, searchQuery, setSearchQuery })
                     element={
                       <PrivateRoute>
                         <Performance />
+                      </PrivateRoute>
+                    }
+                  />
+
+                   <Route
+                    path="/quizResult"
+                    element={
+                      <PrivateRoute>
+                        <QuizResult />
                       </PrivateRoute>
                     }
                   />

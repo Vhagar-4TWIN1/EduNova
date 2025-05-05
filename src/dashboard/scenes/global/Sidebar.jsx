@@ -14,6 +14,7 @@ import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutl
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
+import axios from "axios";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -46,14 +47,28 @@ const Sidebar = () => {
   // Utilisation de useNavigate pour naviguer après le logout
   const navigate = useNavigate();
   const imageSrc = localStorage.getItem("image");
-  const handleLogout = () => {
-    // Supprimer les informations de l'utilisateur du localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("firstName");
-    localStorage.removeItem("lastName");
+  const handleLogout = async () => {
+    try {
+      // const token = localStorage.getItem('token'); // ou selon ton stockage
+      // await axios.post('http://localhost:3000/api/auth/signout', {}, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   },
+      //   withCredentials: true,
+      // });
+      
 
-    // Naviguer vers la page d'accueil
-    navigate("/");
+      // Nettoyage localStorage
+      localStorage.clear();
+  
+      // Redirection
+      navigate("/");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion :", error);
+      // Même en cas d'erreur, on peut nettoyer et rediriger
+      // localStorage.clear();
+      // navigate("/");
+    }
   };
 
   return (
@@ -198,7 +213,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-                          title="Student performance"
+                          title="Performance"
                           to="/dashboard/performance"
                           icon={<ReceiptOutlinedIcon />}
                           selected={selected}
