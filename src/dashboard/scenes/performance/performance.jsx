@@ -218,19 +218,6 @@ const Performance = () => {
         >
           Lessons
         </button>
-        {/* <button
-          onClick={() => setActiveTab("students")}
-          style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: activeTab === "students" ? "#2563eb" : "#e5e7eb",
-            color: activeTab === "students" ? "white" : "#4b5563",
-            border: "none",
-            borderRadius: "0.375rem",
-            cursor: "pointer",
-          }}
-        >
-          Students
-        </button> */}
       </div>
 
       {loading && (
@@ -252,6 +239,7 @@ const Performance = () => {
         </div>
       )}
 
+      {/* Displaying Overview */}
       {!loading && !error && activeTab === "overview" && (
         <div
           style={{
@@ -261,6 +249,7 @@ const Performance = () => {
             marginBottom: "2rem",
           }}
         >
+          {/* Most Viewed Lessons */}
           <div
             style={{
               backgroundColor: "white",
@@ -300,6 +289,7 @@ const Performance = () => {
             </div>
           </div>
 
+          {/* Action Distribution */}
           <div
             style={{
               backgroundColor: "white",
@@ -348,132 +338,23 @@ const Performance = () => {
         </div>
       )}
 
-      {!loading && !error && activeTab === "lessons" && (
-        <div
+      {/* View Quiz Results Button */}
+      <div style={{ marginTop: "2rem" }}>
+        <button
+          onClick={() => navigate("/dashboard/quizResult")}
           style={{
-            backgroundColor: "white",
-            borderRadius: "0.75rem",
-            padding: "1.5rem",
-            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
-            marginBottom: "2rem",
+            padding: "0.75rem 2rem",
+            backgroundColor: "#4CAF50",
+            color: "white",
+            border: "none",
+            borderRadius: "0.375rem",
+            cursor: "pointer",
+            fontSize: "2rem",
           }}
         >
-          <h3
-            style={{
-              fontSize: "1.25rem",
-              fontWeight: "600",
-              marginBottom: "1rem",
-            }}
-          >
-            Lesson Performance
-          </h3>
-          <div style={{ overflowX: "auto" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-              }}
-            >
-              <thead>
-                <tr
-                  style={{
-                    backgroundColor: "#f3f4f6",
-                    textAlign: "left",
-                  }}
-                >
-                  <th style={{ padding: "0.75rem" }}>Lesson Title</th>
-                  <th style={{ padding: "0.75rem" }}>Views</th>
-                  <th style={{ padding: "0.75rem" }}>Unique Students</th>
-                  <th style={{ padding: "0.75rem" }}>Last Viewed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getLessonViewsData().map((lesson) => (
-                  <tr
-                    key={lesson.name}
-                    style={{
-                      borderBottom: "1px solid #e5e7eb",
-                    }}
-                  >
-                    <td style={{ padding: "0.75rem" }}>{lesson.name}</td>
-                    <td style={{ padding: "0.75rem" }}>{lesson.views}</td>
-                    <td style={{ padding: "0.75rem" }}>
-                      {performanceData
-                        .filter(
-                          (entry) =>
-                            entry.lessonTitle === lesson.name &&
-                            entry.action === "view_file"
-                        )
-                        .reduce((acc, entry) => {
-                          if (!acc.includes(entry.userId)) {
-                            acc.push(entry.userId);
-                          }
-                          return acc;
-                        }, []).length}
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>
-                      {new Date(
-                        Math.max(
-                          ...performanceData
-                            .filter(
-                              (entry) =>
-                                entry.lessonTitle === lesson.name &&
-                                entry.action === "view_file"
-                            )
-                            .map((entry) => new Date(entry.timestamp))
-                        )
-                      ).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {!loading && !error && activeTab === "students" && (
-        <div
-          style={{
-            backgroundColor: "white",
-            borderRadius: "0.75rem",
-            padding: "1.5rem",
-            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
-            marginBottom: "2rem",
-          }}
-        >
-          <h3
-            style={{
-              fontSize: "1.25rem",
-              fontWeight: "600",
-              marginBottom: "1rem",
-            }}
-          >
-            Student Activity
-          </h3>
-          <div style={{ height: "400px" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={getUserActivityData()}
-                layout="vertical"
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={80} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="actions" fill="#00C49F" name="Actions" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
+          View Quiz Results
+        </button>
+      </div>
     </div>
   );
 };

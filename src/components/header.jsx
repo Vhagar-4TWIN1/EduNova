@@ -82,12 +82,18 @@ function Header() {
             <li>
               <a href="/lesson">Courses</a>
             </li>
-            <li>
-              <a href="">Evaluations</a>
-            </li>
+            <li class="dropdown"><a href="#"><span>Evaluations</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              <li><a href="/quiz">Level Test</a></li>
+              <li><a href="/quizz">Test</a></li>
+            </ul>
+          </li>
             <li>
               <a href="/badges">Budges</a>
               
+            </li>
+            <li>
+              <a href="/ClassicWordGame">Game</a>
             </li>
             <li>
 
