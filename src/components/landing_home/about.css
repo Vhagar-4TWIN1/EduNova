@@ -1,0 +1,61 @@
+.about-section {
+    position: relative;
+    background: linear-gradient(135deg, #f5f9ff 0%, #ffffff 100%);
+    overflow: hidden;
+  }
+  
+  .headline {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    background: linear-gradient(90deg, #0B1C3F, #1a2d52);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .subtitle {
+    color: #4a4a4a;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    line-height: 1.6;
+  }
+  
+  .feature-item span {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: #0B1C3F;
+    line-height: 1.5;
+  }
+  
+  .text-gradient {
+    background: linear-gradient(90deg, #0B1C3F, #1a2d52);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .btn-gradient {
+    background: linear-gradient(90deg, #0B1C3F, #1a2d52);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    transition: transform 0.2s ease;
+  }
+  
+  .btn-gradient:hover {
+    transform: translateY(-2px);
+    color: #fff;
+
+    box-shadow: 0 4px 12px rgba(26, 45, 82, 0.3);
+  }
+  
+  .image-hero {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  
+  @media (max-width: 991px) {
+    .image-hero {
+      margin-top: 2rem;
+    }
+  }
+  
