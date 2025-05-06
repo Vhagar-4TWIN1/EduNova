@@ -24,6 +24,8 @@ import ChangePassword from "./components/changePassword.jsx";
 import ChangePasswordBack from "./components/changePasswordBack.jsx";
 import ForumMain from "./components/forum/ForumMain.jsx";
 import PostDetail from "./components/forum/PostDetail.jsx";
+import MusicPage from './components/MusicPage';
+
 // Initialisation de AOS pour les animations
 AOS.init();
 // Chargement paresseux (lazy loading) de tous les composants
@@ -157,6 +159,8 @@ function AppWithRouter({
           <Route path="/lesson-details" element={<LessonDetailsFront />} />
           <Route path="/dys" element={<DyslexiaAssessmentCard />} />
           <Route path="/Trainers" element={<TeacherList />} />
+          <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
+          <Route path="/music-player" element={<MusicPage />} />
         </Route>
 
         {/* Routes du tableau de bord */}
