@@ -53,7 +53,7 @@ const AddLesson = () => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-      });
+      }); 
 
       alert("Lesson added successfully!");
       navigate(`/moduleDetails/${moduleId}`);

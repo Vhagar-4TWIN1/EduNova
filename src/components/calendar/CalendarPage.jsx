@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, use } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { setupWebSocket, onMessage } from "@/lib/websocket";
@@ -101,29 +101,29 @@ export default function CalendarPage() {
     staleTime: 300_000,
     retry: false,
   });
-
+  
   const createEventMutation = useMutation({
     mutationFn: async (data) => {
       const userId = localStorage.getItem("userId");
       if (!userId) throw new Error("No userId in localStorage; please log in");
-  
+      
       if (data.type === "lesson" && data.lessonId) {
         const lesson = await apiRequest(`/api/lessons/${data.lessonId}`);
   
-        const moduleId = lesson.module; 
-  
-        if (!moduleId || moduleId.length !== 24) {
+        const lessonId = lesson._id;
+        console.log("Lesson ID:", lessonId);
+        if (!lessonId) {
           throw new Error("Lesson is not linked to a valid module.");
         }
   
-        const enrollment = await apiRequest(`/api/progress/enrollment/${userId}/${moduleId}`);
+        const enrollment = await apiRequest(`/api/progress/enrollment/${userId}/${lessonId}`);
   
         if (!enrollment.enrolled) {
           const enrollRes = await apiRequest(`/api/progress/enroll`, {  method: "POST",
 
             body: {
               userId: String(userId),
-              moduleId: String(moduleId),
+              lessonId: String(lessonId),
             },});
           console.log("✅ Enrollment result:", enrollRes);
         } else {

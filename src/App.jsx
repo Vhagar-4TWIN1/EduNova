@@ -24,6 +24,8 @@ import ChangePassword from "./components/changePassword.jsx";
 import ChangePasswordBack from "./components/changePasswordBack.jsx";
 import ForumMain from "./components/forum/ForumMain.jsx";
 import PostDetail from "./components/forum/PostDetail.jsx";
+import MusicPage from './components/MusicPage';
+
 // Initialisation de AOS pour les animations
 AOS.init();
 // Chargement paresseux (lazy loading) de tous les composants
@@ -44,11 +46,13 @@ const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
-const Quiz = lazy(() => import("./components/Quiz"));
+const VideoRoom = lazy(() => import("./components/VideoRoom"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
 );
-const QuestionForm = lazy(() => import("./dashboard/scenes/contacts/new"));
+const QuestionForm = lazy(() =>
+  import("./dashboard/scenes/contacts/new")
+);
 const Bar = lazy(() => import("./dashboard/scenes/bar"));
 const Form = lazy(() => import("./dashboard/scenes/form"));
 const Line = lazy(() => import("./dashboard/scenes/line"));
@@ -57,9 +61,8 @@ const FAQ = lazy(() => import("./dashboard/scenes/faq"));
 const Geography = lazy(() => import("./dashboard/scenes/geography"));
 const Sidebar = lazy(() => import("./dashboard/scenes/global/Sidebar"));
 const Level = lazy(() => import("./dashboard/scenes/Level"));
-const Performance = lazy(() =>
-  import("./dashboard/scenes/performance/performance.jsx")
-);
+const Performance = lazy(() => import("./dashboard/scenes/performance/performance.jsx"));
+const QuizResult = lazy(() => import("./dashboard/scenes/performance/quizResult.jsx"));
 const BadgeDetail = lazy(() => import("./components/BadgeDetail"));
 const LessonsDashboard = lazy(() =>
   import("./dashboard/scenes/lessons/LessonsDashboard")
@@ -75,9 +78,14 @@ const LessonDetails = lazy(() =>
   import("./dashboard/scenes/lessons/LessonDetails.jsx")
 );
 import SecurityGate from "./components/SecurityGate";
+import TeacherList from "./components/TeacherList.jsx";
 
 const BadgeForm = lazy(() => import("./dashboard/scenes/form/badgeForm"));
 const LessonDetailsFront = lazy(() => import("./components/CoursesDetails"));
+
+const ClassicWordGame = lazy(() => import("./components/quiz/games/ClassicWordGame.jsx"));
+const Quizz = lazy(() => import("./components/quiz/quiz.jsx"));
+const Quiz = lazy(() => import("./components/quiz/quizPage.jsx"));
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
@@ -136,18 +144,23 @@ function AppWithRouter({
           {/*<Route path="/videoChat" element={<VideoChat />} />*/}
           <Route path="/badge/:id" element={<BadgeDetail />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/calendar" element={  <PrivateRoute><CalendarPage />  </PrivateRoute>} />
+          <Route path="/calendar" element={<CalendarPage /> } />
+          <Route path="/videochat" element={<VideoRoom />} /> 
 
           <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
 
+          <Route path="/quizz" element={<Quizz />} />
           <Route path="/quiz" element={<Quiz />} />
-          <Route path="/quiz/:type" element={<Quiz />} />
+          <Route path="/ClassicWordGame" element={<ClassicWordGame />} />
 
           <Route path="/message" element={<Message />} />
           <Route path="/lesson" element={<Lesson />} />
           <Route path="/create-lesson/:id" element={<CreateLesson />} />
           <Route path="/lesson-details" element={<LessonDetailsFront />} />
           <Route path="/dys" element={<DyslexiaAssessmentCard />} />
+          <Route path="/Trainers" element={<TeacherList />} />
+          <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
+          <Route path="/music-player" element={<MusicPage />} />
         </Route>
 
         {/* Routes du tableau de bord */}
@@ -210,7 +223,7 @@ function AppWithRouter({
                       </PrivateRoute>
                     }
                   />
-                                          <Route path="select-google-lessons" element={<PrivateRoute><SelectGoogleLessons /></PrivateRoute>} />
+                  <Route path="select-google-lessons" element={<PrivateRoute><SelectGoogleLessons /></PrivateRoute>} />
 
                   <Route
                     path="/badgeForm"
@@ -254,6 +267,15 @@ function AppWithRouter({
                     element={
                       <PrivateRoute>
                         <Performance />
+                      </PrivateRoute>
+                    }
+                  />
+
+                   <Route
+                    path="/quizResult"
+                    element={
+                      <PrivateRoute>
+                        <QuizResult />
                       </PrivateRoute>
                     }
                   />

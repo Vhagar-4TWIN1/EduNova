@@ -14,6 +14,7 @@ import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutl
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
+import axios from "axios";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -198,7 +199,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-                          title="Student performance"
+                          title="Performance"
                           to="/dashboard/performance"
                           icon={<ReceiptOutlinedIcon />}
                           selected={selected}
