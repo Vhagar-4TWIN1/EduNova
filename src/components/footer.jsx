@@ -10,8 +10,8 @@ const Footer = () => (
     <div className="container-fluid footer-top py-4">
       <div className="row gy-4">
         <div className="col-lg-4 col-md-6 footer-about">
-          <a href="index.html" className="logo d-flex align-items-center">
-            <span className="sitename">Mentor</span>
+          <a href="index.html" className=" d-flex align-items-center">
+          <h1 className="sitename-footer">EduNova</h1>
           </a>
           <div className="footer-contact pt-3">
             <p>ESPRIT</p>
