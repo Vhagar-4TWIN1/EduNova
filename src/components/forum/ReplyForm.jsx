@@ -1,28 +1,124 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { FiSend } from 'react-icons/fi';
+import { FiSend, FiMic, FiStopCircle, FiTrash2, FiEdit2 } from 'react-icons/fi';
 
 const ReplyForm = ({ postId, onReplyAdded }) => {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const [audioUrl, setAudioUrl] = useState('');
+  const [replyMode, setReplyMode] = useState(null); // 'text' or 'voice'
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+  useEffect(() => {
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
+
+  const startRecording = async () => {
+    try {
+      setContent(''); // Clear any text content
+      setReplyMode('voice');
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        setAudioBlob(audioBlob);
+        setAudioUrl(URL.createObjectURL(audioBlob));
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+      setError('Microphone access denied or not available');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const deleteRecording = () => {
+    setAudioBlob(null);
+    setAudioUrl('');
+    setReplyMode(null);
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
+  };
+
+  const switchToTextMode = () => {
+    deleteRecording();
+    setReplyMode('text');
+  };
+
+  const switchToVoiceMode = () => {
+    setContent('');
+    setReplyMode('voice');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    
+    if ((replyMode === 'text' && !content.trim()) || 
+        (replyMode === 'voice' && !audioBlob)) {
+      return;
+    }
     
     setIsSubmitting(true);
     setError(null);
 
     try {
-      const response = await axios.post(`http://localhost:3000/api/forum/posts/${postId}/reply`, {
-        content
-      });
+      let response;
+      
+      if (replyMode === 'voice') {
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.wav');
+        formData.append('author', localStorage.getItem('userId'));
+        console.log(postId);
+        
+        response = await axios.post(
+          `http://localhost:3000/api/forum/posts/${postId}/reply/audio`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
+      } else {
+        response = await axios.post(
+          `http://localhost:3000/api/forum/posts/${postId}/reply`,
+          { content }
+        );
+      }
 
       onReplyAdded(response.data);
       setContent('');
+      deleteRecording();
+      setReplyMode(null);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add reply');
+      setError(err.response?.data?.message || 'Your message is Toxic ');
     } finally {
       setIsSubmitting(false);
     }
@@ -39,10 +135,6 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
           border: 1px solid #e5e7eb;
           transition: all 0.2s ease;
           margin-bottom: 20px;
-        }
-
-        .reply-form:hover {
-          box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
         }
 
         .reply-form-title {
@@ -109,15 +201,71 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
           color: #9ca3af;
         }
 
+        .audio-controls {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 16px;
+          align-items: center;
+        }
+
+        .audio-preview {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+
+        .audio-preview audio {
+          flex-grow: 1;
+        }
+
+        .recording-indicator {
+          display: flex;
+          align-items: center;
+          color: #ef4444;
+          font-size: 0.875rem;
+        }
+
+        .recording-dot {
+          width: 8px;
+          height: 8px;
+          background-color: #ef4444;
+          border-radius: 50%;
+          margin-right: 6px;
+          animation: pulse 1.5s infinite;
+        }
+
+        .mode-selector {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+
+        .mode-button {
+          display: flex;
+          align-items: center;
+          padding: 8px 16px;
+          background-color: #f3f4f6;
+          border: none;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .mode-button.active {
+          background-color: #3b82f6;
+          color: white;
+        }
+
+        .mode-button:not(.active):hover {
+          background-color: #e5e7eb;
+        }
+
         .form-footer {
           display: flex;
           justify-content: space-between;
           align-items: center;
-        }
-
-        .format-info {
-          font-size: 0.75rem;
-          color: #6b7280;
         }
 
         .submit-button {
@@ -135,7 +283,6 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
 
         .submit-button:hover:not(:disabled) {
           background-color: #2563eb;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .submit-button:disabled {
@@ -162,8 +309,47 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
           animation: spin 1s ease-in-out infinite;
         }
 
+        .record-button {
+          display: flex;
+          align-items: center;
+          padding: 8px 16px;
+          background-color: ${isRecording ? '#ef4444' : '#f3f4f6'};
+          color: ${isRecording ? 'white' : '#1f2937'};
+          border: none;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .record-button:hover:not(:disabled) {
+          background-color: ${isRecording ? '#dc2626' : '#e5e7eb'};
+        }
+
+        .delete-button {
+          display: flex;
+          align-items: center;
+          padding: 8px;
+          background-color: #f3f4f6;
+          color: #ef4444;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .delete-button:hover {
+          background-color: #fee2e2;
+        }
+
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.3; }
+          100% { opacity: 1; }
         }
 
         /* Dark mode support */
@@ -192,9 +378,39 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
             color: #f8fafc;
           }
           
-          .char-counter,
-          .format-info {
+          .char-counter {
             color: #94a3b8;
+          }
+
+          .mode-button {
+            background-color: #374151;
+            color: #f3f4f6;
+          }
+
+          .mode-button.active {
+            background-color: #3b82f6;
+          }
+
+          .mode-button:not(.active):hover {
+            background-color: #4b5563;
+          }
+
+          .record-button {
+            background-color: ${isRecording ? '#ef4444' : '#374151'};
+            color: ${isRecording ? 'white' : '#f3f4f6'};
+          }
+
+          .record-button:hover:not(:disabled) {
+            background-color: ${isRecording ? '#dc2626' : '#4b5563'};
+          }
+
+          .delete-button {
+            background-color: #374151;
+            color: #fca5a5;
+          }
+
+          .delete-button:hover {
+            background-color: rgba(220, 38, 38, 0.2);
           }
         }
       `}</style>
@@ -212,24 +428,94 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="textarea-container">
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="reply-textarea"
-              rows="4"
-              placeholder="Share your thoughts..."
-              required
-            />
-            <div className="char-counter">{content.length}/500</div>
+          <div className="mode-selector">
+            <button
+              type="button"
+              className={`mode-button ${replyMode === 'text' ? 'active' : ''}`}
+              onClick={() => setReplyMode('text')}
+            >
+              <FiEdit2 className="icon" />
+              Text Reply
+            </button>
+            <button
+              type="button"
+              className={`mode-button ${replyMode === 'voice' ? 'active' : ''}`}
+              onClick={switchToVoiceMode}
+            >
+              <FiMic className="icon" />
+              Voice Reply
+            </button>
           </div>
 
+          {replyMode === 'text' && (
+            <div className="textarea-container">
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="reply-textarea"
+                rows="4"
+                placeholder="Share your thoughts..."
+              />
+              <div className="char-counter">{content.length}/500</div>
+            </div>
+          )}
+
+          {replyMode === 'voice' && (
+            <div className="audio-controls">
+              {!isRecording && !audioUrl ? (
+                <button
+                  type="button"
+                  className="record-button"
+                  onClick={startRecording}
+                  disabled={isSubmitting}
+                >
+                  <FiMic className="icon" />
+                  Start Recording
+                </button>
+              ) : isRecording ? (
+                <>
+                  <div className="recording-indicator">
+                    <span className="recording-dot"></span>
+                    Recording...
+                  </div>
+                  <button
+                    type="button"
+                    className="record-button"
+                    onClick={stopRecording}
+                  >
+                    <FiStopCircle className="icon" />
+                    Stop Recording
+                  </button>
+                </>
+              ) : (
+                <div className="audio-preview">
+                  <audio controls src={audioUrl} />
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={deleteRecording}
+                    disabled={isSubmitting}
+                  >
+                    <FiTrash2 />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="form-footer">
-            <div className="format-info">Markdown supported</div>
+            <div className="format-info">
+              {replyMode === 'text' && "Type your reply"}
+              {replyMode === 'voice' && (audioUrl ? "Voice message ready" : "Record a voice message")}
+              {!replyMode && "Select reply type"}
+            </div>
             <button
               type="submit"
               className={`submit-button ${isSubmitting ? 'submitting' : ''}`}
-              disabled={isSubmitting || !content.trim()}
+              disabled={isSubmitting || 
+                (replyMode === 'text' && !content.trim()) || 
+                (replyMode === 'voice' && !audioUrl) ||
+                !replyMode}
             >
               {isSubmitting ? (
                 <>

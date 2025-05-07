@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { FiUser, FiClock, FiMessageSquare, FiArrowLeft } from 'react-icons/fi';
+import { FiUser, FiClock, FiMessageSquare, FiArrowLeft, FiMic } from 'react-icons/fi';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import ReplyForm from './ReplyForm';
 
@@ -24,18 +24,18 @@ const PostDetail = () => {
     };
     fetchPost();
   }, [id]);
+
   const handleUpvote = async (replyId) => {
     try {
       await axios.post(`http://localhost:3000/api/forum/replies/${replyId}/upvote`, null, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}` // or your auth method
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
 
       // Refresh replies after upvote
       const updatedPost = await axios.get(`http://localhost:3000/api/forum/posts/${id}`);
       setPost(updatedPost.data);
-
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to upvote');
     }
@@ -119,17 +119,15 @@ const PostDetail = () => {
           margin: 0 auto;
           padding: 24px 16px;
         }
-          button {
-            background: none;
-            border: none;
-            color: #3b82f6;
-            font-weight: 500;
-          }
-          button:hover {
-            text-decoration: underline;
-          }
-
-        
+        button {
+          background: none;
+          border: none;
+          color: #3b82f6;
+          font-weight: 500;
+        }
+        button:hover {
+          text-decoration: underline;
+        }
         .back-button {
           display: inline-flex;
           align-items: center;
@@ -143,7 +141,6 @@ const PostDetail = () => {
         .back-button:hover {
           color: #2563eb;
         }
-        
         .post-card {
           background: white;
           border-radius: 12px;
@@ -151,7 +148,6 @@ const PostDetail = () => {
           padding: 28px;
           margin-bottom: 32px;
         }
-        
         .post-title {
           font-size: 28px;
           font-weight: 700;
@@ -159,7 +155,6 @@ const PostDetail = () => {
           margin-bottom: 16px;
           line-height: 1.3;
         }
-        
         .post-content {
           color: #374151;
           line-height: 1.7;
@@ -167,7 +162,6 @@ const PostDetail = () => {
           white-space: pre-line;
           font-size: 16px;
         }
-        
         .post-meta {
           display: flex;
           justify-content: space-between;
@@ -177,13 +171,11 @@ const PostDetail = () => {
           color: #6b7280;
           font-size: 14px;
         }
-        
         .meta-item {
           display: flex;
           align-items: center;
           gap: 6px;
         }
-        
         .replies-header {
           display: flex;
           align-items: center;
@@ -193,14 +185,12 @@ const PostDetail = () => {
           color: #111827;
           margin-bottom: 20px;
         }
-        
         .replies-list {
           display: flex;
           flex-direction: column;
           gap: 16px;
           margin-top: 24px;
         }
-        
         .reply-card {
           background: #f9fafb;
           border-left: 4px solid #3b82f6;
@@ -212,28 +202,39 @@ const PostDetail = () => {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
-        
         .reply-content {
           color: #374151;
           line-height: 1.6;
           white-space: pre-line;
           margin-bottom: 12px;
         }
-        
+        .voice-reply-container {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 12px;
+        }
+        .voice-reply-icon {
+          color: #3b82f6;
+          flex-shrink: 0;
+        }
         .reply-meta {
           display: flex;
           justify-content: space-between;
           font-size: 13px;
           color: #6b7280;
         }
-        
         .no-replies {
           text-align: center;
           padding: 32px 0;
           color: #6b7280;
           font-size: 15px;
         }
-        
+        .audio-player {
+          width: 100%;
+          max-width: 300px;
+          height: 40px;
+        }
         @media (max-width: 768px) {
           .post-detail-container {
             padding: 16px 12px;
@@ -243,6 +244,10 @@ const PostDetail = () => {
           }
           .post-title {
             font-size: 24px;
+          }
+          .reply-meta {
+            flex-direction: column;
+            gap: 8px;
           }
         }
       `}</style>
@@ -277,7 +282,14 @@ const PostDetail = () => {
           <div className="replies-list">
             {post.replies.map((reply) => (
               <div key={reply._id} className="reply-card">
-                <div className="reply-content">{reply.content}</div>
+                {reply.voiceUrl ? (
+                  <div className="voice-reply-container">
+                    <FiMic className="voice-reply-icon" size={18} />
+                    <audio controls src={reply.voiceUrl} className="audio-player" />
+                  </div>
+                ) : (
+                  <div className="reply-content">{reply.content}</div>
+                )}
                 <div className="reply-meta">
                   <span>
                     <FiUser /> {reply.author?.username || 'Anonymous'}
@@ -287,14 +299,16 @@ const PostDetail = () => {
                   </span>
                   <span>
                     👍 {reply.upvotedBy?.length || 0}
-                    <button onClick={() => handleUpvote(reply._id)} style={{ marginLeft: '8px', cursor: 'pointer' }}>
+                    <button 
+                      onClick={() => handleUpvote(reply._id)} 
+                      style={{ marginLeft: '8px', cursor: 'pointer' }}
+                    >
                       Upvote
                     </button>
                   </span>
                 </div>
               </div>
             ))}
-
           </div>
         ) : (
           <div className="no-replies">
