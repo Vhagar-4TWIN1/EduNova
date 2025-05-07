@@ -217,19 +217,92 @@ export default function Header() {
         </div>
       </header>
 
-      {/* AI Tutor Modal */}
       {showAITutor && (
-        <div className="ai-tutor-modal">
-          {/* … unchanged modal markup … */}
+        <div className="ai-tutor-modal" style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          width: '400px',
+          maxHeight: '70vh',
+          backgroundColor: 'white',
+          borderRadius: '10px',
+          boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
+          zIndex: 1000,
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div className="ai-tutor-header" style={{
+            padding: '15px',
+            backgroundColor: '#1976d2',
+            color: 'white',
+            borderRadius: '10px 10px 0 0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <h5 style={{ margin: 0 }}>AI Learning Assistant</h5>
+            <button 
+              onClick={toggleAITutor}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'white',
+                fontSize: '1.2rem',
+                cursor: 'pointer'
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <AITutor userId={localStorage.getItem("userId")} />
+          </div>
         </div>
       )}
 
-      {/* Generate Resume Modal */}
+      {/* Generate Resume Component */}
       {showGenerateResume && (
-        <div className="generate-resume-modal">
-          {/* … unchanged modal markup … */}
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '20px',
+          width: '400px',
+          maxHeight: '70vh',
+          backgroundColor: 'white',
+          borderRadius: '10px',
+          boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
+          zIndex: 1000,
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div className="generate-resume-header" style={{
+            padding: '15px',
+            backgroundColor: '#1976d2',
+            color: 'white',
+            borderRadius: '10px 10px 0 0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <h5 style={{ margin: 0 }}>Generate Resume</h5>
+            <button 
+              onClick={toggleGenerateResume}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'white',
+                fontSize: '1.2rem',
+                cursor: 'pointer'
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <GenerateResume />
+          </div>
         </div>
       )}
     </>
-  );
+ );
 }

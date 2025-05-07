@@ -44,9 +44,13 @@ const CreateLesson = () => {
   // Fetch modules from /api/module when the component mounts.
   useEffect(() => {
     const fetchModules = async () => {
+      const token = localStorage.getItem("token");
       try {
-        const response = await axios.get("http://localhost:3000/module");
-        // Adjust according to your API response structure:
+        const response = await axios.get("http://localhost:3000/module", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });        // Adjust according to your API response structure:
         setModules(response.data.modules || response.data);
       } catch (err) {
         console.error("Error fetching modules:", err);
