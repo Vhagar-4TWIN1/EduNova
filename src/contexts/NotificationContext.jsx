@@ -5,7 +5,7 @@ import React, {
     useState,
     useEffect
   } from "react";
-  import { setupWebSocket, onMessage } from "@/lib/websocket";
+  import { setupWebSocket, onMessage } from "@lib/websocket";
   import { toast } from "react-toastify";
   
   const SOUND_URL = "../assets/reminder.mp3";  // <-- make sure this file lives in your public/sounds/
