@@ -29,10 +29,11 @@ const ListModules = () => {
         }
       );
       console.log(response.data);
+      console.log("the module idddd issss :" ,idModule);
     } catch (error) {
       console.error("Error fetching module details:", error);
     }
-    navigate(`/moduleDetails/${idModule}`);
+    navigate(`/moduleDetails/${idModule._id}`);
   };
 
   useEffect(() => {
@@ -53,7 +54,7 @@ const ListModules = () => {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
-        setModules(response.data);
+        setAllModules(response.data);(response.data);
         setFilteredModules(response.data);
         setLoading(false);
         }else{

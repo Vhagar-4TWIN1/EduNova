@@ -18,9 +18,10 @@ const MotivationalAvatar = () => {
 
     // Citations motivantes
     const quotes = [
-      "Chaque expert était d'abord un débutant!",
-      "Le succès c'est tomber 7 fois, se relever 8!",
-      "Tu progresses à chaque instant!"
+      "Every expert has been a beginner.",
+      "Believe in yourself and all that you are.",
+      "The only way to do great work is to love what you do.",
+      "Success is not the key to happiness. Happiness is the key to success."
     ];
 
     setQuotes(quotes);
@@ -63,7 +64,7 @@ const MotivationalAvatar = () => {
           fontWeight: 'bold',
           color: '#333'
         }}>{currentQuote}</p>
-        <small style={{ color: '#666' }}>Tu es sur la bonne voie!</small>
+        <small style={{ color: '#666' }}>You are in a good way</small>
       </div>
     </div>
   );

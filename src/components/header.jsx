@@ -183,6 +183,12 @@ export default function Header() {
                     <li>
                       <a href="/changePassword">Change Password</a>
                     </li>
+                    <li>
+                      <a href="/videochat">Video Call</a>
+                    </li>
+                    <li>
+                      <a href="/exam">pass your exam</a>
+                    </li>
                     {localStorage.getItem("role") === "Admin" && (
                 <li>
                   <a href="/dashboard">Dashboard</a>
