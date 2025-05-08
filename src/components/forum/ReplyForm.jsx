@@ -435,7 +435,7 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
               onClick={() => setReplyMode('text')}
             >
               <FiEdit2 className="icon" />
-              Text Reply
+              
             </button>
             <button
               type="button"
@@ -443,7 +443,7 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
               onClick={switchToVoiceMode}
             >
               <FiMic className="icon" />
-              Voice Reply
+              
             </button>
           </div>
 
