@@ -521,7 +521,7 @@ const ForumMain = () => {
                       </span>
                       &nbsp;&nbsp;&nbsp;
                       <span className="top-post-replies">
-                        <FiMessageSquare size={14} /> {post.replyCount} replies
+                        <FiMessageSquare size={14} /> <span>{post.replyCount} replies</span>
                       </span>&nbsp;&nbsp;&nbsp;
                       <span className="top-post-time">
                         <FiClock size={14} /> {new Date(post.createdAt).toLocaleDateString()}
