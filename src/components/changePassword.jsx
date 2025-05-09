@@ -80,7 +80,7 @@ const ChangePassword = () => {
           <div style={styles.logo}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 15V17M6 21H18C19.1046 21 20 20.1046 20 19V13C20 11.8954 19.1046 11 18 11H6C4.89543 11 4 11.8954 4 13V19C4 20.1046 4.89543 21 6 21ZM16 11V7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7V11H16Z" 
-                    stroke="#4CAF50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    stroke="rgb(80, 104, 214)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
         </div>
@@ -169,7 +169,7 @@ const styles = {
   card: {
     backgroundColor: 'white',
     borderRadius: '12px',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+    boxShadow: '0 4px 20px rgb(80, 104, 214)',
     padding: '32px',
     width: '100%',
     maxWidth: '450px'
@@ -181,7 +181,7 @@ const styles = {
     marginBottom: '24px'
   },
   heading: {
-    color: '#2E7D32',
+    color: 'rgb(80, 104, 214)',
     fontSize: '24px',
     fontWeight: '600',
     margin: 0
@@ -206,31 +206,31 @@ const styles = {
     gap: '8px'
   },
   label: {
-    color: '#2E7D32',
+    color: 'rgb(80, 104, 214)',
     fontSize: '14px',
     fontWeight: '500'
   },
   input: {
     padding: '12px 16px',
-    border: '1px solid #C8E6C9',
+    border: '1px solid rgb(80, 104, 214)',
     borderRadius: '8px',
     fontSize: '14px',
     outline: 'none',
     transition: 'all 0.3s',
     backgroundColor: '#F1F8E9',
-    color: '#33691E'
+    color: 'rgb(80, 104, 214)'
   },
   inputFocus: {
-    borderColor: '#4CAF50',
-    boxShadow: '0 0 0 2px rgba(76, 175, 80, 0.2)'
+    borderColor: 'rgb(80, 104, 214)',
+    boxShadow: '0 0 0 2px rgb(80, 104, 214)'
   },
   hint: {
     fontSize: '12px',
-    color: '#689F38',
+    color: 'rgb(80, 104, 214)',
     marginTop: '4px'
   },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'rgb(80, 104, 214)',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -277,7 +277,7 @@ const styles = {
   alertSuccess: {
     backgroundColor: '#E8F5E9',
     color: '#2E7D32',
-    borderLeft: '4px solid #4CAF50'
+    borderLeft: '4px solid rgb(80, 104, 214)'
   },
   alertError: {
     backgroundColor: '#FFEBEE',
