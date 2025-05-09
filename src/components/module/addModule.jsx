@@ -44,7 +44,7 @@ const AddModule = ({ existingModule, onClose }) => {
 
            }
         });
-        alert('Module updated successfully!');
+        navigate('/listModules');
       } else {
         // Add New Module (POST request)
         await axios.post('http://localhost:3000/module/add', formData, {
@@ -53,13 +53,13 @@ const AddModule = ({ existingModule, onClose }) => {
 
            }
         });
-        alert('Module added successfully!');
+        navigate('/listModules');
       }
       if (onClose) {
         onClose();
       }
        
-      navigate('/listModules');
+      
     } catch (error) {
       console.error(error);
       alert('Error saving module');
@@ -76,7 +76,7 @@ const AddModule = ({ existingModule, onClose }) => {
   };
 
   return (
-    <>      <br /><br />
+    <>      
       <div className="container">
         <div className="card">
           <h2 className="card-title">{existingModule ? "Edit Module" : "Add New Module"}</h2>
