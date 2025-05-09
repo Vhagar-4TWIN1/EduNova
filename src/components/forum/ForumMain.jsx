@@ -50,7 +50,7 @@ const ForumMain = () => {
           --secondary: #f9fafb;
           --text: #1f2937;
           --text-light: #6b7280;
-          --background: #f3f4f6;
+          --background:rgb(255, 255, 255);
           --card-bg: #ffffff;
           --error: #ef4444;
           --success: #10b981;
@@ -68,7 +68,7 @@ const ForumMain = () => {
         }
 
         body {
-          background-color: var(--background);
+          background: radial-gradient(circle at center, rgb(253, 253, 253), rgb(217, 227, 249));
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
           color: var(--text);
           line-height: 1.6;
