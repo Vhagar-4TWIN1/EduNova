@@ -222,8 +222,53 @@ const Contact = () => {
           return;
         }
 
-        navigate("/home");
-        startBreakTimer();
+         toast.info(
+          <div style={{ textAlign: 'center' }}>
+            <h3>You will pass a test to test your level</h3>
+            <div style={{ margin: '20px 0', textAlign: 'left' }}>
+              <p><strong>Instructions:</strong></p>
+              <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+                <li>Only one person allowed in camera view</li>
+                <li>Face must be centered and visible at all times</li>
+                <li>No looking away from the screen</li>
+                <li>No switching tabs/windows</li>
+                <li>No copy/paste allowed</li>
+                <li>No speaking or communicating with others</li>
+              </ul>
+            </div>
+            <button
+              onClick={() => {
+                toast.dismiss();
+                navigate("/exam");
+                startBreakTimer();
+              }}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: 'bold'
+              }}
+            >
+              I Understand - Start Test
+            </button>
+          </div>,
+          {
+            position: 'top-center',
+            autoClose: false,
+            closeOnClick: false,
+            closeButton: false,
+            draggable: false,
+            style: {
+              minWidth: '500px',
+              maxWidth: '600px',
+              padding: '20px'
+            }
+          }
+        );
 
         toast.success('Registration successful!', {
           position: "top-right",
