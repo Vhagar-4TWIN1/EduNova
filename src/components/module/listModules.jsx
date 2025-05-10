@@ -16,18 +16,16 @@ const ListModules = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [userRole, setUserRole] = useState("");
-  const itemsPerPage = 4;
+  const itemsPerPage = 9;
   const navigate = useNavigate();
 
   const handleCLick = (idModule) => {
     try {
-      const response = axios.get(`http://localhost:3000/module/${idModule}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const response = axios.get(`http://localhost:3000/module/${idModule}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       console.log(response.data);
       console.log("the module idddd issss :", idModule);
     } catch (error) {
@@ -38,40 +36,65 @@ const ListModules = () => {
 
   useEffect(() => {
     // Get user role from localStorage when component mounts
-    const role = localStorage.getItem('role');
-    setUserRole(role || 'student');
-    const token = localStorage.getItem('token');
+    const role = localStorage.getItem("role");
+    setUserRole(role || "student");
+    const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
     const userId = decoded.userId; // Default to student if no role is set
 
     const fetchModules = async () => {
-      console.log('role: ', role);
+      console.log("role: ", role);
 
       try {
-        if (role == 'Student') {
+        if (role == "Student") {
+          const email = localStorage.getItem("email");
+          const moodleRes = await fetch(
+            `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=${email}&moodlewsrestformat=json`
+          );
+          const moodleData = await moodleRes.json();
+          const moodleUserId = moodleData.users[0].id;
+          console.log(moodleUserId);
+          const moodleModules = await fetch(
+            `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_enrol_get_users_courses&userid=2&moodlewsrestformat=json`
+          );
+          const moodleModulesData = await moodleModules.json();
+          console.log(moodleModulesData);
           const response = await axios.get("http://localhost:3000/module/", {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           });
-          setAllModules(response.data);
-          setFilteredModules(response.data);
+          const normalizedMoodleModules = moodleModulesData.map((mod) => ({
+            _id: mod.id,
+            title: mod.displayname || mod.shortname,
+            description: "Imported from Moodle",
+            instructor: "Moodle Instructor",
+            image: mod.courseimage,
+            source: "moodle",
+          }));
+          console.log("moodle modules", normalizedMoodleModules);
+          const combinedModules = [
+            ...response.data,
+            ...normalizedMoodleModules,
+          ];
+
+          setAllModules(combinedModules);
+          console.log("all modules", combinedModules);
+          setFilteredModules(combinedModules);
           setLoading(false);
         } else {
-          const response = await axios.get(`http://localhost:3000/module/modules/`,
+          const response = await axios.get(
+            `http://localhost:3000/module/modules/`,
             {
               headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-              }
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
-          )
+          );
           setAllModules(response.data);
           setFilteredModules(response.data);
           setLoading(false);
         }
-
-
-
       } catch (error) {
         console.error("Error fetching modules:", error);
         setLoading(false);
@@ -103,13 +126,11 @@ const ListModules = () => {
     if (!window.confirm("Are you sure you want to delete this module?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/module/${moduleId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      await axios.delete(`http://localhost:3000/module/${moduleId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       setAllModules((prevModules) =>
         prevModules.filter((module) => module._id !== moduleId)
       );
@@ -132,11 +153,12 @@ const ListModules = () => {
     setIsEditing(false);
     setSelectedModule(null);
     try {
-      const response = await axios.get(`http://localhost:3000/module/modules/`,
+      const response = await axios.get(
+        `http://localhost:3000/module/modules/`,
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
       setAllModules(response.data);
@@ -170,41 +192,41 @@ const ListModules = () => {
           max-width: 1440px;
           margin: 0 auto;
           padding: 2rem;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
-          .action-icons {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
+        .action-icons {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+        }
 
-.action-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: var(--transition);
-  color: var(--medium-gray);
-}
+        .action-icon {
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: transparent;
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          transition: var(--transition);
+          color: var(--medium-gray);
+        }
 
-.action-icon:hover {
-  background-color: var(--light-gray);
-  color: var(--dark);
-}
+        .action-icon:hover {
+          background-color: var(--light-gray);
+          color: var(--dark);
+        }
 
-.action-icon.danger:hover {
-  color: #ff3333;
-}
+        .action-icon.danger:hover {
+          color: #ff3333;
+        }
 
-.action-icon svg {
-  width: 20px;
-  height: 20px;
-}
+        .action-icon svg {
+          width: 20px;
+          height: 20px;
+        }
 
         .modules-header {
           margin-bottom: 3rem;
@@ -214,7 +236,11 @@ const ListModules = () => {
           font-size: 2.5rem;
           font-weight: 800;
           margin: 0;
-          background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+          background: linear-gradient(
+            90deg,
+            var(--primary),
+            var(--primary-dark)
+          );
           -webkit-background-clip: text;
           background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -298,7 +324,7 @@ const ListModules = () => {
 
         .modules-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          grid-template-columns: repeat(3, 1fr); /* Force 3 columns */
           gap: 2rem;
           margin-bottom: 3rem;
         }
@@ -316,29 +342,29 @@ const ListModules = () => {
           box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
         }
 
-       .module-image-container {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 aspect ratio (change this to match your images' ratio) */
-  overflow: hidden;
-  cursor: pointer;
-  background-color: #f5f5f5; /* Optional: background color for containers without images */
-}
+        .module-image-container {
+          position: relative;
+          width: 100%;
+          padding-top: 56.25%; /* 16:9 aspect ratio (change this to match your images' ratio) */
+          overflow: hidden;
+          cursor: pointer;
+          background-color: #f5f5f5; /* Optional: background color for containers without images */
+        }
 
-.module-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Changed from 'cover' to 'contain' to show full image */
-  transition: transform 0.5s ease;
-}
+        .module-image {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: contain; /* Changed from 'cover' to 'contain' to show full image */
+          transition: transform 0.5s ease;
+        }
 
-/* Optional: Add this if you want to maintain a minimum height */
-.module-card:hover .module-image {
-  transform: scale(1.05);
-}
+        /* Optional: Add this if you want to maintain a minimum height */
+        .module-card:hover .module-image {
+          transform: scale(1.05);
+        }
 
         .module-image-placeholder {
           width: 100%;
@@ -579,7 +605,9 @@ const ListModules = () => {
         }
 
         @keyframes spin {
-          to { transform: rotate(360deg); }
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .loading p {
@@ -658,28 +686,28 @@ const ListModules = () => {
           .modules-container {
             padding: 1.5rem;
           }
-        
+
           .modules-title {
             font-size: 2rem;
           }
-        
+
           .modules-grid {
             grid-template-columns: 1fr;
           }
-        
+
           .modules-controls {
             flex-direction: column;
           }
-        
+
           .search-container {
             min-width: 100%;
           }
-        
+
           .add-module-button {
             width: 100%;
             justify-content: center;
           }
-        
+
           .pagination {
             flex-wrap: wrap;
           }
@@ -689,16 +717,16 @@ const ListModules = () => {
           .modules-container {
             padding: 1rem;
           }
-        
+
           .modules-title {
             font-size: 1.75rem;
           }
-        
+
           .pagination-button {
             padding: 0.5rem;
             font-size: 0.9rem;
           }
-        
+
           .page-number {
             width: 36px;
             height: 36px;
@@ -710,7 +738,9 @@ const ListModules = () => {
       <div className="modules-container">
         <header className="modules-header">
           <h1 className="modules-title">Modules & Moodle Courses</h1>
-          <p className="modules-subtitle">Explore and manage your educational resources</p>
+          <p className="modules-subtitle">
+            Explore and manage your educational resources
+          </p>
 
           <div className="modules-controls">
             <div className="search-container">
@@ -760,11 +790,26 @@ const ListModules = () => {
                 <div className="empty-state">
                   <div className="empty-illustration">
                     <svg viewBox="0 0 200 200">
-                      <path d="M50 100C50 73.5 73.5 50 100 50s50 23.5 50 50-23.5 50-50 50S50 126.5 50 100z" fill="#E1E8F8" />
-                      <path d="M100 120c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20z" fill="#4361EE" />
-                      <path d="M100 110c5.5 0 10-4.5 10-10s-4.5-10-10-10-10 4.5-10 10 4.5 10 10 10z" fill="#fff" />
-                      <path d="M85 95a5 5 0 1 1-10 0 5 5 0 0 1 10 0zM125 95a5 5 0 1 1-10 0 5 5 0 0 1 10 0z" fill="#3A0CA3" />
-                      <path d="M90 120c0 5.5 4.5 10 10 10s10-4.5 10-10h-4c0 3.3-2.7 6-6 6s-6-2.7-6-6h-4z" fill="#3A0CA3" />
+                      <path
+                        d="M50 100C50 73.5 73.5 50 100 50s50 23.5 50 50-23.5 50-50 50S50 126.5 50 100z"
+                        fill="#E1E8F8"
+                      />
+                      <path
+                        d="M100 120c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20z"
+                        fill="#4361EE"
+                      />
+                      <path
+                        d="M100 110c5.5 0 10-4.5 10-10s-4.5-10-10-10-10 4.5-10 10 4.5 10 10 10z"
+                        fill="#fff"
+                      />
+                      <path
+                        d="M85 95a5 5 0 1 1-10 0 5 5 0 0 1 10 0zM125 95a5 5 0 1 1-10 0 5 5 0 0 1 10 0z"
+                        fill="#3A0CA3"
+                      />
+                      <path
+                        d="M90 120c0 5.5 4.5 10 10 10s10-4.5 10-10h-4c0 3.3-2.7 6-6 6s-6-2.7-6-6h-4z"
+                        fill="#3A0CA3"
+                      />
                     </svg>
                   </div>
                   <h3>No modules found</h3>
@@ -798,14 +843,14 @@ const ListModules = () => {
                           </svg>
                         </div>
                       )}
-                      <div className="module-card-overlay">
-                        
-                      </div>
+                      <div className="module-card-overlay"></div>
                     </div>
 
                     <div className="module-card-content">
                       <h3 className="module-card-title">{module.title}</h3>
-                      <p className="module-card-description">{module.description}</p>
+                      <p className="module-card-description">
+                        {module.description}
+                      </p>
 
                       <div className="module-card-footer">
                         {module.source === "moodle" ? (
@@ -820,14 +865,14 @@ const ListModules = () => {
                           </button>
                         ) : (
                           <div className="actions-menu">
-                            <button className="actions-toggle">
-
-                            </button>
+                            <button className="actions-toggle"></button>
                             <div className="module-actions">
                               {module.source === "moodle" ? (
                                 <button
                                   className="moodle-button"
-                                  onClick={() => window.open(module._id, "_blank")}
+                                  onClick={() =>
+                                    window.open(module._id, "_blank")
+                                  }
                                 >
                                   <svg viewBox="0 0 24 24">
                                     <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
@@ -893,7 +938,9 @@ const ListModules = () => {
             {filteredModules.length > itemsPerPage && (
               <div className="pagination">
                 <button
-                  className={`pagination-button ${currentPage === 1 ? "disabled" : ""}`}
+                  className={`pagination-button ${
+                    currentPage === 1 ? "disabled" : ""
+                  }`}
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={currentPage === 1}
                 >
@@ -908,7 +955,9 @@ const ListModules = () => {
                     (number) => (
                       <button
                         key={number}
-                        className={`page-number ${currentPage === number ? "active" : ""}`}
+                        className={`page-number ${
+                          currentPage === number ? "active" : ""
+                        }`}
                         onClick={() => setCurrentPage(number)}
                       >
                         {number}
@@ -918,7 +967,9 @@ const ListModules = () => {
                 </div>
 
                 <button
-                  className={`pagination-button ${currentPage === totalPages ? "disabled" : ""}`}
+                  className={`pagination-button ${
+                    currentPage === totalPages ? "disabled" : ""
+                  }`}
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                 >
