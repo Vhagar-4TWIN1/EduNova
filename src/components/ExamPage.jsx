@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
-
+import Quiz from "../components/quiz/quizPage.jsx";
 const ExamPage = () => {
   const videoRef = useRef(null);
   const tabSwitchCount = useRef(0);
@@ -34,7 +34,7 @@ const ExamPage = () => {
     // Start webcam
     const startVideo = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+        const stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 640, height: 480, facingMode: 'user' }
         });
         videoRef.current.srcObject = stream;
@@ -91,7 +91,7 @@ const ExamPage = () => {
         if (Math.abs(deviation) > 40) {
           logViolation('Face not centered');
           showAlert('Focus Alert', 'Please face the screen directly.');
-        } 
+        }
         // Too far from camera
         else if (eyeDistanceX < 35) {
           logViolation('Too far from camera');
@@ -122,7 +122,7 @@ const ExamPage = () => {
     const showAlert = (title, message) => {
       setWarningMessage({ title, message });
       setShowWarning(true);
-      
+
       // Auto-dismiss after 5 seconds
       setTimeout(() => {
         setShowWarning(false);
@@ -167,7 +167,7 @@ const ExamPage = () => {
         <div style={styles.examContent}>
           {/* Your exam content would go here */}
           <h2>Exam Questions Will Appear Here</h2>
-          <p>This area would contain your exam questions and interface.</p>
+          <Quiz />
         </div>
 
         <div style={styles.sidePanel}>
@@ -183,7 +183,7 @@ const ExamPage = () => {
           </div>
 
           <div style={styles.cameraPanel}>
-            
+
             <video
               ref={videoRef}
               autoPlay
@@ -195,7 +195,7 @@ const ExamPage = () => {
             <p style={styles.cameraStatus}>Camera Active</p>
           </div>
 
-          
+
         </div>
       </div>
 
@@ -205,7 +205,7 @@ const ExamPage = () => {
           <div style={styles.warningContent}>
             <h3 style={styles.warningTitle}>{warningMessage.title}</h3>
             <p style={styles.warningText}>{warningMessage.message}</p>
-            <button 
+            <button
               style={styles.warningButton}
               onClick={() => setShowWarning(false)}
             >
@@ -294,6 +294,8 @@ const styles = {
     borderRadius: '8px',
     boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
     textAlign: 'center',
+    position: 'fixed',
+    bottom: '20px',
   },
   video: {
     width: '100%',
