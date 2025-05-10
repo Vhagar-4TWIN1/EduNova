@@ -132,19 +132,6 @@ const ModuleDetails = () => {
   return (
     <div className="module-details-container">
       <div className="module-header">
-        <button onClick={() => navigate(-1)} className="back-button">
-          <FaArrowLeft /> Back to Modules
-        </button>
-
-        <div className="module-meta">
-          <span className="module-category">
-            {module.category || "General"}
-          </span>
-          <span className="module-difficulty">
-            {module.difficulty || "All Levels"}
-          </span>
-        </div>
-
         <h1>{module.title}</h1>
         <p className="module-description">{module.description}</p>
 
@@ -180,93 +167,95 @@ const ModuleDetails = () => {
         )}
       </div>
 
-      <div className="lessons-section">
-        <div className="section-header">
-          <h2>
-            <FaBook /> Lessons
-          </h2>
-          {role === "Teacher" && (
-            <button
-              onClick={() => navigate(`/create-lesson/${id}`)}
-              className="add-lesson-button"
-            >
-              <FaPlus /> Add Lesson
-            </button>
-          )}
-        </div>
-
-        {lessons.length === 0 ? (
-          <div className="empty-lessons">
-            <p>No lessons available in this module yet.</p>
+      {isEnrolled && (
+        <div className="lessons-section">
+          <div className="section-header">
+            <h2>
+              <FaBook /> Lessons
+            </h2>
+            {role === "Teacher" && (
+              <button
+                onClick={() => navigate(`/create-lesson/${id}`)}
+                className="add-lesson-button"
+              >
+                <FaPlus /> Add Lesson
+              </button>
+            )}
           </div>
-        ) : (
-          <div className="lessons-grid">
-            {lessons.map((lesson) => {
-              const isCompleted = completedLessons.includes(lesson._id);
-              return (
-                <div
-                  key={lesson._id}
-                  className={`lesson-card ${isCompleted ? "completed" : ""}`}
-                  onClick={() =>
-                    navigate("/lesson-details", { state: { lesson } })
-                  }
-                >
-                  {lesson.fileUrl && (
-                    <div className="lesson-image">
-                      <img src={lesson.fileUrl} alt="lesson preview" />
-                    </div>
-                  )}
-                  <div className="lesson-content">
-                    <h3>{lesson.title}</h3>
-                    <p className="lesson-type">{lesson.typeLesson}</p>
-                    <p className="lesson-excerpt">
-                      {lesson.content.substring(0, 100)}...
-                    </p>
 
-                    <div className="lesson-footer">
-                      {isCompleted ? (
-                        <span className="completed-badge">
-                          <FaCheckCircle /> Completed
-                        </span>
-                      ) : isEnrolled ? (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCompleteLesson(lesson._id);
-                          }}
-                          className="complete-button"
-                        >
-                          Mark as Completed
-                        </button>
-                      ) : null}
+          {lessons.length === 0 ? (
+            <div className="empty-lessons">
+              <p>No lessons available in this module yet.</p>
+            </div>
+          ) : (
+            <div className="lessons-grid">
+              {lessons.map((lesson) => {
+                const isCompleted = completedLessons.includes(lesson._id);
+                return (
+                  <div
+                    key={lesson._id}
+                    className={`lesson-card ${isCompleted ? "completed" : ""}`}
+                    onClick={() =>
+                      navigate("/lesson-details", { state: { lesson } })
+                    }
+                  >
+                    {lesson.fileUrl && (
+                      <div className="lesson-image">
+                        <img src={lesson.fileUrl} alt="lesson preview" />
+                      </div>
+                    )}
+                    <div className="lesson-content">
+                      <h3>{lesson.title}</h3>
+                      <p className="lesson-type">{lesson.typeLesson}</p>
+                      <p className="lesson-excerpt">
+                        {lesson.content.substring(0, 100)}...
+                      </p>
 
-                      {role === "Teacher" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteLesson(lesson._id);
-                          }}
-                          style={{
-                            backgroundColor: "#ef4444",
-                            color: "white",
-                            padding: "0.4rem 0.8rem",
-                            borderRadius: "0.375rem",
-                            border: "none",
-                            cursor: "pointer",
-                            fontSize: "0.9rem",
-                          }}
-                        >
-                          🗑️ Delete
-                        </button>
-                      )}
+                      <div className="lesson-footer">
+                        {isCompleted ? (
+                          <span className="completed-badge">
+                            <FaCheckCircle /> Completed
+                          </span>
+                        ) : isEnrolled ? (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCompleteLesson(lesson._id);
+                            }}
+                            className="complete-button"
+                          >
+                            Mark as Completed
+                          </button>
+                        ) : null}
+
+                        {role === "Teacher" && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteLesson(lesson._id);
+                            }}
+                            style={{
+                              backgroundColor: "#ef4444",
+                              color: "white",
+                              padding: "0.4rem 0.8rem",
+                              borderRadius: "0.375rem",
+                              border: "none",
+                              cursor: "pointer",
+                              fontSize: "0.9rem",
+                            }}
+                          >
+                            🗑️ Delete
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

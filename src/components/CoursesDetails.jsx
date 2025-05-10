@@ -211,22 +211,36 @@ const LessonDetailsFront = () => {
         <h1 style={{ fontSize: "2rem", fontWeight: "bold", color: "#1f2937" }}>
           📘 {lesson.title}
         </h1>
-        <div style={{ marginTop: "1rem", marginBottom: "1.5rem" }}>
+        <div
+          style={{
+            marginTop: "1rem",
+            marginBottom: "1.5rem",
+            textAlign: "center",
+          }}
+        >
           <button
             onClick={openStickyNoteModal}
             style={{
-              padding: "0.6rem 1.2rem",
-              backgroundColor: "#3b82f6",
+              padding: "0.75rem 1.5rem",
+              background: "linear-gradient(135deg, #4fa54f, #3b82f6)",
               color: "#fff",
               border: "none",
-              borderRadius: "0.5rem",
+              borderRadius: "12px",
               cursor: "pointer",
               fontWeight: 600,
+              fontSize: "1rem",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              transition: "all 0.3s ease",
             }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.transform = "scale(1.3)")
+            }
+            onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             📝 Open Sticky Notes
           </button>
         </div>
+
         <p style={{ margin: "1rem 0", color: "#4b5563", fontSize: "1rem" }}>
           <strong>{t("type")}:</strong> {lesson.typeLesson.toUpperCase()}
         </p>
