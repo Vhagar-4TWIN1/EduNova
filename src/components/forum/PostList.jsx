@@ -1,9 +1,34 @@
 import { Link } from 'react-router-dom';
-import { FiMessageSquare, FiUser, FiClock, FiArrowRight } from 'react-icons/fi';
+import { FiMessageSquare, FiUser, FiClock, FiArrowRight, FiPlus, FiStar } from 'react-icons/fi';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const PostList = ({ posts }) => {
   const safePosts = Array.isArray(posts) ? posts : [];
+  const [recommendedPosts, setRecommendedPosts] = useState([]);
+  const [loadingRecommended, setLoadingRecommended] = useState(true);
+
+  useEffect(() => {
+    const fetchRecommendedPosts = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/forum/recommended',
+           {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            }
+        );
+        setRecommendedPosts(response.data);
+      } catch (error) {
+        console.error('Failed to fetch recommended posts', error);
+      } finally {
+        setLoadingRecommended(false);
+      }
+    };
+
+    fetchRecommendedPosts();
+  }, []);
 
   return (
     <>
@@ -221,51 +246,146 @@ const PostList = ({ posts }) => {
         .post-card:nth-child(4) { animation-delay: 0.4s; }
         .post-card:nth-child(5) { animation-delay: 0.5s; }
         .post-card:nth-child(6) { animation-delay: 0.6s; }
+
+        /* New styles for recommended section */
+        .recommended-section {
+          margin-bottom: 3rem;
+        }
+
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--text);
+          margin: 0;
+        }
+
+        .section-icon {
+          color: var(--primary);
+        }
+
+        .loading-spinner {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          border: 3px solid rgba(99, 102, 241, 0.3);
+          border-radius: 50%;
+          border-top-color: var(--primary);
+          animation: spin 1s ease-in-out infinite;
+          margin-right: 8px;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
       `}</style>
 
-      <div className="post-list">
-        {safePosts.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">
-              <FiMessageSquare />
-            </div>
-            <h3 className="empty-title">No discussions yet</h3>
-            <p className="empty-message">
-              Be the first to start a conversation in our community forum.
-            </p>
-            <div className="empty-action">
-              <Link to="/forum/new" className="empty-btn">
-                <FiPlus /> Create Post
-              </Link>
-            </div>
+      <div>
+        {/* Recommended Posts Section */}
+        <div className="recommended-section">
+          <div className="section-header">
+            <FiStar className="section-icon" />
+            <h2 className="section-title">Recommended For You</h2>
           </div>
-        ) : (
-          safePosts.map((post) => (
-            <Link to={`/forum/posts/${post._id}`} key={post._id} className="post-card">
-              <div>
-                <h2 className="post-title">
-                  <span className="post-title-text">{post.title}</span>
-                  <FiArrowRight className="post-arrow" />
-                </h2>
-                <p className="post-content">{post.content}</p>
-                <div className="post-meta">
-                  <div className="meta-item">
-                    <FiUser />
-                    <span>{post.author?.name || 'Anonymous'}</span>
+          
+          {loadingRecommended ? (
+            <div className="post-card" style={{ textAlign: 'center', padding: '2rem' }}>
+              <span className="loading-spinner"></span>
+              Loading recommendations...
+            </div>
+          ) : recommendedPosts.length > 0 ? (
+            <div className="post-list">
+              {recommendedPosts.map((post) => (
+                <Link to={`/forum/posts/${post._id}`} key={post._id} className="post-card">
+                  <div>
+                    <h2 className="post-title">
+                      <span className="post-title-text">{post.title}</span>
+                      <FiArrowRight className="post-arrow" />
+                    </h2>
+                    <p className="post-content">{post.content}</p>
+                    <div className="post-meta">
+                      <div className="meta-item">
+                        <FiUser />
+                        <span>{post.author?.name || 'Anonymous'}</span>
+                      </div>
+                      <div className="meta-item">
+                        <FiClock />
+                        <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
+                      </div>
+                      <div className="meta-item">
+                        <FiMessageSquare />
+                        <span>{post.replies?.length || 0} {post.replies?.length === 1 ? 'reply' : 'replies'}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="meta-item">
-                    <FiClock />
-                    <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
-                  </div>
-                  <div className="meta-item">
-                    <FiMessageSquare />
-                    <span>{post.replies?.length || 0} {post.replies?.length === 1 ? 'reply' : 'replies'}</span>
-                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="post-card" style={{ textAlign: 'center', padding: '2rem' }}>
+              No recommendations available. Complete more lessons to get personalized suggestions.
+            </div>
+          )}
+        </div>
+
+        {/* All Posts Section */}
+        <div>
+          <div className="section-header">
+            <FiMessageSquare className="section-icon" />
+            <h2 className="section-title">All Discussions</h2>
+          </div>
+          
+          <div className="post-list">
+            {safePosts.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <FiMessageSquare />
+                </div>
+                <h3 className="empty-title">No discussions yet</h3>
+                <p className="empty-message">
+                  Be the first to start a conversation in our community forum.
+                </p>
+                <div className="empty-action">
+                  <Link to="/forum/new" className="empty-btn">
+                    <FiPlus /> Create Post
+                  </Link>
                 </div>
               </div>
-            </Link>
-          ))
-        )}
+            ) : (
+              safePosts.map((post) => (
+                <Link to={`/forum/posts/${post._id}`} key={post._id} className="post-card">
+                  <div>
+                    <h2 className="post-title">
+                      <span className="post-title-text">{post.title}</span>
+                      <FiArrowRight className="post-arrow" />
+                    </h2>
+                    <p className="post-content">{post.content}</p>
+                    <div className="post-meta">
+                      <div className="meta-item">
+                        <FiUser />
+                        <span>{post.author?.name || 'Anonymous'}</span>
+                      </div>
+                      <div className="meta-item">
+                        <FiClock />
+                        <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
+                      </div>
+                      <div className="meta-item">
+                        <FiMessageSquare />
+                        <span>{post.replies?.length || 0} {post.replies?.length === 1 ? 'reply' : 'replies'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </>
   );
