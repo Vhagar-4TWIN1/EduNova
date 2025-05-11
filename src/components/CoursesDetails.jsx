@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import TranslatedSubtitles from "./TranslatedSubtitles";
 import axios from "axios";
-
+import GenerateResume from './GenerateResume'; 
 const translations = {
   fr: "fr-FR",
   de: "de-DE",
@@ -17,7 +17,7 @@ const LessonDetailsFront = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-
+const [isGenerating, setIsGenerating] = useState(false);
   const [selectedLang, setSelectedLang] = useState(i18n.language || "en");
   const [showStickyNotes, setShowStickyNotes] = useState(false);
   const [stickyNotes, setStickyNotes] = useState([]);
@@ -27,9 +27,9 @@ const LessonDetailsFront = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const { lesson, moduleId } = location.state || {};
-
+  const [showResumeGenerator, setShowResumeGenerator] = useState(false);
   const userId = localStorage.getItem("userId");
-
+  const [pdfFile, setPdfFile] = useState(null);
   const openStickyNoteModal = () => setShowStickyNotes(true);
 
   const closeStickyNoteModal = () => {
@@ -90,6 +90,71 @@ const LessonDetailsFront = () => {
     };
   }, [isDragging, dragOffset]);
 
+
+
+const handlePDFResumeGeneration = async () => {
+  if (!lesson || lesson.typeLesson !== "pdf" || !lesson.fileUrl || !userId) return;
+
+  try {
+    setIsGenerating(true);
+    const token = localStorage.getItem('token');
+    
+    alert('Starting resume generation process...');
+
+    const pdfFileResponse = await axios.get(lesson.fileUrl, {
+      responseType: 'blob'
+    });
+
+    const file = new File([pdfFileResponse.data], "source_resume.pdf", {
+      type: "application/pdf",
+    });
+
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("file", file);
+
+    const response = await axios.post(
+      "http://localhost:3000/api/gemini/generate-resume", 
+      formData, 
+      {
+        headers: { 
+          "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}`
+        },
+        responseType: 'blob'
+      }
+    );
+
+    // Create download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute(
+      'download',
+      `enhanced_resume_${new Date().toISOString().slice(0,10)}.pdf`
+    );
+    
+    alert('Resume ready! The download will start automatically');
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up
+    setTimeout(() => {
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+
+  } catch (error) {
+    console.error("❌ Failed to generate resume:", error);
+    alert(`Failed to generate resume: ${error.response?.data?.error || error.message}`);
+  } finally {
+    setIsGenerating(false);
+  }
+};
+
+ 
   useEffect(() => {
     const fetchStickyNotes = async () => {
       if (!lesson?._id || !userId || !showStickyNotes) return;
@@ -227,9 +292,16 @@ const LessonDetailsFront = () => {
             📝 Open Sticky Notes
           </button>
         </div>
+
+
+
+        
         <p style={{ margin: "1rem 0", color: "#4b5563", fontSize: "1rem" }}>
           <strong>{t("type")}:</strong> {lesson.typeLesson.toUpperCase()}
         </p>
+
+
+
 
         {showStickyNotes && (
           <div
@@ -293,6 +365,14 @@ const LessonDetailsFront = () => {
             >
               🗒️ Your Sticky Notes
             </h2>
+
+ {/* 🎯 Auto Resume Generator */}
+ {pdfFile && (
+          <div style={{ marginTop: "2rem" }}>
+            <GenerateResume file={pdfFile} />
+          </div>
+        )}
+
 
             <textarea
               value={noteInput}
@@ -427,7 +507,48 @@ const LessonDetailsFront = () => {
             />
           )}
         </div>
+        {lesson.typeLesson === 'pdf' && (
+ <button
+  onClick={handlePDFResumeGeneration}
+  disabled={isGenerating}
+  style={{
+    padding: "0.4rem 0.8rem", // Reduced from 0.6rem 1.2rem
+    backgroundColor: "#8b5cf6",
+    color: "#fff",
+    border: "none",
+    borderRadius: "0.5rem",
+    cursor: "pointer",
+    fontWeight: 600,
+    marginLeft: "1rem",
+    opacity: isGenerating ? 0.7 : 1,
+    position: 'relative',
+    fontSize: "1.3rem", 
+    lineHeight: "1.4" 
+  }}
+  title="Click to generate and save your enhanced resume"
+>
+  {isGenerating ? (
+    <>
+      <span 
+        style={{
+          display: 'inline-block',
+          width: '0.8rem', // Reduced from 1rem
+          height: '0.8rem', // Reduced from 1rem
+          border: '2px solid rgba(255,255,255,0.3)',
+          borderTopColor: 'white',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          marginRight: '0.3rem' // Reduced from 0.5rem
+        }}
+      />
+      Generating...
+    </>
+  ) : (
+    "📄 Generate Resume" // Shortened text
+  )}
+</button>
 
+)}
         <button
           onClick={() => {
             const modId =

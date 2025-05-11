@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Button, 
   ListGroup, 
@@ -11,9 +11,6 @@ import {
 } from 'react-bootstrap';
 import YouTube from 'react-youtube';
 import axios from 'axios';
-import '../assets/css/MusicPlayer.css';
-
-
 
 const formatTime = (seconds) => {
   const mins = Math.floor(seconds / 60);
@@ -41,10 +38,66 @@ const MusicPlayer = () => {
   const [currentPlaylist, setCurrentPlaylist] = useState(null);
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [downloadProgress, setDownloadProgress] = useState({});
-
+  const [darkMode, setDarkMode] = useState(false);
   const audioRef = useRef(null);
   const playerRef = useRef(null);
   const progressInterval = useRef(null);
+
+  // Helper function to convert data URI to Blob
+  const dataURItoBlob = (dataURI) => {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+  };
+
+  // Handler functions with useCallback
+  const handlePlayPause = useCallback(() => {
+    if (!tracks.length) return;
+
+    if (!userInteracted) {
+      setUserInteracted(true);
+      setTimeout(() => setIsPlaying(true), 100);
+      return;
+    }
+
+    if (tracks[currentTrackIndex]?.isYouTube) {
+      if (isPlaying) {
+        playerRef.current?.internalPlayer?.pauseVideo();
+      } else {
+        playerRef.current?.internalPlayer?.playVideo();
+      }
+      setIsPlaying(prev => !prev);
+    } else {
+      if (audioRef.current) {
+        if (isPlaying) {
+          audioRef.current.pause();
+        } else {
+          audioRef.current.play();
+        }
+        setIsPlaying(prev => !prev);
+      }
+    }
+  }, [tracks, currentTrackIndex, isPlaying, userInteracted]);
+
+  const handleNext = useCallback(() => {
+    setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
+    setIsPlaying(true);
+  }, [tracks.length]);
+
+  const handlePrevious = useCallback(() => {
+    setCurrentTrackIndex((prev) => (prev === 0 ? tracks.length - 1 : prev - 1));
+    setIsPlaying(true);
+  }, [tracks.length]);
+
+  const handleTrackSelect = useCallback((index) => {
+    setCurrentTrackIndex(index);
+    setIsPlaying(true);
+  }, []);
 
   // Initialize audio element
   useEffect(() => {
@@ -87,18 +140,6 @@ const MusicPlayer = () => {
     }
   }, []);
 
-  // Helper function to convert data URI to Blob
-  const dataURItoBlob = (dataURI) => {
-    const byteString = atob(dataURI.split(',')[1]);
-    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    return new Blob([ab], { type: mimeString });
-  };
-
   // Save data to localStorage
   useEffect(() => {
     localStorage.setItem('customPlaylists', JSON.stringify(customPlaylists));
@@ -131,6 +172,23 @@ const MusicPlayer = () => {
     };
   }, []);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handlePlayPause();
+      } else if (e.code === 'ArrowRight') {
+        handleNext();
+      } else if (e.code === 'ArrowLeft') {
+        handlePrevious();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handlePlayPause, handleNext, handlePrevious]);
+
   // Load tracks
   useEffect(() => {
     const loadTracks = async () => {
@@ -138,11 +196,9 @@ const MusicPlayer = () => {
         const response = await axios.get('http://localhost:3000/api/music/tracks');
         const validTracks = Array.isArray(response.data)
           ? response.data.map(track => {
-              // Ensure each track has a proper ID
-// Replace the current ID generation logic with:
-          const id = track.id || 
-          (track.isYouTube ? `yt_${track.url.split('v=')[1]?.split('&')[0]}` : 
-          `local_${track.url.split('/').pop()}`);
+              const id = track.id || 
+                (track.isYouTube ? `yt_${track.url.split('v=')[1]?.split('&')[0]}` : 
+                `local_${track.url.split('/').pop()}`);
               return {
                 ...track,
                 id,
@@ -169,8 +225,7 @@ const MusicPlayer = () => {
     loadTracks();
   }, []);
 
-  // Audio handler
-  useEffect(() => {
+   useEffect(() => {
     if (!audioRef.current || !tracks.length || !userInteracted) return;
 
     const currentTrack = tracks[currentTrackIndex];
@@ -269,110 +324,85 @@ const MusicPlayer = () => {
     }
   }, [currentTrackIndex, tracks]);
 
-  const downloadTrack = async (track) => {
-    try {
-      setDownloadProgress(prev => ({
-        ...prev,
-        [track.id]: { progress: 0, status: 'downloading' }
-      }));
-  
-      let response;
+const downloadTrack = async (track) => {
+  try {
+    setDownloadProgress(prev => ({
+      ...prev,
+      [track.id]: { progress: 0, status: 'downloading' }
+    }));
+
+    let response;
+    
+    if (track.isYouTube) {
+      response = await axios.post(
+        `http://localhost:3000/api/music/youtube/save/${track.id}`,
+        {},
+        {
+          onDownloadProgress: (progressEvent) => {
+            const percentCompleted = progressEvent.total ? 
+              Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
+            setDownloadProgress(prev => ({
+              ...prev,
+              [track.id]: { progress: percentCompleted, status: 'downloading' }
+            }));
+          },
+          timeout: 120000 // 2 minute timeout
+        }
+      );
+
+      // Refresh tracks after download
+      const tracksRes = await axios.get('http://localhost:3000/api/music/tracks');
+      setTracks(tracksRes.data);
+    } else {
+      // For local files, use the full URL
+      const downloadUrl = track.url.startsWith('http') ? 
+        track.url : 
+        `http://localhost:3000${track.url}`;
       
-      if (track.isYouTube) {
-        // Handle YouTube download
-        response = await axios.post(
-          `http://localhost:3000/api/music/youtube/save/${track.id}`,
-          {},
-          {
-            onDownloadProgress: (progressEvent) => {
-              const percentCompleted = progressEvent.total ? 
-                Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
-              setDownloadProgress(prev => ({
-                ...prev,
-                [track.id]: { 
-                  progress: percentCompleted, 
-                  status: 'downloading' 
-                }
-              }));
-            }
-          }
-        );
-  
-        // If it's an existing track, just add to UI
-        if (response.data.message === 'Track already exists') {
-          setTracks(prev => [...prev, response.data.track]);
+      response = await axios.get(downloadUrl, {
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent) => {
+          const percentCompleted = progressEvent.total ? 
+            Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
           setDownloadProgress(prev => ({
             ...prev,
-            [track.id]: { progress: 100, status: 'completed' }
+            [track.id]: { progress: percentCompleted, status: 'downloading' }
           }));
-          return;
-        }
-      } else {
-        // Handle local file download
-        response = await axios.get(
-          `http://localhost:3000/api/music/download/${track.id}`,
-          {
-            responseType: 'blob',
-            onDownloadProgress: (progressEvent) => {
-              const percentCompleted = progressEvent.total ? 
-                Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
-              setDownloadProgress(prev => ({
-                ...prev,
-                [track.id]: { 
-                  progress: percentCompleted, 
-                  status: 'downloading' 
-                }
-              }));
-            }
-          }
-        );
-  
-        const blob = new Blob([response.data]);
-        const objectUrl = URL.createObjectURL(blob);
-  
-        const reader = new FileReader();
-        reader.onload = () => {
-          const offlineTrack = {
-            ...track,
-            offlineUrl: objectUrl,
-            offlineData: reader.result,
-            isOffline: true
-          };
-  
-          setOfflineTracks(prev => {
-            const filtered = prev.filter(t => t.id !== track.id);
-            return [...filtered, offlineTrack];
-          });
-        };
-        reader.readAsDataURL(blob);
-      }
-  
-      setDownloadProgress(prev => ({
-        ...prev,
-        [track.id]: { progress: 100, status: 'completed' }
-      }));
-  
-      setTimeout(() => {
-        setDownloadProgress(prev => {
-          const newProgress = {...prev};
-          delete newProgress[track.id];
-          return newProgress;
-        });
-      }, 3000);
-  
-    } catch (err) {
-      console.error("Download error:", err);
-      const errorMessage = err.response?.data?.error || 
-                          err.message || 
-                          "Failed to download track";
-      setError(errorMessage);
-      setDownloadProgress(prev => ({
-        ...prev,
-        [track.id]: { progress: 0, status: 'error', error: errorMessage }
-      }));
-    }
-  };
+        },
+        timeout: 60000
+      });
 
+      // Create offline version
+      const blob = new Blob([response.data]);
+      const objectUrl = URL.createObjectURL(blob);
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const offlineTrack = {
+          ...track,
+          offlineUrl: objectUrl,
+          offlineData: reader.result,
+          isOffline: true
+        };
+        setOfflineTracks(prev => [...prev.filter(t => t.id !== track.id), offlineTrack]);
+      };
+      reader.readAsDataURL(blob);
+    }
+
+    setDownloadProgress(prev => ({
+      ...prev,
+      [track.id]: { progress: 100, status: 'completed' }
+    }));
+
+  } catch (err) {
+    console.error("Download error:", err);
+    setError(err.response?.data?.error || err.message || "Download failed");
+    setDownloadProgress(prev => ({
+      ...prev,
+      [track.id]: { progress: 0, status: 'error', error: err.message }
+    }));
+  }
+};
 
   const removeOfflineTrack = (trackId) => {
     const track = offlineTracks.find(t => t.id === trackId);
@@ -435,49 +465,6 @@ const MusicPlayer = () => {
     setIsSeeking(false);
   };
 
-  const handlePlayPause = () => {
-    if (!tracks.length) return;
-
-    if (!userInteracted) {
-      setUserInteracted(true);
-      setTimeout(() => setIsPlaying(true), 100);
-      return;
-    }
-
-    if (tracks[currentTrackIndex]?.isYouTube) {
-      if (isPlaying) {
-        playerRef.current?.internalPlayer?.pauseVideo();
-      } else {
-        playerRef.current?.internalPlayer?.playVideo();
-      }
-      setIsPlaying(prev => !prev);
-    } else {
-      if (audioRef.current) {
-        if (isPlaying) {
-          audioRef.current.pause();
-        } else {
-          audioRef.current.play();
-        }
-        setIsPlaying(prev => !prev);
-      }
-    }
-  };
-
-  const handleTrackSelect = (index) => {
-    setCurrentTrackIndex(index);
-    setIsPlaying(true);
-  };
-
-  const handleNext = () => {
-    setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
-    setIsPlaying(true);
-  };
-
-  const handlePrevious = () => {
-    setCurrentTrackIndex((prev) => (prev === 0 ? tracks.length - 1 : prev - 1));
-    setIsPlaying(true);
-  };
-
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     setIsSearching(true);
@@ -502,46 +489,63 @@ const MusicPlayer = () => {
   };
 
   if (loading) return (
-    <div className="d-flex justify-content-center align-items-center" style={{ height: 'calc(100vh - 120px)' }}>
-      <Spinner animation="border" />
+    <div className={`d-flex flex-column justify-content-center align-items-center ${darkMode ? 'bg-dark text-light' : ''}`} style={{ height: 'calc(100vh - 120px)' }}>
+      <div className="spinner-grow text-primary" style={{ width: '3rem', height: '3rem' }} role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+      <p className="mt-3">Loading your music...</p>
     </div>
   );
 
   const currentTrack = tracks[currentTrackIndex] || {};
   const showProgress = !isAudioLoading && duration > 0;
 
-  return (
-    <div className="music-player-container" style={{
-      minHeight: 'calc(100vh - 120px)',
-      padding: '20px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '20px'
+ return (
+  <div className={`music-player-container ${darkMode ? 'bg-dark text-light' : ''}`} style={{
+    minHeight: '100vh',
+    padding: '20px',
+    display: 'flex',
+    gap: '20px',
+    width: '100%',
+    overflowX: 'hidden',
+    position: 'relative'
+  }}>
+    {/* Dark mode toggle */}
+    <Button 
+      variant="outline-secondary" 
+      onClick={() => setDarkMode(!darkMode)}
+      className="position-fixed top-0 end-0 m-3"
+      style={{ zIndex: 1000 }}
+    >
+      {darkMode ? <i className="bi bi-sun"></i> : <i className="bi bi-moon"></i>}
+    </Button>
+
+    {/* Left sidebar - fixed width */}
+    <div className="sidebar" style={{ 
+      width: '300px',
+      minWidth: '300px',
+      display: 'flex', 
+      flexDirection: 'column', 
+      gap: '20px',
+      position: 'sticky',
+      top: '20px',
+      height: 'fit-content',
+      overflowY: 'auto',
+      maxHeight: 'calc(100vh - 40px)'
     }}>
-      {/* Alert Messages */}
-      {!userInteracted && (
-        <Alert variant="info" className="mb-3">
-          Click the play button to start playback
-        </Alert>
-      )}
-
-      {error && (
-        <Alert variant="danger" onClose={() => setError(null)} dismissible className="mb-3">
-          {error}
-        </Alert>
-      )}
-
       {/* Search Section */}
-      <div className="search-section mb-4">
+      <div className="search-section">
         <Form.Group className="mb-3">
           <Form.Label>Search YouTube Music</Form.Label>
           <div className="d-flex">
             <Form.Control
+              id="search-input"
               type="text"
               placeholder="Enter song name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              className={darkMode ? 'bg-dark text-light' : ''}
             />
             <Button 
               variant="primary" 
@@ -549,7 +553,7 @@ const MusicPlayer = () => {
               disabled={isSearching}
               className="ms-2"
             >
-              {isSearching ? 'Searching...' : 'Search'}
+              {isSearching ? <Spinner animation="border" size="sm" /> : 'Search'}
             </Button>
           </div>
         </Form.Group>
@@ -559,28 +563,39 @@ const MusicPlayer = () => {
             <ListGroup>
               {searchResults.map((track, idx) => (
                 <ListGroup.Item 
-                  key={idx} 
-                  className="d-flex justify-content-between align-items-center"
-                  action
-                  onClick={() => {
-                    const existingIndex = tracks.findIndex(t => t.id === track.id);
-                    if (existingIndex >= 0) {
-                      handleTrackSelect(existingIndex);
-                    } else {
-                      addToPlaylist(track);
-                      handleTrackSelect(tracks.length);
+                  key={idx}
+                  className={`d-flex justify-content-between align-items-center py-2 ${darkMode ? 'bg-dark text-light' : ''}`}
+                  style={{
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s ease',
+                    ':hover': {
+                      backgroundColor: darkMode ? '#2c3034' : '#f8f9fa'
                     }
                   }}
                 >
                   <div className="d-flex align-items-center">
-                    <img src={track.thumbnail} alt={track.name} width="50" className="me-2" />
-                    <span>{track.name}</span>
+                    <img 
+                      src={track.thumbnail} 
+                      alt={track.name} 
+                      width="50" 
+                      height="50"
+                      className="me-3 rounded"
+                      style={{ objectFit: 'cover' }}
+                    />
+                    <div>
+                      <div className="fw-bold">{track.name}</div>
+                      <small className="text-muted">YouTube • {track.duration || 'Unknown duration'}</small>
+                    </div>
                   </div>
-                  <Button size="sm" variant="success" onClick={(e) => {
-                    e.stopPropagation();
-                    addToPlaylist(track);
-                  }}>
-                    Add
+                  <Button 
+                    size="sm" 
+                    variant="outline-success"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToPlaylist(track);
+                    }}
+                  >
+                    <i className="bi bi-plus"></i> Add
                   </Button>
                 </ListGroup.Item>
               ))}
@@ -589,79 +604,8 @@ const MusicPlayer = () => {
         )}
       </div>
 
-      {/* Now Playing Section (Sticky) */}
-      <div className="now-playing mb-4 p-3 bg-light rounded" style={{
-        position: 'sticky',
-        top: 0,
-        backgroundColor: '#f8f9fa',
-        zIndex: 100,
-        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-      }}>
-        <h4>
-          {currentTrack.name || "No track selected"}
-          {currentTrack.isYouTube && (
-            <span className="badge bg-danger ms-2">YouTube</span>
-          )}
-          {offlineTracks.some(t => t.id === currentTrack.id) && (
-            <span className="badge bg-success ms-2">Offline</span>
-          )}
-        </h4>
-
-        {isAudioLoading && (
-          <div className="text-center my-2">
-            <Spinner animation="border" />
-          </div>
-        )}
-
-        {!currentTrack.isYouTube ? null : (
-          <YouTube
-            videoId={currentTrack.id}
-            ref={playerRef}
-            opts={{
-              playerVars: {
-                autoplay: isPlaying ? 1 : 0,
-              },
-            }}
-            onReady={(e) => {
-              if (isPlaying) e.target.playVideo();
-              setDuration(e.target.getDuration());
-            }}
-            onStateChange={(e) => {
-              if (e.data === 0) handleNext();
-            }}
-          />
-        )}
-
-        {showProgress && (
-          <div className="my-3">
-            <input
-              type="range"
-              className="form-range"
-              min={0}
-              max={duration}
-              value={currentTime}
-              onChange={handleSeek}
-              onMouseDown={handleSeekStart}
-              onMouseUp={handleSeekEnd}
-            />
-            <div className="d-flex justify-content-between">
-              <small>{formatTime(currentTime)}</small>
-              <small>{formatTime(duration)}</small>
-            </div>
-          </div>
-        )}
-
-        <div className="d-flex justify-content-center mt-3">
-          <Button variant="secondary" className="me-2" onClick={handlePrevious}>Previous</Button>
-          <Button variant="primary" onClick={handlePlayPause}>
-            {isPlaying ? "Pause" : "Play"}
-          </Button>
-          <Button variant="secondary" className="ms-2" onClick={handleNext}>Next</Button>
-        </div>
-      </div>
-
       {/* Custom Playlists Section */}
-      <div className="custom-playlists mt-4" style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '20px' }}>
+      <div className="custom-playlists" style={{ maxHeight: '300px', overflowY: 'auto' }}>
         <h5>Custom Playlists</h5>
         <div className="d-flex mb-3">
           <Form.Control
@@ -669,14 +613,14 @@ const MusicPlayer = () => {
             placeholder="New playlist name"
             value={newPlaylistName}
             onChange={(e) => setNewPlaylistName(e.target.value)}
-            className="me-2"
+            className={`me-2 ${darkMode ? 'bg-dark text-light' : ''}`}
           />
           <Button variant="success" onClick={createPlaylist}>
             Create
           </Button>
         </div>
 
-        {customPlaylists.length > 0 && (
+        {customPlaylists.length > 0 ? (
           <ListGroup>
             {customPlaylists.map(playlist => (
               <ListGroup.Item 
@@ -684,21 +628,29 @@ const MusicPlayer = () => {
                 action
                 active={currentPlaylist?.id === playlist.id}
                 onClick={() => loadPlaylist(playlist)}
-                className="d-flex justify-content-between align-items-center"
+                className={`d-flex justify-content-between align-items-center ${darkMode ? 'bg-dark text-light' : ''}`}
               >
                 {playlist.name}
                 <span className="badge bg-secondary">{playlist.tracks.length} tracks</span>
               </ListGroup.Item>
             ))}
           </ListGroup>
+        ) : (
+          <div className="empty-state text-center py-3">
+            <i className="bi bi-music-note-list" style={{ fontSize: '2rem', color: '#6c757d' }}></i>
+            <p className="text-muted mt-2">No playlists yet</p>
+          </div>
         )}
       </div>
 
       {/* Offline Tracks Section */}
-      <div className="offline-section mt-4" style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '20px' }}>
+      <div className="offline-section" style={{ maxHeight: '300px', overflowY: 'auto' }}>
         <h5>Offline Tracks</h5>
         {offlineTracks.length === 0 ? (
-          <p>No tracks downloaded for offline use</p>
+          <div className="empty-state text-center py-3">
+            <i className="bi bi-download" style={{ fontSize: '2rem', color: '#6c757d' }}></i>
+            <p className="text-muted mt-2">No offline tracks</p>
+          </div>
         ) : (
           <ListGroup>
             {offlineTracks.map((track, index) => (
@@ -711,6 +663,7 @@ const MusicPlayer = () => {
                     handleTrackSelect(trackIndex);
                   }
                 }}
+                className={`track-item ${darkMode ? 'bg-dark text-light' : ''}`}
               >
                 <div className="d-flex justify-content-between align-items-center">
                   <span>{track.name}</span>
@@ -722,7 +675,7 @@ const MusicPlayer = () => {
                       removeOfflineTrack(track.id);
                     }}
                   >
-                    Remove
+                    <i className="bi bi-trash"></i>
                   </Button>
                 </div>
               </ListGroup.Item>
@@ -730,12 +683,166 @@ const MusicPlayer = () => {
           </ListGroup>
         )}
       </div>
+    </div>
+
+    {/* Main content - flexible width */}
+    <div className="main-content" style={{
+      flex: 1,
+      minWidth: 0, // Important for flexbox overflow
+      overflow: 'hidden'
+    }}>
+      {/* Now Playing Section */}
+      <div className={`now-playing mb-4 p-4 rounded ${darkMode ? 'bg-dark text-light border border-secondary' : 'bg-light'}`} style={{
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        width: '100%'
+      }}>
+        <div className="d-flex align-items-center mb-3">
+          {currentTrack.thumbnail && (
+            <img 
+              src={currentTrack.thumbnail} 
+              alt={currentTrack.name} 
+              width="80" 
+              height="80"
+              className="me-3 rounded"
+              style={{ objectFit: 'cover' }}
+            />
+          )}
+          <div>
+            <h4 className="mb-0">
+              {currentTrack.name || "No track selected"}
+              {currentTrack.isYouTube && (
+                <span className="badge bg-danger ms-2">YouTube</span>
+              )}
+              {offlineTracks.some(t => t.id === currentTrack.id) && (
+                <span className="badge bg-success ms-2">Offline</span>
+              )}
+            </h4>
+            <small className="text-muted">
+              {currentTrack.artist || 'Unknown artist'} • {formatTime(duration)}
+            </small>
+          </div>
+        </div>
+
+        {isAudioLoading && (
+          <div className="text-center my-2">
+            <Spinner animation="border" />
+            <p>Loading track...</p>
+          </div>
+        )}
+
+        {/* YouTube Player with proper responsive container */}
+        {!currentTrack.isYouTube ? null : (
+          <div style={{
+            width: '100%',
+            aspectRatio: '16/9',
+            position: 'relative',
+            marginBottom: '20px'
+          }}>
+            <YouTube
+              videoId={currentTrack.id}
+              ref={playerRef}
+              opts={{
+                width: '100%',
+                height: '100%',
+                playerVars: {
+                  autoplay: isPlaying ? 1 : 0,
+                },
+              }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%'
+              }}
+              onReady={(e) => {
+                if (isPlaying) e.target.playVideo();
+                setDuration(e.target.getDuration());
+              }}
+              onStateChange={(e) => {
+                if (e.data === 0) handleNext();
+              }}
+            />
+          </div>
+        )}
+
+        {/* Player Controls */}
+        <div className="player-controls d-flex flex-column align-items-center mt-3">
+          <div className="d-flex align-items-center mb-2">
+            <Button 
+              variant="link" 
+              onClick={handlePrevious}
+              disabled={tracks.length === 0}
+              style={{ fontSize: '1.5rem', color: darkMode ? '#fff' : '#000' }}
+            >
+              <i className="bi bi-skip-start-fill"></i>
+            </Button>
+            <Button 
+              variant="primary" 
+              onClick={handlePlayPause}
+              disabled={tracks.length === 0}
+              style={{ 
+                width: '60px', 
+                height: '60px',
+                borderRadius: '50%',
+                fontSize: '1.5rem',
+                margin: '0 15px'
+              }}
+            >
+              {isPlaying ? <i className="bi bi-pause-fill"></i> : <i className="bi bi-play-fill"></i>}
+            </Button>
+            <Button 
+              variant="link" 
+              onClick={handleNext}
+              disabled={tracks.length === 0}
+              style={{ fontSize: '1.5rem', color: darkMode ? '#fff' : '#000' }}
+            >
+              <i className="bi bi-skip-end-fill"></i>
+            </Button>
+          </div>
+          
+          {showProgress && (
+            <div className="w-100">
+              <div className="d-flex justify-content-between mb-1">
+                <small className="text-muted">{formatTime(currentTime)}</small>
+                <small className="text-muted">{formatTime(duration)}</small>
+              </div>
+              <input
+                type="range"
+                className="form-range"
+                min={0}
+                max={duration}
+                value={currentTime}
+                onChange={handleSeek}
+                onMouseDown={handleSeekStart}
+                onMouseUp={handleSeekEnd}
+                style={{ width: '100%', cursor: 'pointer' }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Current Playlist Section */}
-      <div className="playlist-section mt-4" style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '20px' }}>
-        <h5>Current Playlist</h5>
+      <div className="playlist-section" style={{ 
+        maxHeight: 'calc(100vh - 400px)', 
+        overflowY: 'auto',
+        width: '100%'
+      }}>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h5>Current Playlist</h5>
+          <small className="text-muted">{tracks.length} tracks</small>
+        </div>
+        
         {tracks.length === 0 ? (
-          <p>No tracks in playlist</p>
+          <div className="empty-state text-center py-5">
+            <i className="bi bi-music-note-list" style={{ fontSize: '3rem', color: '#6c757d' }}></i>
+            <h5 className="mt-3">No tracks found</h5>
+            <p className="text-muted">Add some tracks to get started</p>
+            <Button variant="outline-primary" onClick={() => document.getElementById('search-input').focus()}>
+              Search for music
+            </Button>
+          </div>
         ) : (
           <ListGroup>
             {tracks.map((track, index) => {
@@ -749,7 +856,11 @@ const MusicPlayer = () => {
                   active={index === currentTrackIndex}
                   action
                   onClick={() => handleTrackSelect(index)}
-                  className="d-flex justify-content-between align-items-center"
+                  className={`d-flex justify-content-between align-items-center py-3 ${darkMode ? 'bg-dark text-light' : ''}`}
+                  style={{
+                    transition: 'all 0.2s ease',
+                    borderLeft: index === currentTrackIndex ? '4px solid #0d6efd' : '4px solid transparent'
+                  }}
                 >
                   <div className="d-flex align-items-center" style={{ flex: 1 }}>
                     {track.thumbnail && (
@@ -757,10 +868,19 @@ const MusicPlayer = () => {
                         src={track.thumbnail} 
                         alt={track.name} 
                         width="40" 
-                        className="me-2 rounded" 
+                        height="40"
+                        className="me-3 rounded" 
+                        style={{ objectFit: 'cover' }}
                       />
                     )}
-                    <span>{track.name || `Track ${index + 1}`}</span>
+                    <div>
+                      <div className={`fw-bold ${index === currentTrackIndex ? 'text-primary' : ''}`}>
+                        {track.name || `Track ${index + 1}`}
+                      </div>
+                      <small className="text-muted">
+                        {track.artist || 'Unknown artist'} • {track.duration || formatTime(duration)}
+                      </small>
+                    </div>
                   </div>
                   <div className="d-flex align-items-center">
                     {track.isYouTube && (
@@ -776,18 +896,17 @@ const MusicPlayer = () => {
                       </div>
                     ) : (
                       <Button 
-                      size="sm" 
-                      variant={isDownloaded ? "success" : "outline-primary"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        downloadTrack(track); // Remove the condition here
-                      }}
-                      disabled={isDownloading || (isDownloaded && !track.isYouTube)} // Modified condition
-                      className="me-2"
-                    >
-                      {isDownloaded && !track.isYouTube ? "Downloaded" : "Download"}
-                    </Button>
-
+                        size="sm" 
+                        variant={isDownloaded ? "success" : "outline-primary"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadTrack(track);
+                        }}
+                        disabled={isDownloading || (isDownloaded && !track.isYouTube)}
+                        className="me-2"
+                      >
+                        {isDownloaded && !track.isYouTube ? "Downloaded" : "Download"}
+                      </Button>
                     )}
                     {customPlaylists.length > 0 && (
                       <DropdownButton
@@ -817,9 +936,12 @@ const MusicPlayer = () => {
         )}
       </div>
     </div>
-  );
+
+   
+
+
+  </div>
+);
 };
 
 export default MusicPlayer;
-
-

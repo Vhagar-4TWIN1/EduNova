@@ -24,7 +24,7 @@ import ChangePassword from "./components/changePassword.jsx";
 import ChangePasswordBack from "./components/changePasswordBack.jsx";
 import ForumMain from "./components/forum/ForumMain.jsx";
 import PostDetail from "./components/forum/PostDetail.jsx";
-import MusicPage from './components/MusicPage';
+import MusicPlayer from './components/MusicPlayer';
 
 // Initialisation de AOS pour les animations
 AOS.init();
@@ -160,7 +160,7 @@ function AppWithRouter({
           <Route path="/dys" element={<DyslexiaAssessmentCard />} />
           <Route path="/Trainers" element={<TeacherList />} />
           <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
-          <Route path="/music-player" element={<MusicPage />} />
+          <Route path="/music-player" element={<MusicPlayer />} />
         </Route>
 
         {/* Routes du tableau de bord */}
