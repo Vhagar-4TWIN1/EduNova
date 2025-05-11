@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import * as faceapi from '@vladmandic/face-api';
+import * as faceapi from "@vladmandic/face-api";
 import { useNavigate } from "react-router-dom";
 import Logo from "./Logo";
 import Footerpage from "./Footerpage";

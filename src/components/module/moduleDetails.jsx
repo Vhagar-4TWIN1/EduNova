@@ -22,6 +22,7 @@ const ModuleDetails = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [userRole, setUserRole] = useState("student");
+  const [userLearningPreference, setUserLearningPreference] = useState(null);
 
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
@@ -30,7 +31,10 @@ const ModuleDetails = () => {
   useEffect(() => {
     const fetchModuleLessons = async () => {
       try {
-        const [moduleRes, lessonRes, enrollmentRes, completedRes] =
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+
+        const [moduleRes, lessonRes, enrollmentRes, completedRes, userRes] =
           await Promise.all([
             axios.get(`http://localhost:3000/module/${id}`),
             axios.get(`http://localhost:3000/module/modules/${id}/lessons`),
@@ -40,15 +44,22 @@ const ModuleDetails = () => {
             axios.get(
               `http://localhost:3000/api/progress/completed/${userId}/${id}`
             ),
+            axios.get(`http://localhost:3000/api/users/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
           ]);
 
         setModule(moduleRes.data);
         setLessons(lessonRes.data);
         setIsEnrolled(enrollmentRes.data.enrolled);
         setCompletedLessons(completedRes.data.completedLessons);
+
+        const preference = userRes.data?.data?.learningPreference;
+        setUserLearningPreference(preference || "video"); // fallback
+
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching module lessons:", error);
+        console.error("Error fetching module lessons or user:", error);
         setLoading(false);
       }
     };
@@ -189,69 +200,80 @@ const ModuleDetails = () => {
             </div>
           ) : (
             <div className="lessons-grid">
-              {lessons.map((lesson) => {
-                const isCompleted = completedLessons.includes(lesson._id);
-                return (
-                  <div
-                    key={lesson._id}
-                    className={`lesson-card ${isCompleted ? "completed" : ""}`}
-                    onClick={() =>
-                      navigate("/lesson-details", { state: { lesson } })
-                    }
-                  >
-                    {lesson.fileUrl && (
-                      <div className="lesson-image">
-                        <img src={lesson.fileUrl} alt="lesson preview" />
-                      </div>
-                    )}
-                    <div className="lesson-content">
-                      <h3>{lesson.title}</h3>
-                      <p className="lesson-type">{lesson.typeLesson}</p>
-                      <p className="lesson-excerpt">
-                        {lesson.content.substring(0, 100)}...
-                      </p>
+              {lessons
+                .filter((lesson) =>
+                  Array.isArray(userLearningPreference)
+                    ? userLearningPreference
+                        .map((p) => p.toLowerCase())
+                        .includes(lesson.typeLesson?.toLowerCase())
+                    : lesson.typeLesson?.toLowerCase() ===
+                      userLearningPreference?.toLowerCase()
+                )
+                .map((lesson) => {
+                  const isCompleted = completedLessons.includes(lesson._id);
+                  return (
+                    <div
+                      key={lesson._id}
+                      className={`lesson-card ${
+                        isCompleted ? "completed" : ""
+                      }`}
+                      onClick={() =>
+                        navigate("/lesson-details", { state: { lesson } })
+                      }
+                    >
+                      {lesson.fileUrl && (
+                        <div className="lesson-image">
+                          <img src={lesson.fileUrl} alt="lesson preview" />
+                        </div>
+                      )}
+                      <div className="lesson-content">
+                        <h3>{lesson.title}</h3>
+                        <p className="lesson-type">{lesson.typeLesson}</p>
+                        <p className="lesson-excerpt">
+                          {lesson.content.substring(0, 100)}...
+                        </p>
 
-                      <div className="lesson-footer">
-                        {isCompleted ? (
-                          <span className="completed-badge">
-                            <FaCheckCircle /> Completed
-                          </span>
-                        ) : isEnrolled ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCompleteLesson(lesson._id);
-                            }}
-                            className="complete-button"
-                          >
-                            Mark as Completed
-                          </button>
-                        ) : null}
+                        <div className="lesson-footer">
+                          {isCompleted ? (
+                            <span className="completed-badge">
+                              <FaCheckCircle /> Completed
+                            </span>
+                          ) : isEnrolled ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCompleteLesson(lesson._id);
+                              }}
+                              className="complete-button"
+                            >
+                              Mark as Completed
+                            </button>
+                          ) : null}
 
-                        {role === "Teacher" && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteLesson(lesson._id);
-                            }}
-                            style={{
-                              backgroundColor: "#ef4444",
-                              color: "white",
-                              padding: "0.4rem 0.8rem",
-                              borderRadius: "0.375rem",
-                              border: "none",
-                              cursor: "pointer",
-                              fontSize: "0.9rem",
-                            }}
-                          >
-                            🗑️ Delete
-                          </button>
-                        )}
+                          {role === "Teacher" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteLesson(lesson._id);
+                              }}
+                              style={{
+                                backgroundColor: "#ef4444",
+                                color: "white",
+                                padding: "0.4rem 0.8rem",
+                                borderRadius: "0.375rem",
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: "0.9rem",
+                              }}
+                            >
+                              🗑️ Delete
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           )}
         </div>
