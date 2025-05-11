@@ -47,15 +47,35 @@ const Sidebar = () => {
   // Utilisation de useNavigate pour naviguer après le logout
   const navigate = useNavigate();
   const imageSrc = localStorage.getItem("image");
-  const handleLogout = () => {
-    // Supprimer les informations de l'utilisateur du localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("firstName");
-    localStorage.removeItem("lastName");
 
-    // Naviguer vers la page d'accueil
-    navigate("/");
-  };
+
+const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error("Aucun token trouvé dans localStorage");
+
+    const response = await fetch('http://localhost:3000/api/auth/signout', {
+      method: 'POST', 
+      headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Échec de la déconnexion");
+    }
+
+    localStorage.clear();
+    window.location.href = '/';
+  } catch (error) {
+    console.error("Erreur lors de la déconnexion:", error.message);
+    alert("Erreur lors de la déconnexion : " + error.message);
+  }
+};
+
+
+
 
   return (
     <Box

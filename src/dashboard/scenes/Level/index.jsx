@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { 
-  Button, 
-  TextField, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Stack, 
+import {
+  Button,
+  TextField,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
   Container,
   CircularProgress,
   Alert,
@@ -25,8 +25,7 @@ const LevelManagement = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Valeurs prédéfinies pour le champ name
-  const levelOptions = ['beginner', 'intermediate', 'advanced'];
+  const levelOptions = ["beginner", "intermediate", "advanced"];
 
   useEffect(() => {
     fetchLevels();
@@ -94,9 +93,11 @@ const LevelManagement = () => {
     setSuccess(null);
   };
 
+  const green = "#198754";
+
   return (
-    <Container maxWidth="md">
-      <Typography variant="h4" sx={{ mb: 3, textAlign: "center", fontWeight: "bold" }}>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Typography variant="h4" sx={{ mb: 3, textAlign: "center", fontWeight: "bold", color: green }}>
         Level Management
       </Typography>
 
@@ -104,7 +105,7 @@ const LevelManagement = () => {
         open={!!error}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert severity="error" onClose={handleCloseSnackbar}>
           {error}
@@ -115,20 +116,20 @@ const LevelManagement = () => {
         open={!!success}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert severity="success" onClose={handleCloseSnackbar}>
           {success}
         </Alert>
       </Snackbar>
 
-      <Card sx={{ mb: 3, p: 2 }}>
+      <Card sx={{ mb: 3, p: 2, borderColor: green, borderWidth: 1, borderStyle: "solid" }}>
         <CardContent>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold", color: green }}>
             {editLevel ? "Edit Level" : "Add New Level"}
           </Typography>
           <Stack spacing={2}>
-            <FormControl fullWidth>
+            <FormControl fullWidth size="small">
               <InputLabel id="level-name-label">Name *</InputLabel>
               <Select
                 labelId="level-name-label"
@@ -154,40 +155,40 @@ const LevelManagement = () => {
               fullWidth
               multiline
               rows={3}
+              size="small"
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={editLevel ? handleUpdateLevel : handleCreateLevel}
-              disabled={loading}
-            >
-              {editLevel ? "Update Level" : "Add Level"}
-            </Button>
-            {editLevel && (
+            <Stack direction="row" spacing={2}>
               <Button
-                variant="outlined"
-                onClick={() => setEditLevel(null)}
+                variant="contained"
+                sx={{ backgroundColor: green, '&:hover': { backgroundColor: '#157347' } }}
+                onClick={editLevel ? handleUpdateLevel : handleCreateLevel}
+                disabled={loading}
               >
-                Cancel
+                {editLevel ? "Update" : "Add"}
               </Button>
-            )}
+              {editLevel && (
+                <Button variant="outlined" onClick={() => setEditLevel(null)}>
+                  Cancel
+                </Button>
+              )}
+            </Stack>
           </Stack>
         </CardContent>
       </Card>
 
-      <Typography variant="h5" sx={{ mt: 3, mb: 2, fontWeight: "bold" }}>
+      <Typography variant="h6" sx={{ mt: 3, mb: 2, fontWeight: "bold", color: green }}>
         Levels List
       </Typography>
 
       {loading ? (
         <CircularProgress />
       ) : levels.length === 0 ? (
-        <Typography>No levels available.</Typography>
+        <Typography variant="body2">No levels available.</Typography>
       ) : (
         levels.map(level => (
-          <Card key={level._id} sx={{ mb: 2, p: 2 }}>
+          <Card key={level._id} sx={{ mb: 2, p: 2, backgroundColor: "#f9f9f9" }}>
             <CardContent>
-              <Typography variant="h6">
+              <Typography variant="subtitle1" fontWeight="bold" color={green}>
                 {level.name.charAt(0).toUpperCase() + level.name.slice(1)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -195,15 +196,15 @@ const LevelManagement = () => {
               </Typography>
               <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
                 <Button
-                  variant="contained"
-                  color="primary"
+                  variant="outlined"
+                  sx={{ color: green, borderColor: green }}
                   onClick={() => setEditLevel(level)}
                 >
                   Edit
                 </Button>
                 <Button
-                  variant="contained"
-                  color="error"
+                  variant="outlined"
+                  sx={{ color: "#dc3545", borderColor: "#dc3545" }}
                   onClick={() => handleDeleteLevel(level._id)}
                 >
                   Delete

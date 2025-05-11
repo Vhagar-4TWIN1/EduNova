@@ -471,8 +471,12 @@ const downloadTrack = async (track) => {
     setError(null);
     try {
       const response = await axios.get('http://localhost:3000/api/music/youtube/search', {
-        params: { query: searchQuery }
-      });
+  params: { query: searchQuery },
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  },
+});
+
       setSearchResults(response.data);
     } catch (err) {
       console.error("Search error:", err);

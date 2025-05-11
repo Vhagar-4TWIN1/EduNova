@@ -77,10 +77,30 @@ export default function Header() {
     }
   }, [navigate]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error("Aucun token trouvé dans localStorage");
+
+    const response = await fetch('http://localhost:3000/api/auth/signout', {
+      method: 'POST', 
+      headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Échec de la déconnexion");
+    }
+
     localStorage.clear();
-    navigate("/");
-  };
+    window.location.href = '/';
+  } catch (error) {
+    console.error("Erreur lors de la déconnexion:", error.message);
+    alert("Erreur lors de la déconnexion : " + error.message);
+  }
+};
 
   const toggleDropdown = () => setDropdownOpen(v => !v);
   const toggleAITutor = () => setShowAITutor(v => !v);
@@ -131,30 +151,33 @@ export default function Header() {
               <li>
                 <a href="/listModules">Modules</a>
               </li>
+
+              <li>
+                <a href="/quiz">Evaluation</a>
+              </li>
             
               <li className="dropdown">
                 <a href="#">
-                  <span>Evaluations</span>{" "}
+                  <span>Game</span>{" "}
                   <i className="bi bi-chevron-down toggle-dropdown" />
                 </a>
                 <ul>
                   <li>
-                    <a href="/quiz">Level Test</a>
+                    <a href="/ClassicWordGame">Words Game</a>
                   </li>
                   <li>
-                    <a href="/quizz">Test</a>
+                    <a href="/quizz">Quiz Game</a>
                   </li>
-                  <li>
-                    <a href="/Trainers">Trainers</a>
-                  </li>
+                  
                 </ul>
               </li>
               <li>
+                    <a href="/Trainers">Trainers</a>
+                  </li>
+              <li>
                 <a href="/badges">Badges</a>
               </li>
-              <li>
-                <a href="/ClassicWordGame">Game</a>
-              </li>
+              
               <li>
                 <a href="/forum">Forum</a>
               </li>
