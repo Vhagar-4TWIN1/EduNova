@@ -9,6 +9,10 @@ import {
   FaLock,
   FaLockOpen,
   FaExternalLinkAlt,
+  FaFilePdf,
+  FaLink,
+  FaHeading,
+  FaFolderOpen,
 } from "react-icons/fa";
 import { FiActivity } from "react-icons/fi";
 
@@ -29,72 +33,81 @@ const ModuleDetails = () => {
   const role = localStorage.getItem("role");
 
   useEffect(() => {
-  const fetchModuleLessons = async () => {
-    try {
-      // Check if this is a Moodle course (numeric ID)
-      const isMoodleCourse = !isNaN(id);
+    const fetchModuleLessons = async () => {
+      try {
+        const isMoodleCourse = !isNaN(id);
 
-      if (isMoodleCourse) {
-        // Fetch Moodle course content
-        const moodleRes = await axios.get(
-          "http://40.127.12.101/moodle/webservice/rest/server.php",
-          {
-            params: {
-              wstoken: "46b0837fde05083b10edd2f210c2fbe7",
-              wsfunction: "core_course_get_contents",
-              courseid: id,
-              moodlewsrestformat: "json",
-            },
-          }
-        );
+        if (isMoodleCourse) {
+          const moodleRes = await axios.get(
+            "http://40.127.12.101/moodle/webservice/rest/server.php",
+            {
+              params: {
+                wstoken: "46b0837fde05083b10edd2f210c2fbe7",
+                wsfunction: "core_course_get_contents",
+                courseid: id,
+                moodlewsrestformat: "json",
+              },
+            }
+          );
 
-        setMoodleLessons(moodleRes.data);
-        setModule({
-          _id: id,
-          title: `Moodle Course ${id}`,
-          description: "Imported from Moodle",
-          isMoodle: true
-        });
-      } else {
-        // Fetch local module
+          setMoodleLessons(moodleRes.data);
+          setModule({
+            _id: id,
+            title: `Moodle Course ${id}`,
+            description: "Imported from Moodle",
+            isMoodle: true
+          });
+          setLoading(false);
+        } else {
           const [moduleRes, lessonRes, enrollmentRes, completedRes, userRes] =
-          await Promise.all([
-            axios.get(`http://localhost:3000/module/${id}`),
-            axios.get(`http://localhost:3000/module/modules/${id}/lessons`),
-            axios.get(
-              `http://localhost:3000/api/progress/enrollment/${userId}/${id}`
-            ),
-            axios.get(
-              `http://localhost:3000/api/progress/completed/${userId}/${id}`
-            ),
-            axios.get(`http://localhost:3000/api/users/${userId}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-          ]);
+            await Promise.all([
+              axios.get(`http://localhost:3000/module/${id}`),
+              axios.get(`http://localhost:3000/module/modules/${id}/lessons`),
+              axios.get(
+                `http://localhost:3000/api/progress/enrollment/${userId}/${id}`
+              ),
+              axios.get(
+                `http://localhost:3000/api/progress/completed/${userId}/${id}`
+              ),
+              axios.get(`http://localhost:3000/api/users/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ]);
 
-        setModule(moduleRes.data);
-        setLessons(lessonRes.data);
-        setIsEnrolled(enrollmentRes.data.enrolled);
-        setCompletedLessons(completedRes.data.completedLessons);
-
-        const preference = userRes.data?.data?.learningPreference;
-        setUserLearningPreference(preference || "video"); // fallback
-
+          setModule(moduleRes.data);
+          setLessons(lessonRes.data);
+          setIsEnrolled(enrollmentRes.data.enrolled);
+          setCompletedLessons(completedRes.data.completedLessons);
+          setUserLearningPreference(
+            userRes.data?.data?.learningPreference || "video"
+          );
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching module data:", error);
+        if (error.response?.status === 404) {
+          navigate('/not-found');
+        }
         setLoading(false);
-      } 
-    } catch (error) {
-      console.error("Error fetching module data:", error);
-      // Handle specific error cases
-      if (error.response?.status === 404) {
-        navigate('/not-found');
       }
-    } finally {
-      setLoading(false);
+    };
+
+    fetchModuleLessons();
+  }, [id, userId, navigate, token]);
+    const renderMoodleModuleIcon = (modname) => {
+    switch (modname) {
+      case 'resource':
+        return <FaFilePdf className="module-icon" />;
+      case 'url':
+        return <FaLink className="module-icon" />;
+      case 'label':
+        return <FaHeading className="module-icon" />;
+      case 'folder':
+        return <FaFolderOpen className="module-icon" />;
+      default:
+        return <FaExternalLinkAlt className="module-icon" />;
     }
   };
-
-  fetchModuleLessons();
-}, [id, userId, navigate]);
 
   const handleEnroll = async () => {
     try {
@@ -171,135 +184,192 @@ const ModuleDetails = () => {
         <h1>{module.title}</h1>
         <p className="module-description">{module.description}</p>
 
-        {isEnrolled && (
-          <div className="progress-container">
-            <div className="progress-header">
-              <FiActivity className="progress-icon" />
-              <span>Your Progress</span>
-              <span>
-                {completedLessons.length}/{totalLessons} lessons
-              </span>
-            </div>
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
-            </div>
-            <span className="progress-percentage">
-              {progressPercentage}% Complete
-            </span>
-          </div>
-        )}
+        {!module.isMoodle && (
+          <>
+            {isEnrolled && (
+              <div className="progress-container">
+                <div className="progress-header">
+                  <FiActivity className="progress-icon" />
+                  <span>Your Progress</span>
+                  <span>
+                    {completedLessons.length}/{totalLessons} lessons
+                  </span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill"
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+                <span className="progress-percentage">
+                  {progressPercentage}% Complete
+                </span>
+              </div>
+            )}
 
-        {!isEnrolled ? (
-          <button onClick={handleEnroll} className="enroll-button">
-            <FaLockOpen /> Enroll in Module
-          </button>
-        ) : (
-          <div className="enrolled-badge">
-            <FaLock /> Enrolled
+            {!isEnrolled ? (
+              <button onClick={handleEnroll} className="enroll-button">
+                <FaLockOpen /> Enroll in Module
+              </button>
+            ) : (
+              <div className="enrolled-badge">
+                <FaLock /> Enrolled
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {module.isMoodle ? (
+        <div className="moodle-lessons-section">
+  <div className="section-header">
+    <h2>
+      <FaBook /> Contenu du cours
+    </h2>
+    <p className="moodle-course-info">
+      {module.description && (
+        <div className="moodle-description">
+          {module.description.replace(/<[^>]+>/g, '')}
+        </div>
+      )}
+    </p>
+  </div>
+
+  {moodleLessons.map((section, index) => (
+    <div key={index} className="moodle-section">
+      <div className="section-title">
+        <h3>Section {index + 1}: {section.name}</h3>
+        {section.summary && (
+          <div className="section-description">
+            {section.summary.replace(/<[^>]+>/g, '')}
           </div>
         )}
       </div>
 
-      {isEnrolled && (
-        <div className="lessons-section">
-          <div className="section-header">
-            <h2>
-              <FaBook /> Lessons
-            </h2>
-            {role === "Teacher" && (
-              <button
-                onClick={() => navigate(`/create-lesson/${id}`)}
-                className="add-lesson-button"
-              >
-                <FaPlus /> Add Lesson
-              </button>
-            )}
-          </div>
-
-          {lessons.length === 0 ? (
-            <div className="empty-lessons">
-              <p>No lessons available in this module yet.</p>
+      <div className="moodle-modules-grid">
+        {section.modules.map((moodleModule, modIndex) => (
+          <div
+            key={modIndex}
+            className={`moodle-module-card ${moodleModule.modname}`}
+            onClick={() => moodleModule.url && openMoodleLesson(moodleModule.url)}
+            style={{ cursor: moodleModule.url ? 'pointer' : 'default' }}
+          >
+            <div className="moodle-module-content">
+              <div className="module-icon-container">
+                {renderMoodleModuleIcon(moodleModule.modname)}
+              </div>
+              <div className="module-details">
+                <h4>{moodleModule.name}</h4>
+                <p className="module-type">{moodleModule.modname}</p>
+                {moodleModule.description && (
+                  <div className="module-description">
+                    {moodleModule.description.replace(/<[^>]+>/g, '')}
+                  </div>
+                )}
+              </div>
+              {moodleModule.url && (
+                <FaExternalLinkAlt className="external-link-icon" />
+              )}
             </div>
-          ) : (
-            <div className="lessons-grid">
-              {lessons
-                .filter((lesson) =>
-                  Array.isArray(userLearningPreference)
-                    ? userLearningPreference
-                        .map((p) => p.toLowerCase())
-                        .includes(lesson.typeLesson?.toLowerCase())
-                    : lesson.typeLesson?.toLowerCase() ===
-                      userLearningPreference?.toLowerCase()
-                )
-                .map((lesson) => {
-                  const isCompleted = completedLessons.includes(lesson._id);
-                  return (
-                    <div
-                      key={lesson._id}
-                      className={`lesson-card ${isCompleted ? "completed" : ""}`}
-                      onClick={() =>
-                        navigate("/lesson-details", { state: { lesson } })
-                      }
-                    >
-                      {lesson.fileUrl && (
-                        <div className="lesson-image">
-                          <img src={lesson.fileUrl} alt="lesson preview" />
-                        </div>
-                      )}
-                      <div className="lesson-content">
-                        <h3>{lesson.title}</h3>
-                        <p className="lesson-type">{lesson.typeLesson}</p>
-                        <p className="lesson-excerpt">
-                          {lesson.content.substring(0, 100)}...
-                        </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>
 
-                        <div className="lesson-footer">
-                          {isCompleted ? (
-                            <span className="completed-badge">
-                              <FaCheckCircle /> Completed
-                            </span>
-                          ) : isEnrolled ? (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCompleteLesson(lesson._id);
-                              }}
-                              className="complete-button"
-                            >
-                              Mark as Completed
-                            </button>
-                          ) : null}
 
-                          {role === "Teacher" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteLesson(lesson._id);
-                              }}
-                              style={{
-                                backgroundColor: "#ef4444",
-                                color: "white",
-                                padding: "0.4rem 0.8rem",
-                                borderRadius: "0.375rem",
-                                border: "none",
-                                cursor: "pointer",
-                                fontSize: "0.9rem",
-                              }}
-                            >
-                              🗑️ Delete
-                            </button>
-                          )}
+      ) : (
+        isEnrolled && (
+          <div className="lessons-section">
+            <div className="section-header">
+              <h2>
+                <FaBook /> Lessons
+              </h2>
+              {role === "Teacher" && (
+                <button
+                  onClick={() => navigate(`/create-lesson/${id}`)}
+                  className="add-lesson-button"
+                >
+                  <FaPlus /> Add Lesson
+                </button>
+              )}
+            </div>
+
+            {lessons.length === 0 ? (
+              <div className="empty-lessons">
+                <p>No lessons available in this module yet.</p>
+              </div>
+            ) : (
+              <div className="lessons-grid">
+                {lessons
+                  .filter((lesson) =>
+                    Array.isArray(userLearningPreference)
+                      ? userLearningPreference
+                          .map((p) => p.toLowerCase())
+                          .includes(lesson.typeLesson?.toLowerCase())
+                      : lesson.typeLesson?.toLowerCase() ===
+                        userLearningPreference?.toLowerCase()
+                  )
+                  .map((lesson) => {
+                    const isCompleted = completedLessons.includes(lesson._id);
+                    return (
+                      <div
+                        key={lesson._id}
+                        className={`lesson-card ${isCompleted ? "completed" : ""}`}
+                        onClick={() =>
+                          navigate("/lesson-details", { state: { lesson } })
+                        }
+                      >
+                        {lesson.fileUrl && (
+                          <div className="lesson-image">
+                            <img src={lesson.fileUrl} alt="lesson preview" />
+                          </div>
+                        )}
+                        <div className="lesson-content">
+                          <h3>{lesson.title}</h3>
+                          <p className="lesson-type">{lesson.typeLesson}</p>
+                          <p className="lesson-excerpt">
+                            {lesson.content.substring(0, 100)}...
+                          </p>
+
+                          <div className="lesson-footer">
+                            {isCompleted ? (
+                              <span className="completed-badge">
+                                <FaCheckCircle /> Completed
+                              </span>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCompleteLesson(lesson._id);
+                                }}
+                                className="complete-button"
+                              >
+                                Mark as Completed
+                              </button>
+                            )}
+
+                            {role === "Teacher" && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteLesson(lesson._id);
+                                }}
+                                className="delete-button"
+                              >
+                                🗑️ Delete
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-            </div>
-          )}
-        </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+        )
       )}
     </div>
   );
