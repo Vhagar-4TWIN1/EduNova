@@ -13,6 +13,7 @@
   z-index: 1000; /* S'assurer que la sidebar est au-dessus du contenu */
 }
 
+
 .content {
   margin-top: 40px; /* Espacer le contenu sous le header (si le header fait 64px de haut) */
   flex: 1;

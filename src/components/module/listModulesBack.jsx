@@ -21,7 +21,13 @@ const ListModulesBack = () => {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/module/");
+        const response = await axios.get("http://localhost:3000/module/",
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          }
+        );
         setModules(response.data);
         setFilteredModules(response.data);
         setLoading(false);

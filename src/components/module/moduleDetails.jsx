@@ -23,7 +23,7 @@ const ModuleDetails = () => {
   const [completedLessons, setCompletedLessons] = useState([]);
   const [userRole, setUserRole] = useState("student");
 
-  const userId = "123";
+  const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 

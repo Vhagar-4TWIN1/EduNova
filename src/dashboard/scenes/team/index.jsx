@@ -9,6 +9,12 @@ import {
   Modal,
   Typography,
   TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -89,7 +95,7 @@ const Team = ({ searchQuery }) => {
     try {
       await axios.post("http://localhost:3000/api/auth/signup", newUser);
       setAddUserModalOpen(false);
-      fetchUsers(); // refresh list
+      fetchUsers();
     } catch (error) {
       console.error("Failed to add user:", error);
     }
@@ -109,7 +115,11 @@ const Team = ({ searchQuery }) => {
   };
 
   const handleFormChange = (e) => {
-    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setEditForm({
+      ...editForm,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
   const handleFormSubmit = async () => {
@@ -136,6 +146,133 @@ const Team = ({ searchQuery }) => {
       fetchUsers();
     } catch (error) {
       console.error("Promote to admin failed:", error);
+    }
+  };
+
+  const renderRoleSpecificFields = () => {
+    if (!editingUser) return null;
+
+    switch (editingUser.role) {
+      case "Admin":
+        return (
+          <>
+            <TextField
+              label="CIN"
+              fullWidth
+              name="cin"
+              value={editForm.cin || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Phone Number"
+              fullWidth
+              name="number"
+              value={editForm.number || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+          </>
+        );
+      case "Teacher":
+        return (
+          <>
+            <TextField
+              label="Phone Number"
+              fullWidth
+              name="number"
+              value={editForm.number || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Bio"
+              fullWidth
+              name="bio"
+              value={editForm.bio || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="CV"
+              fullWidth
+              name="cv"
+              value={editForm.cv || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Experience"
+              fullWidth
+              name="experience"
+              value={editForm.experience || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="CIN"
+              fullWidth
+              name="cin"
+              value={editForm.cin || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+          </>
+        );
+      case "Student":
+        return (
+          <>
+            <TextField
+              label="Identifier"
+              fullWidth
+              name="identifier"
+              value={editForm.identifier || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Situation"
+              fullWidth
+              name="situation"
+              value={editForm.situation || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Disease"
+              fullWidth
+              name="disease"
+              value={editForm.disease || ""}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={editForm.socialCase || false}
+                  onChange={handleFormChange}
+                  name="socialCase"
+                />
+              }
+              label="Social Case"
+              sx={{ mb: 2 }}
+            />
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Learning Preference</InputLabel>
+              <Select
+                name="learningPreference"
+                value={editForm.learningPreference || "video"}
+                onChange={handleFormChange}
+                label="Learning Preference"
+              >
+                <MenuItem value="video">Video</MenuItem>
+                <MenuItem value="pdf">PDF</MenuItem>
+              </Select>
+            </FormControl>
+          </>
+        );
+      default:
+        return null;
     }
   };
 
@@ -245,10 +382,12 @@ const Team = ({ searchQuery }) => {
             borderRadius: 2,
             boxShadow: 24,
             p: 4,
+            maxHeight: "80vh",
+            overflowY: "auto",
           }}
         >
           <Typography variant="h6" mb={2}>
-            Update User
+            Update {editingUser?.role} Profile
           </Typography>
           {["firstName", "lastName", "age", "email", "country"].map((field) => (
             <TextField
@@ -261,17 +400,30 @@ const Team = ({ searchQuery }) => {
               sx={{ mb: 2 }}
             />
           ))}
-          <Box display="flex" justifyContent="flex-end">
+          
+          {/* Role-specific fields */}
+          {renderRoleSpecificFields()}
+          
+          <Box display="flex" justifyContent="flex-end" mt={2}>
+            <Button
+              onClick={() => setEditingUser(null)}
+              variant="outlined"
+              sx={{ mr: 2 }}
+            >
+              Cancel
+            </Button>
             <Button
               onClick={handleFormSubmit}
               variant="contained"
               color="primary"
             >
-              Save
+              Save Changes
             </Button>
           </Box>
         </Box>
       </Modal>
+
+      {/* Add User Modal */}
       <Modal open={addUserModalOpen} onClose={() => setAddUserModalOpen(false)}>
         <Box
           sx={{
@@ -290,7 +442,7 @@ const Team = ({ searchQuery }) => {
             Add New User
           </Typography>
 
-          {["firstName", "lastName", "age", "email", "country", "role"].map(
+          {["firstName", "lastName", "age", "email", "country"].map(
             (field) => (
               <TextField
                 key={field}
@@ -304,7 +456,20 @@ const Team = ({ searchQuery }) => {
             )
           )}
 
-          {/* Password Field */}
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Role</InputLabel>
+            <Select
+              name="role"
+              value={newUser.role}
+              onChange={handleAddUserChange}
+              label="Role"
+            >
+              <MenuItem value="Admin">Admin</MenuItem>
+              <MenuItem value="Teacher">Teacher</MenuItem>
+              <MenuItem value="Student">Student</MenuItem>
+            </Select>
+          </FormControl>
+
           <TextField
             label="Password"
             type="password"
@@ -314,7 +479,7 @@ const Team = ({ searchQuery }) => {
             onChange={handleAddUserChange}
             sx={{ mb: 2 }}
           />
-
+          
           <Box display="flex" justifyContent="flex-end">
             <Button
               onClick={handleAddUserSubmit}

@@ -28,7 +28,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
       onClick={() => setSelected(title)}
       icon={icon}
     >
-      <Typography>{title}</Typography>
+      <Typography  fontSize="0.75rem">{title}</Typography>
       <Link to={to} />
     </MenuItem>
   );
@@ -47,29 +47,54 @@ const Sidebar = () => {
   // Utilisation de useNavigate pour naviguer après le logout
   const navigate = useNavigate();
   const imageSrc = localStorage.getItem("image");
-  const handleLogout = async () => {
-    try {
-      // const token = localStorage.getItem('token'); // ou selon ton stockage
-      // await axios.post('http://localhost:3000/api/auth/signout', {}, {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`
-      //   },
-      //   withCredentials: true,
-      // });
-      
+  // Dans votre composant (ex: Sidebar.jsx)
+// const handleLogout = async () => {
+//   try {
+//     const response = await fetch('http://localhost:3000/api/auth/signout', {
+//       method: 'POST',
+//       credentials: 'include', // Nécessaire pour les cookies
+//     });
 
-      // Nettoyage localStorage
-      localStorage.clear();
-  
-      // Redirection
-      navigate("/");
-    } catch (error) {
-      console.error("Erreur lors de la déconnexion :", error);
-      // Même en cas d'erreur, on peut nettoyer et rediriger
-      // localStorage.clear();
-      // navigate("/");
+//     if (!response.ok) throw new Error("Échec de la déconnexion");
+
+//     // Effacer le localStorage
+//     localStorage.removeItem('token');
+    
+//     // Rediriger vers la page de login
+//     window.location.href = '/'; // Ou utilisez navigate('/login') avec React Router
+//   } catch (error) {
+//     console.error("Erreur:", error);
+//     alert("Erreur lors de la déconnexion");
+//   }
+// };
+
+const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error("Aucun token trouvé dans localStorage");
+
+    const response = await fetch('http://localhost:3000/api/auth/signout', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Échec de la déconnexion");
     }
-  };
+
+    localStorage.clear();
+    window.location.href = '/';
+  } catch (error) {
+    console.error("Erreur lors de la déconnexion:", error.message);
+    alert("Erreur lors de la déconnexion : " + error.message);
+  }
+};
+
+
 
   return (
     <Box
@@ -110,7 +135,7 @@ const Sidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Typography variant="h3" color={colors.grey[100]}>
+                <Typography  fontSize="0.75rem" variant="h3" color={colors.grey[100]}>
                   ADMINIS
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -132,7 +157,7 @@ const Sidebar = () => {
                 />
               </Box>
               <Box textAlign="center">
-                <Typography
+                <Typography  fontSize="0.75rem"
                   variant="h6"
                   color={colors.grey[100]}
                   fontWeight="bold"
@@ -160,7 +185,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
 
-            <Typography
+            <Typography  fontSize="0.75rem"
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
@@ -221,7 +246,7 @@ const Sidebar = () => {
                         />
             
 
-            <Typography
+            <Typography  fontSize="0.75rem"
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
@@ -243,16 +268,17 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
 
-            <Typography
+            <Typography  fontSize="0.75rem"
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
               Charts
             </Typography>
+           
             <Item
-              title="Bar Chart"
-              to="/dashboard/bar"
+              title="change Password"
+              to="/dashboard/changePassword"
               icon={<BarChartOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}

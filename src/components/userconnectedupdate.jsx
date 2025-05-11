@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import * as faceapi from "face-api.js";
+import * as faceapi from '@vladmandic/face-api';
 import {
   TextField,
   Button,
@@ -31,6 +31,7 @@ import { styled } from "@mui/material/styles";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { motion } from "framer-motion";
 import { Slider } from "@mui/material";
+import DyslexiaAssessmentCard from "./DyslexiaAssessmentCard";
 
 // Styled components for image upload
 const ProfileImageContainer = styled(motion.div)(({ theme }) => ({
@@ -893,7 +894,7 @@ const UserProfile = () => {
           // Set profile image if available
           if (user.photo) {
             setPreviewUrl(`http://localhost:3000/${user.photo}`);
-            console.log("the photo is ",user.photo)
+            console.log("the photo is ", user.photo);
           }
 
           // Set role-specific data
@@ -2086,6 +2087,9 @@ const UserProfile = () => {
                     Social Case
                   </label>
                 </StyledFormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <DyslexiaAssessmentCard />
               </Grid>
             </Grid>
           </FormSection>

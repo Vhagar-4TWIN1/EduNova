@@ -1,0 +1,132 @@
+{
+  "app": {
+    "title": "EduNova",
+    "subtitle": "Educational platform with smart scheduling and real-time collaboration"
+  },
+  "navigation": {
+    "calendar": "Calendar",
+    "timeline": "Timeline",
+    "heatmap": "Heat Map",
+    "progress": "Progress",
+    "autoplan": "AI Auto-Planning",
+    "skilltree": "Skill Tree",
+    "settings": "Settings"
+  },
+  "calendar": {
+    "dateSelection": "Date Selection",
+    "selectDate": "Select a date to view events",
+    "today": "Today",
+    "addEvent": "Add Event",
+    "createEvent": "Create New Event",
+    "createEventDesc": "Add a new event to your calendar. Click save when you're done.",
+    "viewDetails": "View Details",
+    "joinMeeting": "Join Meeting",
+    "loading": "Loading events...",
+    "error": "Error loading events. Please try again.",
+    "noEvents": "No events found for this date. Create your first event!",
+    "showingEvents": "Showing events for {{date}}",
+    "allEvents": "All upcoming events"
+  },
+  "event": {
+    "title": "Title",
+    "type": "Type",
+    "description": "Description",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "priority": "Priority",
+    "duration": "Duration",
+    "dueDate": "Due Date",
+    "types": {
+      "lesson": "Lesson",
+      "videoChat": "Video Chat",
+      "task": "Task",
+      "focus": "Focus Session"
+    },
+    "priorities": {
+      "high": "High - Urgent",
+      "normal": "Normal",
+      "low": "Low - Flexible"
+    },
+    "minutes": "minutes",
+    "optionalDesc": "Description (optional)",
+    "pickDate": "Pick a date",
+    "creating": "Creating...",
+    "create": "Create Event",
+    "created": "Event Created",
+    "createdDesc": "Your event has been successfully created."
+  },
+  "autoplan": {
+    "title": "AI-Assisted Planning",
+    "subtitle": "Let EduNova intelligently schedule your learning activities around existing commitments",
+    "whatToLearn": "What do you need to learn?",
+    "placeholder": "E.g., React Hooks, Calculus I, French Vocabulary",
+    "activityType": "Activity Type",
+    "duration": "Duration (minutes)",
+    "timePrefs": "Add Time Preferences",
+    "hideTimePrefs": "Hide Time Preferences",
+    "prefTimeRange": "Preferred Time Range (Optional)",
+    "prefTimeDesc": "EduNova will try to schedule within this range first, but may suggest alternatives if needed.",
+    "earliestStart": "Earliest Start Time",
+    "latestEnd": "Latest End Time",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "weekend": "Weekend",
+    "processingButton": "Finding optimal time...",
+    "scheduleButton": "Schedule It For Me",
+    "scheduled": "Event Scheduled",
+    "scheduledDesc": "Your learning activity has been intelligently scheduled.",
+    "howItWorks": "How AI Auto-Planning Works",
+    "howItWorksDesc": "Intelligent scheduling that adapts to your learning style",
+    "smartTime": "Smart Time Selection",
+    "smartTimeDesc": "EduNova analyzes your existing calendar and finds the optimal time for your learning activities, prioritizing based on your preferences and deadlines.",
+    "focusBlocks": "Automatic Focus Blocks",
+    "focusBlocksDesc": "The system automatically adds focus sessions between your scheduled events to maximize retention and help you prepare for upcoming lessons.",
+    "rebalancing": "Schedule Rebalancing",
+    "rebalancingDesc": "If your day becomes too packed, EduNova will intelligently move lower-priority tasks to maintain a balanced learning schedule.",
+    "aiContext": "AI-Generated Learning Context",
+    "aiContextDesc": "Every scheduled event includes AI-generated summaries, prerequisites, and study tips to enhance your learning experience."
+  },
+  "learningContext": {
+    "title": "Learning Context",
+    "subtitle": "AI-enhanced insights for your next lesson",
+    "loading": "Loading learning context...",
+    "summary": "Summary",
+    "prerequisites": "Prerequisites",
+    "studyTips": "Study Tips"
+  },
+  "progress": {
+    "attended": "Attended",
+    "tasks": "Tasks",
+    "streak": "Streak",
+    "completed": "Completed",
+    "of": "of",
+    "days": "days"
+  },
+  "api": {
+    "status": "API Status",
+    "statusCheck": "Check API",
+    "checking": "Checking...",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "running": "API is running",
+    "successMsg": "Successfully connected to the API",
+    "failedMsg": "Could not connect to API",
+    "failedTitle": "API Status Check Failed"
+  },
+  "errors": {
+    "eventCreateFailed": "Error Creating Event",
+    "scheduleFailed": "Scheduling Failed"
+  },
+  "skillTree": {
+    "title": "Skill Tree",
+    "description": "Track your learning progress and unlock new skills",
+    "level": "Level",
+    "unlock": "Unlock",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
+    "unlockedAt": "Unlocked on",
+    "requiresCompletion": "Complete required lessons to unlock",
+    "noDescription": "No description available",
+    "empty": "No skills available for this course yet"
+  }
+}

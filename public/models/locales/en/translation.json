@@ -1,0 +1,22 @@
+{
+  "welcome": "Welcome to our application!",
+  "description": {
+    "part1": "To get started, edit <1>src/App.js</1> and save to reload.",
+    "part2": "Switch language between English, French, and Spanish using the buttons above."
+  },
+  "lesson": {
+    "title": "Lesson Title",
+    "type": "Type of Lesson",
+    "content": "Lesson Content",
+    "file": "Lesson File"
+  },
+  "buttons": {
+    "back": "⬅ Back to Lessons",
+    "readAloud": "🔊 Read Aloud",
+    "stopReading": "🔇 Stop Reading"
+  },
+  "translation": {
+    "label": "🌐 Translate to:",
+    "unavailable": "❌ Translation unavailable. Please try again later."
+  }
+}
