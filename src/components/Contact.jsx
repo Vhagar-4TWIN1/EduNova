@@ -521,8 +521,8 @@ const Contact = () => {
         variants={slideIn("right", "tween", 0.6, 1)}
         style={{
           flex: 1.5,
-          maxWidth: "800px",
-          height: "800px",
+          maxWidth: "700px",
+          height: "700px",
         }}
       >
         <EarthCanvas />
