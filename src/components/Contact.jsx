@@ -83,52 +83,55 @@ const Contact = () => {
   };
 
   const verifyDiploma = async () => {
-    if (!diplomaFile) {
-      alert('Please upload a diploma file');
-      return;
-    }
+  if (!diplomaFile) {
+    toast.error('Please upload a diploma file');
+    return;
+  }
 
-    setIsVerifying(true);
+  setIsVerifying(true);
 
-    try {
-      const formData = new FormData();
-      formData.append('image', diplomaFile);
+  try {
+    const formData = new FormData();
+    formData.append('image', diplomaFile);
 
-      const response = await axios.post(
-        'http://localhost:3000/api/auth/verify-diploma',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+    const response = await axios.post(
+      'http://localhost:3000/api/auth/verify-diploma',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      );
-
-      if (response.data.success) {
-        setVerificationResult({
-          success: true,
-          message: 'Diploma verified successfully!',
-          info: response.data.diplomaInfo,
-          certificateURL: response.data.certificateURL
-        });
-      } else {
-        setVerificationResult({
-          success: false,
-          message: response.data.message || 'Diploma verification failed',
-          errors: response.data.errors || {}
-        });
       }
-    } catch (error) {
-      console.error('Verification error:', error);
+    );
+
+    if (response.data.success) {
+      setVerificationResult({
+        success: true,
+        message: 'Diploma verified successfully!',
+        info: response.data.diplomaInfo,
+        certificateURL: response.data.certificateURL
+      });
+      toast.success('Diploma verified successfully!');
+    } else {
       setVerificationResult({
         success: false,
-        message: 'Error during diploma verification',
-        errors: { system: 'Network error' }
+        message: response.data.message || 'Diploma verification failed',
+        errors: response.data.errors || {}
       });
-    } finally {
-      setIsVerifying(false);
+      toast.error(response.data.message || 'Diploma verification failed');
     }
-  };
+  } catch (error) {
+    console.error('Verification error:', error);
+    setVerificationResult({
+      success: false,
+      message: error.response?.data?.message || 'Error during diploma verification',
+      errors: error.response?.data?.errors || { system: 'Network error' }
+    });
+    toast.error(error.response?.data?.message || 'Error during diploma verification');
+  } finally {
+    setIsVerifying(false);
+  }
+};
 
   const parseJwt = (token) => {
     try {
@@ -521,8 +524,8 @@ const Contact = () => {
         variants={slideIn("right", "tween", 0.6, 1)}
         style={{
           flex: 1.5,
-          maxWidth: "700px",
-          height: "700px",
+          maxWidth: "800px",
+          height: "800px",
         }}
       >
         <EarthCanvas />
