@@ -412,35 +412,54 @@ const LessonDetailsFront = () => {
           </div>
         )}
 
-        <div style={{ marginBottom: "2rem" }}>
-          {isVideo ? (
-            <>
-              <video
-                controls
-                width="100%"
-                crossOrigin="anonymous"
-                style={{ borderRadius: "0.5rem" }}
-              >
-                <source src={lesson.fileUrl} type="video/mp4" />
-              </video>
-              <TranslatedSubtitles
-                lessonId={lesson._id || lesson.id}
-                selectedLang={selectedLang}
-                speakText={speakText}
-                stopSpeech={stopSpeech}
-                fileUrl={lesson.fileUrl}
-              />
-            </>
-          ) : (
-            <iframe
+        {lesson.typeLesson === "image" ? (
+          <div
+            style={{
+              width: "auto",
+              height: "auto",
+              display: "flex",
+              maxWidth: "100%", // responsive scaling
+              maxHeight: "80vh", // limits height if image is very tall
+              justifyContent: "center",
+              alignItems: "center",
+              overflow: "auto", // allow scroll only if needed
+            }}
+          >
+            <img
               src={lesson.fileUrl}
-              title="Lesson Preview"
-              width="100%"
-              height="400px"
-              style={{ border: "1px solid #ccc", borderRadius: "0.5rem" }}
+              alt="Lesson Preview"
+              style={{
+                maxWidth: "100%",
+                height: "auto",
+                objectFit: "unset", // no forced resizing or cropping
+                borderRadius: "0.5rem",
+              }}
             />
-          )}
-        </div>
+          </div>
+        ) : lesson.typeLesson === "video" ? (
+          <video
+            controls
+            style={{
+              maxWidth: "100%",
+              height: "auto",
+              borderRadius: "0.5rem",
+            }}
+            crossOrigin="anonymous"
+          >
+            <source src={lesson.fileUrl} type="video/mp4" />
+          </video>
+        ) : (
+          <iframe
+            src={lesson.fileUrl}
+            title="Lesson Preview"
+            style={{
+              width: "100%",
+              height: "calc(100vh - 200px)", // adjusts to screen, modify if needed
+              border: "1px solid #ccc",
+              borderRadius: "0.5rem",
+            }}
+          />
+        )}
 
         <button
           onClick={() => {

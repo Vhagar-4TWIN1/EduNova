@@ -2022,6 +2022,7 @@ const UserProfile = () => {
                   fullWidth
                   label="Identifier"
                   name="identifier"
+                  disabled={!modifying}
                   value={studentData.identifier}
                   onChange={handleStudentDataChange}
                   variant="outlined"
@@ -2042,6 +2043,7 @@ const UserProfile = () => {
                   fullWidth
                   label="Situation"
                   name="situation"
+                  disabled={!modifying}
                   value={studentData.situation}
                   onChange={handleStudentDataChange}
                   variant="outlined"
@@ -2064,6 +2066,7 @@ const UserProfile = () => {
                   fullWidth
                   label="Disease"
                   name="disease"
+                  disabled={!modifying}
                   value={
                     studentData.disease?.startsWith("Other")
                       ? "Other"
@@ -2120,6 +2123,7 @@ const UserProfile = () => {
                 <Grid item xs={12}>
                   <StyledTextField
                     fullWidth
+                    disabled={!modifying}
                     label="Please specify your disease"
                     value={studentData.customDisease || ""}
                     onChange={(e) => {
@@ -2153,6 +2157,7 @@ const UserProfile = () => {
                     name="learningPreference"
                     onChange={handleStudentDataChange}
                     label="Learning Preference"
+                    disabled={!modifying}
                   >
                     <MenuItem value="video">Video</MenuItem>
                     <MenuItem value="pdf">PDF</MenuItem>
@@ -2168,6 +2173,7 @@ const UserProfile = () => {
                   <StyledSelect
                     multiple
                     name="interests"
+                    disabled={!modifying}
                     value={studentData.interests || []}
                     onChange={(e) =>
                       setStudentData({
