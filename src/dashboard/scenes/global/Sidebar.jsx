@@ -74,11 +74,10 @@ const handleLogout = async () => {
     if (!token) throw new Error("Aucun token trouvé dans localStorage");
 
     const response = await fetch('http://localhost:3000/api/auth/signout', {
-      method: 'POST',
+      method: 'POST', 
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    }
     });
 
     if (!response.ok) {
@@ -93,6 +92,7 @@ const handleLogout = async () => {
     alert("Erreur lors de la déconnexion : " + error.message);
   }
 };
+
 
 
 

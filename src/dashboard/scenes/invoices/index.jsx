@@ -135,7 +135,7 @@ const ActivityLogs = () => {
     if (actionLower.includes('login')) return 'success';
     if (actionLower.includes('logout')) return 'error';
     if (actionLower.includes('create')) return 'info';
-    if (actionLower.includes('update')) return 'warning';
+    if (actionLower.includes('FORUM')) return 'warning';
     return 'primary';
   };
 

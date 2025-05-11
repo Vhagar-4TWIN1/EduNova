@@ -32,13 +32,33 @@ const ModuleDetails = () => {
       try {
         const [moduleRes, lessonRes, enrollmentRes, completedRes] =
           await Promise.all([
-            axios.get(`http://localhost:3000/module/${id}`),
-            axios.get(`http://localhost:3000/module/modules/${id}/lessons`),
+            axios.get(`http://localhost:3000/module/${id}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }),
+            axios.get(`http://localhost:3000/module/modules/${id}/lessons`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }),
             axios.get(
-              `http://localhost:3000/api/progress/enrollment/${userId}/${id}`
+              `http://localhost:3000/api/progress/enrollment/${userId}/${id}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
             ),
             axios.get(
-              `http://localhost:3000/api/progress/completed/${userId}/${id}`
+              `http://localhost:3000/api/progress/completed/${userId}/${id}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
             ),
           ]);
 
@@ -95,7 +115,12 @@ const ModuleDetails = () => {
         userId,
         moduleId: id,
         lessonId,
-      });
+      },
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    }
+  });
       setCompletedLessons((prev) => [...prev, lessonId]);
     } catch (error) {
       console.error("Error marking as completed:", error);

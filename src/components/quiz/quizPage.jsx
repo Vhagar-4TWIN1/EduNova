@@ -470,7 +470,12 @@ const QuizPage = () => {
     const fetchQuestions = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:3000/api/quiz/generate');
+        const response = await axios.get('http://localhost:3000/api/quiz/generate',
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    }
+  });
         const API_BASE_URL = 'http://localhost:3000';
         const correctedQuestions = response.data.map(question => ({
           ...question,
@@ -536,17 +541,22 @@ const QuizPage = () => {
       return;
     }
 
-    try {
-      setIsLoading(true);
-      const res = await axios.post('http://localhost:3000/api/quiz/submit', {
-        studentId,
-        responses
-      });
-      setResults(res.data);
-      setSubmitted(true);
-    } catch (err) {
-      setError('Submission failed. Please try again.');
-    } finally {
+   try {
+  const res = await axios.post('http://localhost:3000/api/quiz/submit', {
+    studentId,
+    responses
+  }, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    }
+  });
+  setResults(res.data);
+  setSubmitted(true);
+} catch (err) {
+  console.error('Full error:', err);
+  console.error('Error response:', err.response);
+  setError(`Submission failed: ${err.message}`);
+} finally {
       setIsLoading(false);
     }
   };

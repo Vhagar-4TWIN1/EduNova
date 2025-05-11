@@ -65,7 +65,7 @@ const ListModules = () => {
             }
           }
         )
-        setModules(response.data);
+        setAllModules(response.data);
         setFilteredModules(response.data);
         setLoading(false); 
         }
