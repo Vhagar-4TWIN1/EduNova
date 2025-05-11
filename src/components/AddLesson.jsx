@@ -31,10 +31,16 @@ const AddLesson = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("📦 moduleId being sent:", moduleId);
 
     const token = localStorage.getItem("token");
     if (!token) {
       setError("No token found. Please log in.");
+      return;
+    }
+
+    if (!moduleId || typeof moduleId !== "string") {
+      setError("No valid module selected. Please go back and select one.");
       return;
     }
 
@@ -53,7 +59,7 @@ const AddLesson = () => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-      }); 
+      });
 
       alert("Lesson added successfully!");
       navigate(`/moduleDetails/${moduleId}`);
