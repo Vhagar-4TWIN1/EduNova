@@ -29,11 +29,10 @@ const AITutor = ({ userId }) => {
   const [recommendations, setRecommendations] = useState([]);
   const messagesEndRef = useRef(null);
 
-  // Load chat history on component mount
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const res = await axios.get(`/api/gemini/history/${userId}`, {
+        const res = await axios.get(`http://localhost:3000/api/gemini/history/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -53,7 +52,6 @@ const AITutor = ({ userId }) => {
     }
   }, [userId]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -67,7 +65,7 @@ const AITutor = ({ userId }) => {
     setInput('');
 
     try {
-      const res = await axios.post('http://localhost:3000/api/ai/ask', 
+      const res = await axios.post('http://localhost:3000/api/gemini/ask', 
         { question: input, userId },
         {
           headers: {
@@ -109,7 +107,6 @@ const AITutor = ({ userId }) => {
       boxShadow: 3,
       overflow: 'hidden'
     }}>
-      {/* Chat Header */}
       <Box sx={{
         p: 2,
         bgcolor: 'primary.main',
@@ -121,7 +118,6 @@ const AITutor = ({ userId }) => {
         <Typography variant="h6">AI Learning Assistant</Typography>
       </Box>
 
-      {/* Chat Messages */}
       <Box sx={{
         flex: 1,
         overflowY: 'auto',
@@ -157,7 +153,9 @@ const AITutor = ({ userId }) => {
                       : '18px 18px 18px 0',
                     bgcolor: msg.sender === 'user' ? 'secondary.light' : 'primary.light',
                     wordBreak: 'break-word',
-                    maxWidth: '100%'
+                    maxWidth: '100%',
+                    maxHeight: 200,
+                    overflowY: 'auto'
                   }}>
                     <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
                       {msg.text}
@@ -177,7 +175,6 @@ const AITutor = ({ userId }) => {
         </List>
       </Box>
 
-      {/* Recommendations */}
       {recommendations.length > 0 && (
         <Box sx={{ 
           p: 2,
@@ -205,7 +202,6 @@ const AITutor = ({ userId }) => {
         </Box>
       )}
 
-      {/* Input Area */}
       <Box sx={{ 
         p: 2,
         borderTop: '1px solid',
@@ -240,4 +236,3 @@ const AITutor = ({ userId }) => {
 };
 
 export default AITutor;
-
