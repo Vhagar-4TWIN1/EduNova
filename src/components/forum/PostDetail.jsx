@@ -24,7 +24,6 @@ const PostDetail = () => {
     };
     fetchPost();
   }, [id]);
-
   const handleUpvote = async (replyId) => {
     try {
       await axios.post(`http://localhost:3000/api/forum/replies/${replyId}/upvote`, null, {

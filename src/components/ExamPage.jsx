@@ -122,7 +122,6 @@ const ExamPage = () => {
     const showAlert = (title, message) => {
       setWarningMessage({ title, message });
       setShowWarning(true);
-
       // Auto-dismiss after 5 seconds
       setTimeout(() => {
         setShowWarning(false);
@@ -183,7 +182,6 @@ const ExamPage = () => {
           </div>
 
           <div style={styles.cameraPanel}>
-
             <video
               ref={videoRef}
               autoPlay
@@ -194,7 +192,6 @@ const ExamPage = () => {
             <div style={styles.statusLight}></div>
             <p style={styles.cameraStatus}>Camera Active</p>
           </div>
-
 
         </div>
       </div>

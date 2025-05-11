@@ -59,13 +59,29 @@ const ModuleDetails = () => {
         // Fetch local module
           const [moduleRes, lessonRes, enrollmentRes, completedRes, userRes] =
           await Promise.all([
-            axios.get(`http://localhost:3000/module/${id}`),
-            axios.get(`http://localhost:3000/module/modules/${id}/lessons`),
+            axios.get(`http://localhost:3000/module/${id}`,{
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }),
+            axios.get(`http://localhost:3000/module/modules/${id}/lessons`,{
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }),
             axios.get(
-              `http://localhost:3000/api/progress/enrollment/${userId}/${id}`
+              `http://localhost:3000/api/progress/enrollment/${userId}/${id}`,{
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
             ),
             axios.get(
-              `http://localhost:3000/api/progress/completed/${userId}/${id}`
+              `http://localhost:3000/api/progress/completed/${userId}/${id}`,{
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
             ),
             axios.get(`http://localhost:3000/api/users/${userId}`, {
               headers: { Authorization: `Bearer ${token}` },
@@ -94,7 +110,35 @@ const ModuleDetails = () => {
   };
 
   fetchModuleLessons();
-}, [id, userId, navigate]);
+
+  let lessonStartTime = Date.now();
+  
+    const trackDuration = async () => {
+      const endTime = Date.now();
+      const duration = Math.floor((endTime - lessonStartTime) / 1000); // en secondes
+  
+      try {
+        await axios.post("http://localhost:3000/module/check-lessons-duration", {
+          moduleId: id,
+          duration
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+      } catch (error) {
+        console.error("Failed to track lesson duration:", error);
+      }
+    };
+  
+    window.addEventListener("beforeunload", trackDuration);
+  
+    return () => {
+      trackDuration(); // déclenché quand l’utilisateur quitte la page
+      window.removeEventListener("beforeunload", trackDuration);
+    };
+
+}, [id, userId, navigate, token]);
 
   const handleEnroll = async () => {
     try {
