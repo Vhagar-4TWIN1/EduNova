@@ -24,7 +24,7 @@ const Stars = () => {
 
 const Earth = () => {
   const earth = useGLTF("./planet/scene.gltf");
-  return <primitive object={earth.scene} scale={3} position={[0, 0, 0]} />;
+  return <primitive object={earth.scene} scale={2.3} position={[0, 0, 0]} />;
 };
 
 const Scene = () => {
