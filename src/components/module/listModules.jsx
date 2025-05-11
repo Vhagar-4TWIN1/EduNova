@@ -58,14 +58,11 @@ const ListModules = () => {
         setFilteredModules(response.data);
         setLoading(false);
         }else{
-             const response = await axios.get(`http://localhost:3000/module/modules/`,
-          {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          }
+             const response = await axios.get(`http://localhost:3000/module/modules/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }
         )
-        setAllModules(response.data);
+        setModules(response.data);
         setFilteredModules(response.data);
         setLoading(false); 
         }

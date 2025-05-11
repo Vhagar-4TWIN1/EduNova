@@ -87,78 +87,122 @@ const Login = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
 
-    try {
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-      if (!passwordRegex.test(formData.password)) {
-        setError("Password must be at least 8 characters with uppercase, lowercase, and numbers");
-        setLoading(false);
+  try {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setError("Password must be at least 8 characters with uppercase, lowercase, and numbers");
+      setLoading(false);
+      return;
+    }
+
+    const response = await axios.post("http://localhost:3000/api/auth/signin", formData, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const token = response.data.token;
+    if (response.data.success && token) {
+      // Stockage des données utilisateur
+      localStorage.setItem("token", token);
+      localStorage.setItem("rememberMe", rememberMe.toString());
+
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", formData.email);
+        localStorage.setItem("rememberedPassword", formData.password);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberedPassword");
+      }
+
+      const { user } = response.data;
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("firstName", user.firstName);
+      localStorage.setItem("lastName", user.lastName);
+      localStorage.setItem("role", user.role);
+
+      // Intégration GA4 - Partie la plus importante
+      if (typeof window.gtag !== 'undefined') {
+        // Configuration de l'ID utilisateur
+        window.gtag('config', 'G-2ZXG67XCYF', {
+          user_id: user.id,
+          page_title: 'Login Success',
+          page_path: '/login'
+        });
+
+        // Envoi d'un événement de connexion
+        window.gtag('event', 'login', {
+          method: 'email',
+          user_id: user.id,
+          email_domain: formData.email.split('@')[1] // Domaine de l'email
+        });
+
+        // Événement pour le type de connexion
+        window.gtag('event', 'authentication', {
+          method: 'email_password',
+          success: true
+        });
+      }
+
+      // Redirection en fonction du rôle
+      const parseJwt = (token) => {
+        try {
+          return JSON.parse(atob(token.split(".")[1]));
+        } catch (e) {
+          return null;
+        }
+      };
+      const decoded = parseJwt(token);
+
+      if (!decoded || !decoded.userId) {
+        alert("Invalid token.");
         return;
       }
 
-      const response = await axios.post("http://localhost:3000/api/auth/signin", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const token = response.data.token;
-      if (response.data.success && token) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("rememberMe", rememberMe.toString());
-
-        if (rememberMe) {
-          localStorage.setItem("rememberedEmail", formData.email);
-          localStorage.setItem("rememberedPassword", formData.password);
-        } else {
-          localStorage.removeItem("rememberedEmail");
-          localStorage.removeItem("rememberedPassword");
-        }
-
-        const { user } = response.data;
-        localStorage.setItem("userId", user.id);
-        localStorage.setItem("firstName", user.firstName);
-        localStorage.setItem("lastName", user.lastName);
-        localStorage.setItem("role", user.role);
-
-        const parseJwt = (token) => {
-          try {
-            return JSON.parse(atob(token.split(".")[1]));
-          } catch (e) {
-            return null;
-          }
-        };
-        const decoded = parseJwt(token);
-
-        if (!decoded || !decoded.userId) {
-          alert("Invalid token.");
-          return;
-        }
-
-        const userResponse = await axios.get(`http://localhost:3000/api/users/${decoded.userId}`);
-        if (userResponse.data.data?.photo) {
-          localStorage.setItem("image", `http://localhost:3000/${userResponse.data.data.photo}`);
-          navigate("/face");
-        } else {
-          if (user.role === 'Admin') navigate("/dashboard");
-          else navigate("/home");
-        }
-
-        startBreakTimer();
+      const userResponse = await axios.get(`http://localhost:3000/api/users/${decoded.userId}`);
+      if (userResponse.data.data?.photo) {
+        localStorage.setItem("image", `http://localhost:3000/${userResponse.data.data.photo}`);
+        navigate("/face");
       } else {
-        setError(response.data.message || "Login failed.");
+        if (user.role === 'Admin') navigate("/dashboard");
+        else navigate("/home");
       }
-    } catch (err) {
-      if (err.response?.status === 401) {
-        setError(err.response.data?.message || "Invalid credentials.");
-      } else {
-        setError(err.response?.data?.message || "Server error. Try again later.");
-      }
-    } finally {
-      setLoading(false);
+
+      startBreakTimer();
+    } else {
+      setError(response.data.message || "Login failed.");
     }
-  };
+  } catch (err) {
+    // Envoi d'un événement d'échec de connexion à GA4
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'login_failure', {
+        method: 'email',
+        error: err.response?.data?.message || 'Unknown error'
+      });
+    }
+
+    if (err.response?.status === 401) {
+      setError(err.response.data?.message || "Invalid credentials.");
+    } else {
+      setError(err.response?.data?.message || "Server error. Try again later.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Pour les connexions via réseaux sociaux
+const trackSocialLogin = (provider) => {
+  if (typeof window.gtag !== 'undefined') {
+    window.gtag('event', 'social_login_attempt', {
+      provider: provider
+    });
+  }
+};
+
+
 
   const playNotificationSound = () => {
     const audio = new Audio("/sounds/notification.wav");
