@@ -2402,7 +2402,6 @@ const UserProfile = () => {
                     disabled={!modifying} // ✅ Disable file selection unless editing
                   />
                 </Box>
-
                 <Typography
                   variant="caption"
                   component={motion.p}
@@ -2422,7 +2421,6 @@ const UserProfile = () => {
                 >
                   Click on the image to update your profile photo
                 </Typography>
-
                 {imageLoading && (
                   <CircularProgress
                     size={24}
