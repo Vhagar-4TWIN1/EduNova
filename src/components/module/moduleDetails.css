@@ -372,3 +372,72 @@
 .lesson-content {
   width: 100%;
 }
+.moodle-lessons-section {
+  margin-top: 20px;
+}
+
+.moodle-section {
+  margin-bottom: 30px;
+}
+
+.moodle-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.moodle-module-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+
+.moodle-module-card:hover {
+  transform: translateY(-5px);
+}
+
+.module-icon-container {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.module-details {
+  flex-grow: 1;
+}
+
+.module-details h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.module-type {
+  font-weight: 500;
+  color: #777;
+}
+
+.module-description {
+  font-size: 14px;
+  color: #555;
+}
+
+.external-link-icon {
+  margin-left: 10px;
+  color: #007bff;
+  cursor: pointer;
+}
+
+.module-icon {
+  font-size: 32px;
+  color: #4a90e2;
+}
+.module-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(74, 144, 226, 0.1);
+}
