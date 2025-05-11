@@ -13,11 +13,48 @@ const LessonsPage = () => {
     audio: true,
   });
 
+  const [formatFilter, setFormatFilter] = useState({
+    pdf: true,
+    video: true,
+    image: true,
+    audio: true,
+  });
+
+  const [selectedDate, setSelectedDate] = useState("");
+
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
+  const [showMineOnly, setShowMineOnly] = useState(false);
+  const [recentOnly, setRecentOnly] = useState(false);
+  const [keywordFilter, setKeywordFilter] = useState("");
 
+  const handleRecentFilterChange = () => {
+    setRecentOnly((prev) => !prev);
+  };
+
+  const handleCLick = async (idModule) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/module/${idModule}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      console.log("✅ Module fetched:", response.data);
+      navigate(`/moduleDetails/${idModule}`);
+    } catch (error) {
+      console.error("❌ Error fetching module details:", error);
+    }
+  };
+
+  const handleMineFilterChange = () => {
+    setShowMineOnly((prev) => !prev);
+  };
   const fetchLessons = async () => {
     try {
       const res = await axios.get("http://localhost:3000/api/lessons", {
@@ -28,6 +65,17 @@ const LessonsPage = () => {
       console.error("Failed to fetch lessons:", err);
       setError("Unauthorized or server error.");
     }
+  };
+
+  const handleFormatFilterChange = (format) => {
+    setFormatFilter((prev) => ({
+      ...prev,
+      [format]: !prev[format],
+    }));
+  };
+
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
   };
 
   useEffect(() => {
@@ -60,8 +108,27 @@ const LessonsPage = () => {
   const handleViewFile = (lessonId, lessonTitle) => {
     trackPerformance(lessonId, lessonTitle, "view_file");
   };
+
   const sortedLessons = [...lessons]
-    .filter((lesson) => typeFilter[lesson.typeLesson])
+    .filter((lesson) => {
+      const matchType = typeFilter[lesson.typeLesson];
+      const matchDate =
+        !selectedDate ||
+        new Date(lesson.createdAt).toISOString().slice(0, 10) === selectedDate;
+      const matchCreator = !showMineOnly || lesson.userId === userId;
+      const matchRecent =
+        !recentOnly ||
+        new Date(lesson.createdAt) >=
+          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const matchKeyword =
+        !keywordFilter ||
+        lesson.title.toLowerCase().includes(keywordFilter.toLowerCase()) ||
+        lesson.content.toLowerCase().includes(keywordFilter.toLowerCase());
+
+      return (
+        matchType && matchDate && matchCreator && matchRecent && matchKeyword
+      );
+    })
     .sort((a, b) => {
       if (sortOrder === "title") return a.title.localeCompare(b.title);
       if (sortOrder === "type") return a.typeLesson.localeCompare(b.typeLesson);
@@ -90,7 +157,7 @@ const LessonsPage = () => {
         display: "flex",
         backgroundColor: "#f0f4f8",
         minHeight: "100vh",
-        paddingTop: "9rem",
+        paddingTop: "4rem",
         fontFamily: "'Poppins', sans-serif",
       }}
     >
@@ -99,52 +166,185 @@ const LessonsPage = () => {
         style={{
           width: "260px",
           padding: "2rem 1.5rem",
-          borderRight: "1px solid #d1d5db",
-          background: "#ffffff",
-          boxShadow: "2px 0 8px rgba(0, 0, 0, 0.03)",
+          borderRight: "1px solid #e5e7eb",
+          background: "#f9fafb",
+          boxShadow: "2px 0 8px rgba(0, 0, 0, 0.04)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "2rem",
         }}
       >
-        <h2
-          style={{
-            fontSize: "1.2rem",
-            fontWeight: "600",
-            marginBottom: "1rem",
-            color: "#1f2937",
-          }}
-        >
-          🎯 Filter by Type
-        </h2>
-        <ul
-          style={{
-            listStyle: "none",
-            padding: 0,
-            fontSize: "0.95rem",
-            lineHeight: "2",
-            color: "#374151",
-          }}
-        >
-          {Object.keys(typeFilter).map((type) => (
-            <li key={type}>
-              <label style={{ cursor: "pointer" }}>
-                <input
-                  type="checkbox"
-                  checked={typeFilter[type]}
-                  onChange={() => handleTypeFilterChange(type)}
-                  style={{ marginRight: "0.5rem" }}
-                />
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </label>
-            </li>
-          ))}
-        </ul>
+        {/* 🎯 Type Filter */}
+        <div>
+          <h2
+            style={{
+              fontSize: "1.1rem",
+              fontWeight: "600",
+              marginBottom: "1rem",
+              color: "#111827",
+            }}
+          >
+            🎯 Filter by Type
+          </h2>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {Object.keys(typeFilter).map((type) => (
+              <li key={type} style={{ marginBottom: "0.6rem" }}>
+                <label
+                  style={{
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={typeFilter[type]}
+                    onChange={() => handleTypeFilterChange(type)}
+                    style={{ marginRight: "0.6rem" }}
+                  />
+                  <span
+                    style={{
+                      fontWeight: 500,
+                      fontSize: "0.95rem",
+                      textTransform: "capitalize",
+                      color: "#374151",
+                    }}
+                  >
+                    {type}
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
 
+        {/* 📅 Date Range Filter (placeholder) */}
+        <div>
+          <h2
+            style={{
+              fontSize: "1.1rem",
+              fontWeight: "600",
+              marginBottom: "1rem",
+              color: "#111827",
+            }}
+          >
+            📅 Date
+          </h2>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={handleDateChange}
+            style={{
+              padding: "0.5rem",
+              borderRadius: "6px",
+              border: "1px solid #d1d5db",
+              width: "100%",
+              fontSize: "0.9rem",
+              color: "#374151",
+            }}
+          />
+        </div>
+
+        {/* 🔍 Keyword Filter */}
+        <div>
+          <h2
+            style={{
+              fontSize: "1.1rem",
+              fontWeight: "600",
+              marginBottom: "1rem",
+              color: "#111827",
+            }}
+          >
+            🔍 Filter by Keyword
+          </h2>
+          <input
+            type="text"
+            placeholder="e.g., web, frontend, backend..."
+            value={keywordFilter}
+            onChange={(e) => setKeywordFilter(e.target.value)}
+            style={{
+              padding: "0.5rem",
+              borderRadius: "6px",
+              border: "1px solid #d1d5db",
+              width: "100%",
+              fontSize: "0.9rem",
+              color: "#374151",
+            }}
+          />
+        </div>
+
+        {/* 🧑 Created by Me Filter */}
+        {role === "Teacher" && (
+          <div>
+            <h2
+              style={{
+                fontSize: "1.1rem",
+                fontWeight: "600",
+                marginBottom: "1rem",
+                color: "#111827",
+              }}
+            >
+              🧑 Created by Me
+            </h2>
+            <label
+              style={{
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={showMineOnly}
+                onChange={handleMineFilterChange}
+                style={{ marginRight: "0.6rem" }}
+              />
+              <span style={{ fontSize: "0.9rem", color: "#374151" }}>
+                Show only my lessons
+              </span>
+            </label>
+          </div>
+        )}
+        {/* 🕒 Recently Added Filter */}
+        {role === "Teacher" && (
+          <div>
+            <h2
+              style={{
+                fontSize: "1.1rem",
+                fontWeight: "600",
+                marginBottom: "1rem",
+                color: "#111827",
+              }}
+            >
+              🕒 Recent Uploads
+            </h2>
+            <label
+              style={{
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={recentOnly}
+                onChange={handleRecentFilterChange}
+                style={{ marginRight: "0.6rem" }}
+              />
+              <span style={{ fontSize: "0.9rem", color: "#374151" }}>
+                Last 7 days only
+              </span>
+            </label>
+          </div>
+        )}
+        {/* ➕ Add Lesson */}
         {role === "Teacher" && (
           <button
             onClick={() => navigate("/create-lesson")}
             style={{
-              marginTop: "2rem",
-              padding: "0.6rem 1.2rem",
-              backgroundColor: "#3b82f6",
+              marginTop: "auto",
+              padding: "0.75rem 1.2rem",
+              backgroundColor: "#4fa54f",
               color: "white",
               border: "none",
               borderRadius: "0.5rem",
@@ -152,7 +352,15 @@ const LessonsPage = () => {
               fontWeight: 600,
               fontSize: "0.95rem",
               width: "100%",
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.08)",
+              transition: "background 0.3s",
             }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#3d8a3d")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "#4fa54f")
+            }
           >
             ➕ Add Lesson
           </button>
@@ -172,25 +380,6 @@ const LessonsPage = () => {
           <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e3a8a" }}>
             📚 All Lessons
           </h1>
-          <div>
-            <label htmlFor="sort" style={{ marginRight: "0.75rem" }}>
-              🔀 Sort by:
-            </label>
-            <select
-              id="sort"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              style={{
-                padding: "0.5rem",
-                borderRadius: "0.375rem",
-                border: "1px solid #d1d5db",
-                backgroundColor: "#f9fafb",
-              }}
-            >
-              <option value="title">Title</option>
-              <option value="type">Type</option>
-            </select>
-          </div>
         </div>
 
         {error && (
@@ -216,91 +405,125 @@ const LessonsPage = () => {
             paddingTop: "2rem",
           }}
         >
-          {sortedLessons.map((lesson) => (
-            <div
-              key={lesson._id}
-              onClick={() =>
-                navigate("/lesson-details", {
-                  state: {
-                    lesson,
-                    moduleId: lesson.moduleId || lesson.module || "",
-                  },
-                })
-              }
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                border: "1px solid #e5e7eb",
-                borderRadius: "1rem",
-                backgroundColor: "#ffffff",
-                boxShadow: "0 8px 16px rgba(0, 0, 0, 0.05)",
-                cursor: "pointer",
-                transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-5px)";
-                e.currentTarget.style.boxShadow = "0 12px 24px rgba(0,0,0,0.1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.05)";
-              }}
-            >
+          {sortedLessons.map((lesson) => {
+            const moduleId = lesson.moduleId || lesson.module || "";
+
+            return (
               <div
+                key={lesson._id}
+                onClick={() =>
+                  navigate("/lesson-details", {
+                    state: {
+                      lesson,
+                      moduleId,
+                    },
+                  })
+                }
                 style={{
-                  height: "220px",
-                  borderTopLeftRadius: "1rem",
-                  borderTopRightRadius: "1rem",
-                  overflow: "hidden",
+                  display: "flex",
+                  flexDirection: "column",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "1rem",
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0 8px 16px rgba(0, 0, 0, 0.05)",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-5px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 12px 24px rgba(0,0,0,0.1)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow =
+                    "0 8px 16px rgba(0,0,0,0.05)";
                 }}
               >
-                <img
-                  src={lesson.fileUrl || "/assets/img/default-course.jpg"}
-                  alt="Lesson Preview"
+                <div
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    display: "block",
+                    height: "220px",
+                    borderTopLeftRadius: "1rem",
+                    borderTopRightRadius: "1rem",
+                    overflow: "hidden",
                   }}
-                />
+                >
+                  <img
+                    src={lesson.fileUrl || "/assets/img/default-course.jpg"}
+                    alt="Lesson Preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+                </div>
+
+                <div style={{ padding: "1.5rem" }}>
+                  <h2
+                    style={{
+                      fontSize: "1.3rem",
+                      fontWeight: "700",
+                      color: "#1f2937",
+                      marginBottom: "0.5rem",
+                      lineHeight: "1.4",
+                    }}
+                  >
+                    {lesson.title}
+                  </h2>
+
+                  <p
+                    style={{
+                      fontSize: "0.95rem",
+                      color: "#4b5563",
+                      marginBottom: "0.25rem",
+                    }}
+                  >
+                    Type: <strong>{lesson.typeLesson.toUpperCase()}</strong>
+                  </p>
+
+                  <p
+                    style={{
+                      fontSize: "0.9rem",
+                      color: "#6b7280",
+                      lineHeight: "1.5",
+                    }}
+                  >
+                    {lesson.content.slice(0, 90)}...
+                  </p>
+                </div>
+
+                {moduleId && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevents card click
+                      handleCLick(moduleId);
+                    }}
+                    style={{
+                      margin: "1rem",
+                      padding: "0.5rem 1rem",
+                      backgroundColor: "#2563eb",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "0.5rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      transition: "background-color 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#1e40af";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "#2563eb";
+                    }}
+                  >
+                    Go to Module
+                  </button>
+                )}
               </div>
-
-              <div style={{ padding: "1.5rem" }}>
-                <h2
-                  style={{
-                    fontSize: "1.3rem",
-                    fontWeight: "700",
-                    color: "#1f2937",
-                    marginBottom: "0.5rem",
-                    lineHeight: "1.4",
-                  }}
-                >
-                  {lesson.title}
-                </h2>
-
-                <p
-                  style={{
-                    fontSize: "0.95rem",
-                    color: "#4b5563",
-                    marginBottom: "0.25rem",
-                  }}
-                >
-                  Type: <strong>{lesson.typeLesson.toUpperCase()}</strong>
-                </p>
-
-                <p
-                  style={{
-                    fontSize: "0.9rem",
-                    color: "#6b7280",
-                    lineHeight: "1.5",
-                  }}
-                >
-                  {lesson.content.slice(0, 90)}...
-                </p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
     </div>
