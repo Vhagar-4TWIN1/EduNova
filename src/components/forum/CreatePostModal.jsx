@@ -16,11 +16,15 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
     setError(null);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/forum/posts', {
-        title,
-        content,
-        tags
-      });
+      const response = await axios.post(
+  'http://localhost:3000/api/forum/posts',
+  { title, content, tags },
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    }
+  }
+);
 
       onPostCreated(response.data);
       setTitle('');

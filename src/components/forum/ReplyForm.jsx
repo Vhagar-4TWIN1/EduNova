@@ -102,14 +102,19 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
           formData,
           {
             headers: {
-              'Content-Type': 'multipart/form-data'
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
             }
           }
         );
       } else {
         response = await axios.post(
           `http://localhost:3000/api/forum/posts/${postId}/reply`,
-          { content }
+          { content },{
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            }
+          }
         );
       }
 

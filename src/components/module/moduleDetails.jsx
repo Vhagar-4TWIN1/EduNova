@@ -33,68 +33,120 @@ const ModuleDetails = () => {
   const role = localStorage.getItem("role");
 
   useEffect(() => {
-    const fetchModuleLessons = async () => {
-      try {
-        const isMoodleCourse = !isNaN(id);
+  const fetchModuleLessons = async () => {
+    try {
+      const isMoodleCourse = !isNaN(id);
 
-        if (isMoodleCourse) {
-          const moodleRes = await axios.get(
-            "http://40.127.12.101/moodle/webservice/rest/server.php",
-            {
-              params: {
-                wstoken: "46b0837fde05083b10edd2f210c2fbe7",
-                wsfunction: "core_course_get_contents",
-                courseid: id,
-                moodlewsrestformat: "json",
-              },
-            }
-          );
+      if (isMoodleCourse) {
+        const moodleRes = await axios.get(
+          "http://40.127.12.101/moodle/webservice/rest/server.php",
+          {
+            params: {
+              wstoken: "46b0837fde05083b10edd2f210c2fbe7",
+              wsfunction: "core_course_get_contents",
+              courseid: id,
+              moodlewsrestformat: "json",
+            },
+          }
+        );
 
-          setMoodleLessons(moodleRes.data);
-          setModule({
-            _id: id,
-            title: `Moodle Course ${id}`,
-            description: "Imported from Moodle",
-            isMoodle: true
-          });
-          setLoading(false);
-        } else {
-          const [moduleRes, lessonRes, enrollmentRes, completedRes, userRes] =
-            await Promise.all([
-              axios.get(`http://localhost:3000/module/${id}`),
-              axios.get(`http://localhost:3000/module/modules/${id}/lessons`),
-              axios.get(
-                `http://localhost:3000/api/progress/enrollment/${userId}/${id}`
-              ),
-              axios.get(
-                `http://localhost:3000/api/progress/completed/${userId}/${id}`
-              ),
-              axios.get(`http://localhost:3000/api/users/${userId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-              }),
-            ]);
+        setMoodleLessons(moodleRes.data);
+        setModule({
+          _id: id,
+          title: `Moodle Course ${id}`,
+          description: "Imported from Moodle",
+          isMoodle: true
+        });
+        setLoading(false);
+      } else {
+        const [moduleRes, lessonRes, enrollmentRes, completedRes, userRes] =
+          await Promise.all([
+            axios.get(`http://localhost:3000/module/${id}`, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            }),
+            axios.get(`http://localhost:3000/module/modules/${id}/lessons`, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            }),
+            axios.get(
+              `http://localhost:3000/api/progress/enrollment/${userId}/${id}`, {
+                headers: {
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+              }
+            ),
+            axios.get(
+              `http://localhost:3000/api/progress/completed/${userId}/${id}`, {
+                headers: {
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+              }
+            ),
+            axios.get(`http://localhost:3000/api/users/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
 
-          setModule(moduleRes.data);
-          setLessons(lessonRes.data);
-          setIsEnrolled(enrollmentRes.data.enrolled);
-          setCompletedLessons(completedRes.data.completedLessons);
-          setUserLearningPreference(
-            userRes.data?.data?.learningPreference || "video"
-          );
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error fetching module data:", error);
-        if (error.response?.status === 404) {
-          navigate('/not-found');
-        }
+        setModule(moduleRes.data);
+        setLessons(lessonRes.data);
+        setIsEnrolled(enrollmentRes.data.enrolled);
+        setCompletedLessons(completedRes.data.completedLessons);
+        setUserLearningPreference(
+          userRes.data?.data?.learningPreference || "video"
+        );
         setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching module data:", error);
+      if (error.response?.status === 404) {
+        navigate('/not-found');
+      }
+      setLoading(false);
+    }
+  };
 
-    fetchModuleLessons();
-  }, [id, userId, navigate, token]);
-    const renderMoodleModuleIcon = (modname) => {
+  // Track lesson duration logic
+  let lessonStartTime = Date.now();
+  
+  const trackDuration = async () => {
+    const endTime = Date.now();
+    const duration = Math.floor((endTime - lessonStartTime) / 1000);
+
+    try {
+      await axios.post("http://localhost:3000/module/check-lessons-duration", 
+        { moduleId: id, duration },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error("Failed to track lesson duration:", error);
+    }
+  };
+
+  window.addEventListener("beforeunload", trackDuration);
+
+  fetchModuleLessons();
+
+  return () => {
+    trackDuration();
+    window.removeEventListener("beforeunload", trackDuration);
+  };
+}, [id, userId, navigate, token]);
+
+  const handleEnroll = async () => {
+    try {
+      await axios.post(`http://localhost:3000/api/progress/enroll`, {
+        userId,
+        moduleId: id,
+      });
+      setIsEnrolled(true);
+    } catch (error) {
+      console.error("Enrollment failed:", error);
+    }
+  };
+  const renderMoodleModuleIcon = (modname) => {
     switch (modname) {
       case 'resource':
         return <FaFilePdf className="module-icon" />;
@@ -106,18 +158,6 @@ const ModuleDetails = () => {
         return <FaFolderOpen className="module-icon" />;
       default:
         return <FaExternalLinkAlt className="module-icon" />;
-    }
-  };
-
-  const handleEnroll = async () => {
-    try {
-      await axios.post(`http://localhost:3000/api/progress/enroll`, {
-        userId,
-        moduleId: id,
-      });
-      setIsEnrolled(true);
-    } catch (error) {
-      console.error("Enrollment failed:", error);
     }
   };
 

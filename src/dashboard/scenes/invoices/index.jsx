@@ -122,12 +122,21 @@ const ActivityLogs = () => {
   }, [allLogs, searchTerm, selectedUser, sortConfig]);
 
   const formatDuration = (duration) => {
-    if (!duration) return "N/A";
-    const hours = Math.floor(duration / 3600000);
-    const minutes = Math.floor((duration % 3600000) / 60000);
-    const seconds = Math.floor((duration % 60000) / 1000);
-    return `${hours}h ${minutes}m ${seconds}s`;
-  };
+  if (!duration || isNaN(duration)) return "0h 0m 0s";
+
+  const days = Math.floor(duration / 86400); // 86400 secondes = 1 jour
+  const hours = Math.floor((duration % 86400) / 3600);
+  const minutes = Math.floor((duration % 3600) / 60);
+  const seconds = duration % 60;
+
+  let result = "";
+  if (days > 0) result += `${days}d `;
+  result += `${hours}h ${minutes}m ${seconds}s`;
+
+  return result.trim();
+};
+
+
 
   const getActionColor = (action) => {
     if (!action) return 'default';
@@ -135,7 +144,7 @@ const ActivityLogs = () => {
     if (actionLower.includes('login')) return 'success';
     if (actionLower.includes('logout')) return 'error';
     if (actionLower.includes('create')) return 'info';
-    if (actionLower.includes('update')) return 'warning';
+    if (actionLower.includes('FORUM')) return 'warning';
     return 'primary';
   };
 
