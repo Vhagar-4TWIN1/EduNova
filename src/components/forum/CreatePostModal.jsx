@@ -4,6 +4,7 @@ import axios from 'axios';
 const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [tags, setTags] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -28,6 +29,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
       onPostCreated(response.data);
       setTitle('');
       setContent('');
+      setTags('');
       onClose();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create post');
@@ -183,6 +185,12 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
           margin-right: 8px;
         }
         
+        .input-description {
+          font-size: 0.75rem;
+          color: #6b7280;
+          margin-top: 4px;
+        }
+        
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -235,6 +243,20 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                   required
                   maxLength={2000}
                 />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="tags" className="form-label">Tags</label>
+                <input
+                  type="text"
+                  id="tags"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  className="form-input"
+                  placeholder="e.g., javascript,react,mern"
+                  maxLength={100}
+                />
+                <p className="input-description">Enter tags separated by commas (e.g., javascript, react, mern)</p>
               </div>
               
               <div className="modal-footer">

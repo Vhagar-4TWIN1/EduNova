@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import * as faceapi from '@vladmandic/face-api';
+import * as faceapi from "@vladmandic/face-api";
+import { countries } from "./countries";
 import {
   TextField,
   Button,
@@ -43,6 +44,8 @@ const ProfileImageContainer = styled(motion.div)(({ theme }) => ({
   marginTop: "-85px",
   zIndex: 10,
 }));
+
+const countryArray = Object.values(countries);
 
 const ProfileAvatar = styled(motion(Avatar))(({ theme }) => ({
   width: 170,
@@ -744,7 +747,7 @@ const UserProfile = () => {
     role: "",
     photo: "",
   });
-
+  const [modifying, setModifying] = useState(false);
   // Role-specific data
   const [adminData, setAdminData] = useState({
     cin: "",
@@ -765,6 +768,7 @@ const UserProfile = () => {
     identifier: "",
     situation: "",
     disease: "",
+    customDisease: "",
     socialCase: false,
     learningPreference: "video", // NEW
     interests: [], // NEW
@@ -1332,16 +1336,26 @@ const UserProfile = () => {
   };
 
   const handleStudentDataChange = (e) => {
-    const value =
-      e.target.type === "checkbox" ? e.target.checked : e.target.value;
-    setStudentData({
-      ...studentData,
-      [e.target.name]: value,
+    const { name, value } = e.target;
+
+    setStudentData((prev) => {
+      if (name === "disease") {
+        return {
+          ...prev,
+          disease: value,
+          customDisease: value === "Other" ? prev.customDisease : "", // clear customDisease unless "Other"
+        };
+      }
+
+      return {
+        ...prev,
+        [name]: value,
+      };
     });
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setLoading(true);
     setError("");
 
@@ -1422,6 +1436,8 @@ const UserProfile = () => {
           identifier: studentData.identifier,
           situation: studentData.situation,
           disease: studentData.disease,
+          customDisease:
+            studentData.disease === "Other" ? studentData.customDisease : "",
           socialCase: studentData.socialCase,
           learningPreference: studentData.learningPreference,
           interests: studentData.interests,
@@ -1481,6 +1497,7 @@ const UserProfile = () => {
             identifier: refreshedUser.identifier || "",
             situation: refreshedUser.situation || "",
             disease: refreshedUser.disease || "",
+            customDisease: refreshedUser.customDisease || "",
             socialCase: refreshedUser.socialCase || false,
             learningPreference: refreshedUser.learningPreference || "video",
             interests: refreshedUser.interests || [],
@@ -1515,6 +1532,7 @@ const UserProfile = () => {
     } finally {
       setLoading(false);
     }
+    setModifying(false);
   };
 
   const handleDeleteAccount = async () => {
@@ -1558,6 +1576,7 @@ const UserProfile = () => {
                   fullWidth
                   label="CIN"
                   name="cin"
+                  disabled={!modifying}
                   value={adminData.cin}
                   onChange={handleAdminDataChange}
                   variant="outlined"
@@ -1578,6 +1597,7 @@ const UserProfile = () => {
                   fullWidth
                   label="Number"
                   name="number"
+                  disabled={!modifying}
                   value={adminData.number}
                   onChange={handleAdminDataChange}
                   variant="outlined"
@@ -1611,6 +1631,7 @@ const UserProfile = () => {
                   fullWidth
                   label="Number"
                   name="number"
+                  disabled={!modifying}
                   value={teacherData.number}
                   onChange={handleTeacherDataChange}
                   variant="outlined"
@@ -1631,6 +1652,7 @@ const UserProfile = () => {
                   fullWidth
                   label="CIN"
                   name="cin"
+                  disabled={!modifying}
                   value={teacherData.cin}
                   onChange={handleTeacherDataChange}
                   variant="outlined"
@@ -1651,6 +1673,7 @@ const UserProfile = () => {
                   fullWidth
                   label="Bio"
                   name="bio"
+                  disabled={!modifying}
                   value={teacherData.bio}
                   onChange={handleTeacherDataChange}
                   multiline
@@ -1702,6 +1725,7 @@ const UserProfile = () => {
                   fullWidth
                   label="Experience"
                   name="experience"
+                  disabled={!modifying}
                   value={teacherData.experience}
                   onChange={handleTeacherDataChange}
                   multiline
@@ -1733,6 +1757,7 @@ const UserProfile = () => {
                   fullWidth
                   variant="outlined"
                   component="label"
+                  disabled={!modifying}
                   sx={{
                     borderRadius: "12px",
                     padding: "12px",
@@ -1749,6 +1774,7 @@ const UserProfile = () => {
                   <input
                     hidden
                     type="file"
+                    disabled={!modifying}
                     accept="application/pdf"
                     multiple
                     onChange={(e) => {
@@ -1784,61 +1810,72 @@ const UserProfile = () => {
                     }}
                   />
                 </Button>
-                <HelperText>
-                  Uploaded:{" "}
+                <HelperText>Uploaded:</HelperText>
+                <Box>
                   {teacherData.diplomas.map((file, idx) => (
-                    <div
+                    <Box
                       key={idx}
-                      style={{
+                      sx={{
                         display: "flex",
                         alignItems: "center",
                         gap: "8px",
+                        mt: 0.5,
+                        opacity: modifying ? 1 : 0.6,
                       }}
                     >
-                      <a
-                        href={`http://localhost:3000/${file}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {file.split("/").pop()}
-                      </a>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          fetch(
-                            "http://localhost:3000/api/users/delete-diploma",
-                            {
-                              method: "POST",
-                              headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${localStorage.getItem(
-                                  "token"
-                                )}`,
-                              },
-                              body: JSON.stringify({ filePath: file }),
-                            }
-                          )
-                            .then((res) => res.json())
-                            .then((data) => {
-                              if (data.success) {
-                                setTeacherData((prev) => ({
-                                  ...prev,
-                                  diplomas: prev.diplomas.filter(
-                                    (_, i) => i !== idx
-                                  ),
-                                }));
+                      {modifying ? (
+                        <a
+                          href={`http://localhost:3000/${file}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {file.split("/").pop()}
+                        </a>
+                      ) : (
+                        <Typography variant="body2">
+                          {file.split("/").pop()}
+                        </Typography>
+                      )}
+
+                      {modifying && (
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            fetch(
+                              "http://localhost:3000/api/users/delete-diploma",
+                              {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${localStorage.getItem(
+                                    "token"
+                                  )}`,
+                                },
+                                body: JSON.stringify({ filePath: file }),
                               }
-                            })
-                            .catch((err) =>
-                              console.error("Failed to delete diploma", err)
-                            );
-                        }}
-                      >
-                        ❌
-                      </IconButton>
-                    </div>
+                            )
+                              .then((res) => res.json())
+                              .then((data) => {
+                                if (data.success) {
+                                  setTeacherData((prev) => ({
+                                    ...prev,
+                                    diplomas: prev.diplomas.filter(
+                                      (_, i) => i !== idx
+                                    ),
+                                  }));
+                                }
+                              })
+                              .catch((err) =>
+                                console.error("Failed to delete diploma", err)
+                              );
+                          }}
+                        >
+                          ❌
+                        </IconButton>
+                      )}
+                    </Box>
                   ))}
-                </HelperText>
+                </Box>
               </Grid>
 
               <Grid item xs={12}>
@@ -1846,6 +1883,7 @@ const UserProfile = () => {
                   fullWidth
                   variant="outlined"
                   component="label"
+                  disabled={!modifying}
                   sx={{
                     borderRadius: "12px",
                     padding: "12px",
@@ -1904,49 +1942,62 @@ const UserProfile = () => {
                         display: "flex",
                         alignItems: "center",
                         gap: "8px",
+                        opacity: modifying ? 1 : 0.6,
                       }}
                     >
-                      <a
-                        href={`http://localhost:3000/${teacherData.workCertificate}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {teacherData.workCertificate.split("/").pop()}
-                      </a>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          fetch("http://localhost:3000/api/users/delete-file", {
-                            method: "POST",
-                            headers: {
-                              "Content-Type": "application/json",
-                              Authorization: `Bearer ${localStorage.getItem(
-                                "token"
-                              )}`,
-                            },
-                            body: JSON.stringify({
-                              filePath: teacherData.workCertificate,
-                            }),
-                          })
-                            .then((res) => res.json())
-                            .then((data) => {
-                              if (data.success) {
-                                setTeacherData((prev) => ({
-                                  ...prev,
-                                  workCertificate: "", // important fix here
-                                }));
+                      {modifying ? (
+                        <a
+                          href={`http://localhost:3000/${teacherData.workCertificate}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {teacherData.workCertificate.split("/").pop()}
+                        </a>
+                      ) : (
+                        <Typography variant="body2">
+                          {teacherData.workCertificate.split("/").pop()}
+                        </Typography>
+                      )}
+
+                      {modifying && (
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            fetch(
+                              "http://localhost:3000/api/users/delete-file",
+                              {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${localStorage.getItem(
+                                    "token"
+                                  )}`,
+                                },
+                                body: JSON.stringify({
+                                  filePath: teacherData.workCertificate,
+                                }),
                               }
-                            })
-                            .catch((err) =>
-                              console.error(
-                                "Failed to delete work certificate",
-                                err
-                              )
-                            );
-                        }}
-                      >
-                        ❌
-                      </IconButton>
+                            )
+                              .then((res) => res.json())
+                              .then((data) => {
+                                if (data.success) {
+                                  setTeacherData((prev) => ({
+                                    ...prev,
+                                    workCertificate: "",
+                                  }));
+                                }
+                              })
+                              .catch((err) =>
+                                console.error(
+                                  "Failed to delete work certificate",
+                                  err
+                                )
+                              );
+                          }}
+                        >
+                          ❌
+                        </IconButton>
+                      )}
                     </span>
                   ) : (
                     "None"
@@ -1971,6 +2022,7 @@ const UserProfile = () => {
                   fullWidth
                   label="Identifier"
                   name="identifier"
+                  disabled={!modifying}
                   value={studentData.identifier}
                   onChange={handleStudentDataChange}
                   variant="outlined"
@@ -1991,6 +2043,7 @@ const UserProfile = () => {
                   fullWidth
                   label="Situation"
                   name="situation"
+                  disabled={!modifying}
                   value={studentData.situation}
                   onChange={handleStudentDataChange}
                   variant="outlined"
@@ -2007,13 +2060,39 @@ const UserProfile = () => {
                 />
                 <HelperText>Current academic situation or status</HelperText>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <StyledTextField
+                  select
                   fullWidth
-                  label="Disease (if any)"
+                  label="Disease"
                   name="disease"
-                  value={studentData.disease}
-                  onChange={handleStudentDataChange}
+                  disabled={!modifying}
+                  value={
+                    studentData.disease?.startsWith("Other")
+                      ? "Other"
+                      : studentData.disease || ""
+                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value !== "Other") {
+                      setStudentData((prev) => ({
+                        ...prev,
+                        disease: value,
+                        customDisease: "", // clear if not Other
+                      }));
+                    } else {
+                      const existingCustom = studentData.disease?.startsWith(
+                        "Other"
+                      )
+                        ? studentData.disease.slice(7, -1)
+                        : "";
+                      setStudentData((prev) => ({
+                        ...prev,
+                        disease: `Other (${existingCustom})`,
+                        customDisease: existingCustom,
+                      }));
+                    }
+                  }}
                   variant="outlined"
                   InputProps={{
                     startAdornment: (
@@ -2025,12 +2104,51 @@ const UserProfile = () => {
                       </Box>
                     ),
                   }}
-                />
+                >
+                  <MenuItem value="">None</MenuItem>
+                  <MenuItem value="Asthma">Asthma</MenuItem>
+                  <MenuItem value="Diabetes">Diabetes</MenuItem>
+                  <MenuItem value="Epilepsy">Epilepsy</MenuItem>
+                  <MenuItem value="Allergy">Allergy</MenuItem>
+                  <MenuItem value="Heart Condition">Heart Condition</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </StyledTextField>
                 <HelperText>
                   This information will remain confidential and is used to
                   provide appropriate accommodations
                 </HelperText>
               </Grid>
+
+              {studentData.disease?.startsWith("Other") && (
+                <Grid item xs={12}>
+                  <StyledTextField
+                    fullWidth
+                    disabled={!modifying}
+                    label="Please specify your disease"
+                    value={studentData.customDisease || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setStudentData((prev) => ({
+                        ...prev,
+                        customDisease: value,
+                        disease: `Other (${value})`, // 👈 store combined
+                      }));
+                    }}
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <Box
+                          component="span"
+                          sx={{ color: "#4fa54f", mr: 1, fontSize: "1.2rem" }}
+                        >
+                          📝
+                        </Box>
+                      ),
+                    }}
+                  />
+                </Grid>
+              )}
+
               <Grid item xs={12} sm={6}>
                 <StyledSelectFormControl fullWidth>
                   <InputLabel>Learning Preference</InputLabel>
@@ -2039,9 +2157,12 @@ const UserProfile = () => {
                     name="learningPreference"
                     onChange={handleStudentDataChange}
                     label="Learning Preference"
+                    disabled={!modifying}
                   >
                     <MenuItem value="video">Video</MenuItem>
                     <MenuItem value="pdf">PDF</MenuItem>
+                    <MenuItem value="image">Image</MenuItem>
+                    <MenuItem value="audio">Audio</MenuItem>
                   </StyledSelect>
                 </StyledSelectFormControl>
               </Grid>
@@ -2052,6 +2173,7 @@ const UserProfile = () => {
                   <StyledSelect
                     multiple
                     name="interests"
+                    disabled={!modifying}
                     value={studentData.interests || []}
                     onChange={(e) =>
                       setStudentData({
@@ -2240,26 +2362,44 @@ const UserProfile = () => {
                   <ProfileAvatar
                     src={previewUrl || "/default-avatar.jpg"}
                     alt={userData.firstName}
-                    onClick={handleImageClick}
-                    sx={{ cursor: "pointer" }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    onClick={() => modifying && handleImageClick()} // ✅ Only clickable when modifying
+                    sx={{
+                      cursor: modifying ? "pointer" : "default", // ✅ UX improvement
+                      opacity: modifying ? 1 : 0.7,
+                      transition: "opacity 0.3s ease",
+                    }}
+                    whileHover={modifying ? { scale: 1.05 } : {}}
+                    whileTap={modifying ? { scale: 0.95 } : {}}
                   />
-                  <EditIconButton
-                    size="medium"
-                    onClick={handleImageClick}
-                    aria-label="Change profile photo"
-                    component={motion.button}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <span style={{ fontSize: "20px" }}>📷</span>
-                  </EditIconButton>
+
+                  {modifying && (
+                    <EditIconButton
+                      type="button"
+                      size="medium"
+                      onClick={handleImageClick}
+                      aria-label="Change profile photo"
+                      component={motion.button}
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileTap={{ scale: 0.9 }}
+                      sx={{
+                        position: "absolute",
+                        bottom: 0,
+                        right: 0,
+                        backgroundColor: "#fff",
+                        border: "1px solid #ccc",
+                        zIndex: 2,
+                      }}
+                    >
+                      <span style={{ fontSize: "20px" }}>📷</span>
+                    </EditIconButton>
+                  )}
+
                   <UploadInput
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
+                    disabled={!modifying} // ✅ Disable file selection unless editing
                   />
                 </Box>
                 <Typography
@@ -2276,6 +2416,7 @@ const UserProfile = () => {
                     padding: "6px 12px",
                     borderRadius: "20px",
                     fontSize: "0.85rem",
+                    textAlign: "center",
                   }}
                 >
                   Click on the image to update your profile photo
@@ -2306,6 +2447,7 @@ const UserProfile = () => {
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={6}>
                     <StyledTextField
+                      disabled={!modifying}
                       fullWidth
                       label="First Name"
                       name="firstName"
@@ -2330,6 +2472,7 @@ const UserProfile = () => {
                       fullWidth
                       label="Last Name"
                       name="lastName"
+                      disabled={!modifying}
                       value={userData.lastName}
                       onChange={handleBasicInfoChange}
                       required
@@ -2351,6 +2494,7 @@ const UserProfile = () => {
                       fullWidth
                       label="Email"
                       name="email"
+                      disabled={!modifying}
                       value={userData.email}
                       onChange={handleBasicInfoChange}
                       required
@@ -2373,6 +2517,7 @@ const UserProfile = () => {
                       label="Age"
                       name="age"
                       type="number"
+                      disabled={!modifying}
                       value={userData.age}
                       onChange={handleBasicInfoChange}
                       required
@@ -2390,26 +2535,88 @@ const UserProfile = () => {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <StyledTextField
+                    <FormControl
                       fullWidth
-                      label="Country"
-                      name="country"
-                      value={userData.country}
-                      onChange={handleBasicInfoChange}
                       required
                       variant="outlined"
-                      InputProps={{
-                        startAdornment: (
-                          <Box
-                            component="span"
-                            sx={{ color: "#4fa54f", mr: 1, fontSize: "1.2rem" }}
-                          >
-                            🌍
-                          </Box>
-                        ),
+                      size="medium"
+                      disabled={!modifying}
+                      sx={{
+                        backgroundColor: "white",
+                        borderRadius: "4px",
                       }}
-                    />
+                    >
+                      <InputLabel
+                        id="country-label"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          fontSize: "1.2rem",
+                        }}
+                      >
+                        <Box
+                          component="span"
+                          sx={{ color: "#4fa54f", mr: 1, fontSize: "1.2rem" }}
+                        >
+                          🌍
+                        </Box>
+                        Country
+                      </InputLabel>
+                      <Select
+                        disabled={!modifying}
+                        labelId="country-label"
+                        name="country"
+                        value={userData.country}
+                        onChange={handleBasicInfoChange}
+                        label="🌍 Country"
+                        sx={{
+                          fontSize: "1.2rem",
+                          maxHeight: 300,
+
+                          "& .MuiSelect-select": {
+                            display: "flex",
+                            alignItems: "center",
+                          },
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            sx: {
+                              maxHeight: 300,
+                              fontSize: "1.2rem",
+                              mt: 1,
+                            },
+                          },
+                        }}
+                      >
+                        {countryArray.map((country) => (
+                          <MenuItem
+                            key={country.code}
+                            value={country.name}
+                            sx={{
+                              fontSize: "0.9rem",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Box
+                              component="img"
+                              src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}
+                              alt={country.name}
+                              sx={{
+                                width: 20,
+                                height: 15,
+                                mr: 1,
+                                borderRadius: "2px",
+                                objectFit: "cover",
+                              }}
+                            />
+                            {country.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </Grid>
+
                   <Grid item xs={12} sm={6}>
                     <StyledTextField
                       fullWidth
@@ -2458,14 +2665,26 @@ const UserProfile = () => {
                 <Grid item xs={12} sm={6}>
                   <ActionButton
                     fullWidth
-                    variant="contained"
-                    color="primary"
-                    type="submit"
+                    variant={modifying ? "contained" : "outlined"}
+                    color={modifying ? "primary" : "secondary"}
+                    type="button" // ✅ Always a button, no automatic submit
                     size="large"
+                    onClick={async () => {
+                      if (modifying) {
+                        await handleSubmit(); // ✅ Submit profile update
+                        setModifying(false); // 🔒 Lock fields again
+                      } else {
+                        setModifying(true); // ✏️ Unlock fields
+                      }
+                    }}
                     sx={{
-                      backgroundColor: "#4fa54f",
+                      backgroundColor: modifying ? "#4fa54f" : "transparent",
+                      borderColor: "#4fa54f",
+                      color: modifying ? "#fff" : "#4fa54f",
                       "&:hover": {
-                        backgroundColor: "#3d8a3d",
+                        backgroundColor: modifying ? "#3d8a3d" : "#f4fff4",
+                        borderColor: "#3d8a3d",
+                        color: modifying ? "#fff" : "#3d8a3d",
                       },
                     }}
                     disabled={loading || imageLoading}
@@ -2474,17 +2693,22 @@ const UserProfile = () => {
                     whileTap={{ scale: 0.97 }}
                     startIcon={
                       loading ? null : (
-                        <span style={{ fontSize: "1.2rem" }}>💾</span>
+                        <span style={{ fontSize: "1.2rem" }}>
+                          {modifying ? "💾" : "✏️"}
+                        </span>
                       )
                     }
                   >
                     {loading ? (
                       <CircularProgress size={24} color="inherit" />
-                    ) : (
+                    ) : modifying ? (
                       "Update Profile"
+                    ) : (
+                      "Modify Profile"
                     )}
                   </ActionButton>
                 </Grid>
+
                 <Grid item xs={12} sm={6}>
                   <ActionButton
                     fullWidth

@@ -83,52 +83,55 @@ const Contact = () => {
   };
 
   const verifyDiploma = async () => {
-    if (!diplomaFile) {
-      alert('Please upload a diploma file');
-      return;
-    }
+  if (!diplomaFile) {
+    toast.error('Please upload a diploma file');
+    return;
+  }
 
-    setIsVerifying(true);
+  setIsVerifying(true);
 
-    try {
-      const formData = new FormData();
-      formData.append('image', diplomaFile);
+  try {
+    const formData = new FormData();
+    formData.append('image', diplomaFile);
 
-      const response = await axios.post(
-        'http://localhost:3000/api/auth/verify-diploma',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+    const response = await axios.post(
+      'http://localhost:3000/api/auth/verify-diploma',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      );
-
-      if (response.data.success) {
-        setVerificationResult({
-          success: true,
-          message: 'Diploma verified successfully!',
-          info: response.data.diplomaInfo,
-          certificateURL: response.data.certificateURL
-        });
-      } else {
-        setVerificationResult({
-          success: false,
-          message: response.data.message || 'Diploma verification failed',
-          errors: response.data.errors || {}
-        });
       }
-    } catch (error) {
-      console.error('Verification error:', error);
+    );
+
+    if (response.data.success) {
+      setVerificationResult({
+        success: true,
+        message: 'Diploma verified successfully!',
+        info: response.data.diplomaInfo,
+        certificateURL: response.data.certificateURL
+      });
+      toast.success('Diploma verified successfully!');
+    } else {
       setVerificationResult({
         success: false,
-        message: 'Error during diploma verification',
-        errors: { system: 'Network error' }
+        message: response.data.message || 'Diploma verification failed',
+        errors: response.data.errors || {}
       });
-    } finally {
-      setIsVerifying(false);
+      toast.error(response.data.message || 'Diploma verification failed');
     }
-  };
+  } catch (error) {
+    console.error('Verification error:', error);
+    setVerificationResult({
+      success: false,
+      message: error.response?.data?.message || 'Error during diploma verification',
+      errors: error.response?.data?.errors || { system: 'Network error' }
+    });
+    toast.error(error.response?.data?.message || 'Error during diploma verification');
+  } finally {
+    setIsVerifying(false);
+  }
+};
 
   const parseJwt = (token) => {
     try {
@@ -137,6 +140,8 @@ const Contact = () => {
       return null;
     }
   };
+
+  
 
   const playNotificationSound = () => {
     const audio = new Audio("/sounds/notification.wav");
@@ -222,8 +227,53 @@ const Contact = () => {
           return;
         }
 
-        navigate("/home");
-        startBreakTimer();
+         toast.info(
+          <div style={{ textAlign: 'center' }}>
+            <h3>You will pass a test to test your level</h3>
+            <div style={{ margin: '20px 0', textAlign: 'left' }}>
+              <p><strong>Instructions:</strong></p>
+              <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+                <li>Only one person allowed in camera view</li>
+                <li>Face must be centered and visible at all times</li>
+                <li>No looking away from the screen</li>
+                <li>No switching tabs/windows</li>
+                <li>No copy/paste allowed</li>
+                <li>No speaking or communicating with others</li>
+              </ul>
+            </div>
+            <button
+              onClick={() => {
+                toast.dismiss();
+                navigate("/exam");
+                startBreakTimer();
+              }}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: 'bold'
+              }}
+            >
+              I Understand - Start Test
+            </button>
+          </div>,
+          {
+            position: 'top-center',
+            autoClose: false,
+            closeOnClick: false,
+            closeButton: false,
+            draggable: false,
+            style: {
+              minWidth: '500px',
+              maxWidth: '600px',
+              padding: '20px'
+            }
+          }
+        );
 
         toast.success('Registration successful!', {
           position: "top-right",

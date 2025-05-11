@@ -47,26 +47,7 @@ const Sidebar = () => {
   // Utilisation de useNavigate pour naviguer après le logout
   const navigate = useNavigate();
   const imageSrc = localStorage.getItem("image");
-  // Dans votre composant (ex: Sidebar.jsx)
-// const handleLogout = async () => {
-//   try {
-//     const response = await fetch('http://localhost:3000/api/auth/signout', {
-//       method: 'POST',
-//       credentials: 'include', // Nécessaire pour les cookies
-//     });
 
-//     if (!response.ok) throw new Error("Échec de la déconnexion");
-
-//     // Effacer le localStorage
-//     localStorage.removeItem('token');
-    
-//     // Rediriger vers la page de login
-//     window.location.href = '/'; // Ou utilisez navigate('/login') avec React Router
-//   } catch (error) {
-//     console.error("Erreur:", error);
-//     alert("Erreur lors de la déconnexion");
-//   }
-// };
 
 const handleLogout = async () => {
   try {

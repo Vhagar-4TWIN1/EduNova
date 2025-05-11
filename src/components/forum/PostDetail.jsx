@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { FiUser, FiClock, FiMessageSquare, FiArrowLeft } from 'react-icons/fi';
+import { FiUser, FiClock, FiMessageSquare, FiArrowLeft, FiMic, FiThumbsUp } from 'react-icons/fi';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import ReplyForm from './ReplyForm';
 
@@ -28,18 +28,20 @@ const PostDetail = () => {
     try {
       await axios.post(`http://localhost:3000/api/forum/replies/${replyId}/upvote`, null, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}` // or your auth method
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
 
-      // Refresh replies after upvote
       const updatedPost = await axios.get(`http://localhost:3000/api/forum/posts/${id}`);
       setPost(updatedPost.data);
-
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to upvote');
     }
   };
+  const getAudioUrl = (path) => {
+    return `http://localhost:3000${path}`;
+
+  }
 
   const handleNewReply = (newReply) => {
     setPost(prev => ({
@@ -50,22 +52,35 @@ const PostDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="loader-container">
+      <div className="loading-container">
         <div className="spinner"></div>
         <style jsx>{`
-          .loader-container {
+          .loading-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 60vh;
+            height: 70vh;
           }
           .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #3b82f6;
+            width: 56px;
+            height: 56px;
+            border: 4px solid rgba(99, 102, 241, 0.1);
+            border-top-color: #6366f1;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            position: relative;
+          }
+          .spinner::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border: 4px solid transparent;
+            border-radius: 50%;
+            border-top-color: rgba(99, 102, 241, 0.3);
+            animation: spin 1.5s linear infinite reverse;
           }
           @keyframes spin {
             to { transform: rotate(360deg); }
@@ -78,17 +93,55 @@ const PostDetail = () => {
   if (error) {
     return (
       <div className="error-container">
-        <p>{error}</p>
+        <div className="error-card">
+          <h3 className="error-title">Error Loading Post</h3>
+          <p className="error-message">{error}</p>
+          <a href="/forum" className="back-btn">
+            <FiArrowLeft /> Return to Forum
+          </a>
+        </div>
         <style jsx>{`
           .error-container {
-            background: #fff0f0;
-            border-left: 4px solid #ff4d4f;
-            padding: 16px;
-            margin: 24px auto;
-            max-width: 800px;
-            border-radius: 0 8px 8px 0;
-            color: #ff4d4f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70vh;
+            padding: 2rem;
+          }
+          .error-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #ef4444;
+          }
+          .error-title {
+            color: #ef4444;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+          }
+          .error-message {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+          }
+          .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #6366f1;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
             font-weight: 500;
+            transition: all 0.3s ease;
+          }
+          .back-btn:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
           }
         `}</style>
       </div>
@@ -97,14 +150,55 @@ const PostDetail = () => {
 
   if (!post) {
     return (
-      <div className="not-found">
-        <p>Post not found</p>
+      <div className="not-found-container">
+        <div className="not-found-card">
+          <h3>Post Not Found</h3>
+          <p>The post you're looking for doesn't exist or may have been removed.</p>
+          <a href="/forum" className="back-btn">
+            <FiArrowLeft /> Browse All Posts
+          </a>
+        </div>
         <style jsx>{`
-          .not-found {
+          .not-found-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70vh;
+            padding: 2rem;
+          }
+          .not-found-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            max-width: 500px;
             text-align: center;
-            padding: 48px 0;
-            color: #666;
-            font-size: 1.1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+          }
+          .not-found-card h3 {
+            font-size: 1.5rem;
+            color: #111827;
+            margin-bottom: 1rem;
+          }
+          .not-found-card p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+          }
+          .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #6366f1;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+          }
+          .back-btn:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
           }
         `}</style>
       </div>
@@ -114,161 +208,299 @@ const PostDetail = () => {
   return (
     <div className="post-detail-container">
       <style jsx>{`
+        :root {
+          --primary: #6366f1;
+          --primary-light: #818cf8;
+          --text: #1f2937;
+          --text-light: #6b7280;
+          --bg-card: #ffffff;
+          --bg-hover: #f9fafb;
+          --border-radius: 12px;
+          --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+          --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+          --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+          --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         .post-detail-container {
           max-width: 800px;
           margin: 0 auto;
-          padding: 24px 16px;
+          padding: 2rem 1.5rem;
         }
-          button {
-            background: none;
-            border: none;
-            color: #3b82f6;
-            font-weight: 500;
-          }
-          button:hover {
-            text-decoration: underline;
-          }
 
-        
         .back-button {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          color: #3b82f6;
-          text-decoration: none;
-          font-weight: 500;
-          margin-bottom: 24px;
-          transition: color 0.2s;
-        }
-        .back-button:hover {
-          color: #2563eb;
-        }
-        
-        .post-card {
+          gap: 0.75rem;
+          padding: 0.75rem 1.5rem;
           background: white;
-          border-radius: 12px;
-          box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-          padding: 28px;
-          margin-bottom: 32px;
+          color: var(--primary);
+          border-radius: var(--border-radius);
+          text-decoration: none;
+          font-weight: 600;
+          box-shadow: var(--shadow-sm);
+          margin-bottom: 2rem;
+          transition: var(--transition);
+          border: 1px solid rgba(99, 102, 241, 0.2);
         }
-        
+
+        .back-button:hover {
+          background: var(--bg-hover);
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-md);
+          color: var(--primary-light);
+        }
+
+        .post-card {
+          background: var(--bg-card);
+          border-radius: var(--border-radius);
+          box-shadow: var(--shadow-md);
+          padding: 2.5rem;
+          margin-bottom: 3rem;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .post-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 4px;
+          height: 100%;
+          background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+        }
+
         .post-title {
-          font-size: 28px;
-          font-weight: 700;
-          color: #111827;
-          margin-bottom: 16px;
+          font-size: 2rem;
+          font-weight: 800;
+          color: var(--text);
+          margin-bottom: 1.5rem;
           line-height: 1.3;
         }
-        
+
         .post-content {
-          color: #374151;
-          line-height: 1.7;
-          margin-bottom: 24px;
+          color: var(--text);
+          line-height: 1.8;
+          margin-bottom: 2rem;
           white-space: pre-line;
-          font-size: 16px;
+          font-size: 1.1rem;
         }
-        
+
         .post-meta {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding-top: 16px;
-          border-top: 1px solid #e5e7eb;
-          color: #6b7280;
-          font-size: 14px;
+          padding-top: 1.5rem;
+          border-top: 1px solid rgba(0, 0, 0, 0.05);
+          color: var(--text-light);
+          font-size: 0.9rem;
         }
-        
+
         .meta-item {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 0.5rem;
         }
-        
+
+        .replies-section {
+          background: var(--bg-card);
+          border-radius: var(--border-radius);
+          box-shadow: var(--shadow-md);
+          padding: 2.5rem;
+        }
+
         .replies-header {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 20px;
-          font-weight: 600;
-          color: #111827;
-          margin-bottom: 20px;
+          gap: 1rem;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--text);
+          margin-bottom: 2rem;
+          position: relative;
         }
-        
+
+        .replies-header::after {
+          content: '';
+          position: absolute;
+          bottom: -0.75rem;
+          left: 0;
+          width: 60px;
+          height: 4px;
+          background: linear-gradient(to right, var(--primary), var(--primary-light));
+          border-radius: 2px;
+        }
+
         .replies-list {
           display: flex;
           flex-direction: column;
-          gap: 16px;
-          margin-top: 24px;
+          gap: 1.5rem;
+          margin-top: 2rem;
         }
-        
+
         .reply-card {
-          background: #f9fafb;
-          border-left: 4px solid #3b82f6;
-          border-radius: 8px;
-          padding: 16px 20px;
-          transition: transform 0.2s, box-shadow 0.2s;
+          background: var(--bg-card);
+          border-radius: var(--border-radius);
+          padding: 1.75rem;
+          transition: var(--transition);
+          box-shadow: var(--shadow-sm);
+          position: relative;
+          overflow: hidden;
+          border: 1px solid rgba(0, 0, 0, 0.03);
         }
+
         .reply-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          transform: translateY(-3px);
+          box-shadow: var(--shadow-md);
         }
-        
+
+        .reply-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 4px;
+          height: 100%;
+          background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+          opacity: 0;
+          transition: var(--transition);
+        }
+
+        .reply-card:hover::before {
+          opacity: 1;
+        }
+
+        .voice-reply-container {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .voice-reply-icon {
+          color: var(--primary);
+          flex-shrink: 0;
+        }
+
+        .audio-player {
+          width: 100%;
+          max-width: 300px;
+          height: 40px;
+          border-radius: 20px;
+        }
+
         .reply-content {
-          color: #374151;
-          line-height: 1.6;
+          color: var(--text);
+          line-height: 1.7;
           white-space: pre-line;
-          margin-bottom: 12px;
+          margin-bottom: 1.5rem;
         }
-        
+
         .reply-meta {
           display: flex;
           justify-content: space-between;
-          font-size: 13px;
-          color: #6b7280;
+          font-size: 0.85rem;
+          color: var(--text-light);
+          flex-wrap: wrap;
+          gap: 1rem;
         }
-        
+
+        .reply-meta-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .upvote-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: rgba(99, 102, 241, 0.1);
+          color: var(--primary);
+          border: none;
+          border-radius: 20px;
+          padding: 0.5rem 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: var(--transition);
+        }
+
+        .upvote-btn:hover {
+          background: rgba(99, 102, 241, 0.2);
+          transform: translateY(-1px);
+        }
+
         .no-replies {
           text-align: center;
-          padding: 32px 0;
-          color: #6b7280;
-          font-size: 15px;
+          padding: 3rem 0;
+          color: var(--text-light);
+          font-size: 1rem;
         }
-        
+
         @media (max-width: 768px) {
           .post-detail-container {
-            padding: 16px 12px;
+            padding: 1.5rem 1rem;
           }
-          .post-card {
-            padding: 20px;
+          
+          .post-card, .replies-section {
+            padding: 1.75rem;
           }
+          
           .post-title {
-            font-size: 24px;
+            font-size: 1.75rem;
+          }
+          
+          .replies-header {
+            font-size: 1.3rem;
           }
         }
-      `}</style>
 
-      <a href="/forum" className="back-button">
-        <FiArrowLeft /> Back to Forum
-      </a>
+        /* Animation for replies */
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(15px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .reply-card {
+          animation: fadeInUp 0.6s ease forwards;
+          opacity: 0;
+        }
+
+        .reply-card:nth-child(1) { animation-delay: 0.1s; }
+        .reply-card:nth-child(2) { animation-delay: 0.2s; }
+        .reply-card:nth-child(3) { animation-delay: 0.3s; }
+        .reply-card:nth-child(4) { animation-delay: 0.4s; }
+        .reply-card:nth-child(5) { animation-delay: 0.5s; }
+        .reply-card:nth-child(6) { animation-delay: 0.6s; }
+      `}</style>
+      <br /><br />
+
 
       <div className="post-card">
         <h1 className="post-title">{post.title}</h1>
         <p className="post-content">{post.content}</p>
         <div className="post-meta">
           <div className="meta-item">
-            <FiUser size={14} />
+            <FiUser size={16} />
             <span>{post.author?.name || 'Anonymous'}</span>
           </div>
           <div className="meta-item">
-            <FiClock size={14} />
+            <FiClock size={16} />
             <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
           </div>
         </div>
       </div>
 
-      <div>
+      <div className="replies-section">
         <h2 className="replies-header">
-          <FiMessageSquare /> {post.replies?.length || 0} {post.replies?.length === 1 ? 'Reply' : 'Replies'}
+          <FiMessageSquare size={24} /> {post.replies?.length || 0} {post.replies?.length === 1 ? 'Reply' : 'Replies'}
         </h2>
 
         <ReplyForm postId={post._id} onReplyAdded={handleNewReply} />
@@ -277,24 +509,34 @@ const PostDetail = () => {
           <div className="replies-list">
             {post.replies.map((reply) => (
               <div key={reply._id} className="reply-card">
-                <div className="reply-content">{reply.content}</div>
+                {reply.voiceUrl ? (
+                  <div className="voice-reply-container">
+                    <FiMic className="voice-reply-icon" size={20} />
+                    <audio
+                      controls
+                      src={`http://localhost:3000${reply.voiceUrl}`}
+                      className="audio-player"
+                    />
+                  </div>
+                ) : (
+                  <div className="reply-content">{reply.content}</div>
+                )}
                 <div className="reply-meta">
-                  <span>
-                    <FiUser /> {reply.author?.username || 'Anonymous'}
-                  </span>
-                  <span>
-                    <FiClock /> {formatDistanceToNow(new Date(reply.createdAt))} ago
-                  </span>
-                  <span>
-                    👍 {reply.upvotedBy?.length || 0}
-                    <button onClick={() => handleUpvote(reply._id)} style={{ marginLeft: '8px', cursor: 'pointer' }}>
-                      Upvote
-                    </button>
-                  </span>
+                  <div className="reply-meta-item">
+                    <FiUser size={14} /> {reply.author?.username || 'Anonymous'}
+                  </div>
+                  <div className="reply-meta-item">
+                    <FiClock size={14} /> {formatDistanceToNow(new Date(reply.createdAt))} ago
+                  </div>
+                  <button
+                    className="upvote-btn"
+                    onClick={() => handleUpvote(reply._id)}
+                  >
+                    <FiThumbsUp size={14} /> {reply.upvotedBy?.length || 0} Upvotes
+                  </button>
                 </div>
               </div>
             ))}
-
           </div>
         ) : (
           <div className="no-replies">
