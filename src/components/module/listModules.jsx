@@ -52,10 +52,11 @@ const ListModules = () => {
             `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=${email}&moodlewsrestformat=json`
           );
           const moodleData = await moodleRes.json();
-          const moodleUserId = moodleData.users[0].id;
+          
+          const moodleUserId = moodleData?.users?.[0]?.id || '-1';
           console.log(moodleUserId);
           const moodleModules = await fetch(
-            `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_enrol_get_users_courses&userid=2&moodlewsrestformat=json`
+            `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_enrol_get_users_courses&userid=${moodleUserId}&moodlewsrestformat=json`
           );
           const moodleModulesData = await moodleModules.json();
           console.log(moodleModulesData);
