@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import StudySessionTracker from '../StudySessionTracker';
 import {
   FaCheckCircle,
   FaBook,
@@ -22,10 +23,93 @@ const ModuleDetails = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [userRole, setUserRole] = useState("student");
+const [supplementaryLessons, setSupplementaryLessons] = useState([]);
 
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
+const [showSupplementary, setShowSupplementary] = useState(false);
+const [timeSpent, setTimeSpent] = useState(0);
+const requiredTime = 60;
+
+
+useEffect(() => {
+  if (!module?._id || role !== 'Student') return;
+
+  const timer = setInterval(() => {
+    setTimeSpent(prev => {
+      const newTime = prev + 1;
+      if (newTime >= requiredTime && !showSupplementary) {
+        setShowSupplementary(true);
+      }
+      return newTime;
+    });
+  }, 1000); // Mise à jour chaque seconde
+
+  return () => clearInterval(timer);
+}, [module?._id, role, showSupplementary]);
+
+useEffect(() => {
+  let isMounted = true; // Ajout pour gérer le montage/démontage
+
+  const fetchSupplementaryLessons = async () => {
+    try {
+      console.log("Début de la récupération des leçons supplémentaires");
+      const response = await axios.get(
+        `http://localhost:3000/api/study/recommendations/${module._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          signal: AbortController.signal // Ajout pour annuler la requête
+        }
+      );
+      
+      if (!isMounted) return; // Ne pas mettre à jour si démonté
+      
+      console.log("Réponse reçue:", response.data);
+      
+      if (response.data && response.data.lessons) {
+        console.log("Leçons trouvées:", response.data.lessons.length);
+        setSupplementaryLessons(response.data.lessons);
+      } else {
+        console.warn("Structure de données inattendue:", response.data);
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') { // Ne pas logger les erreurs d'annulation
+        console.error("Erreur complète:", {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status,
+        });
+      }
+    }
+  };
+  
+  if (module?._id) {
+    fetchSupplementaryLessons();
+  }
+
+  return () => {
+    isMounted = false; // Cleanup
+    // Annuler les requêtes en cours si besoin
+  };
+}, [module?._id]); // Dépendance plus spécifique
+
+// Add this handler for deleting supplementary lessons
+const handleDeleteSupplementary = async (id) => {
+  if (!window.confirm('Are you sure you want to delete this supplementary lesson?')) return;
+  
+  try {
+    await axios.delete(`http://localhost:3000/api/study/recommendations/${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    setSupplementaryLessons(prev => prev.filter(lesson => lesson._id !== id));
+  } catch (err) {
+    console.error('Error deleting supplementary lesson:', err);
+  }
+};
+
 
   useEffect(() => {
   const fetchModuleLessons = async () => {
@@ -215,6 +299,61 @@ const ModuleDetails = () => {
             </button>
           )}
         </div>
+
+
+
+
+
+
+{role === 'Student' && showSupplementary && supplementaryLessons.length > 0 && (
+  <div className="supplementary-section">
+      <div className="time-progress">
+    <p>Les ressources supplémentaires seront disponibles dans {requiredTime - timeSpent} secondes</p>
+    <div className="progress-bar">
+      <div 
+        className="progress-fill" 
+        style={{ width: `${(timeSpent/requiredTime)*100}%` }}
+      ></div>
+    </div>
+  </div>
+    <h3 style={{ margin: '20px 0 10px', color: '#3a0ca3' }}>
+      <FaBook style={{ marginRight: '8px' }} />
+      Supplementary Resources
+    </h3>
+    
+    <div className="supplementary-grid">
+      {supplementaryLessons.map(lesson => (
+        <div key={lesson._id} className="supplementary-card">
+          <div className="supplementary-content">
+            <h4>{lesson.title}</h4>
+            <p>{lesson.content || lesson.description || 'No content available'}</p>
+            {lesson.resourceUrl && (
+              <a 
+                href={lesson.resourceUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="resource-link"
+              >
+                <FaExternalLinkAlt /> View Resource
+              </a>
+            )}
+          </div>
+          {role === "Teacher" && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSupplementary(lesson._id);
+              }}
+              className="delete-button"
+            >
+              🗑️ Delete
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
         {lessons.length === 0 && moodleLessons.length === 0 ? (
           <div className="empty-lessons">
@@ -673,3 +812,4 @@ const ModuleDetails = () => {
 };
 
 export default ModuleDetails;
+
