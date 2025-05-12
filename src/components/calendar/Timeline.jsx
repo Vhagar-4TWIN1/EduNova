@@ -1,4 +1,3 @@
-// Timeline.jsx
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
@@ -17,14 +16,25 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
 import {
   Dialog,
+  DialogPortal,
+  DialogOverlay,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+
+import {
+  Calendar as CalendarIcon,
+  Video,
+  BookOpen,
+  FileText,
+  Zap,
+} from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Timeline({ events, onJoin, refreshEvents }) {
@@ -32,9 +42,10 @@ export default function Timeline({ events, onJoin, refreshEvents }) {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [lessonCache, setLessonCache] = useState({});
   const [selectedLessonData, setSelectedLessonData] = useState(null);
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : "";
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
-
+  // Sort events by start time
   const sortedEvents = useMemo(
     () =>
       [...events].sort(
@@ -47,19 +58,13 @@ export default function Timeline({ events, onJoin, refreshEvents }) {
     setSelectedEvent(evt);
     setIsDialogOpen(true);
   };
-
   const closeDialog = () => {
+    setIsDialogOpen(false);
     setSelectedEvent(null);
     setSelectedLessonData(null);
-    setIsDialogOpen(false);
   };
 
-  const handleJoinClick = (evt, e) => {
-    e.stopPropagation();
-    if (onJoin) onJoin(evt);
-    else if (evt.roomUrl) window.open(evt.roomUrl, "_blank");
-  };
-
+  // Preserve your original complete logic:
   const handleTaskComplete = async (evt, e) => {
     e.stopPropagation();
     const id = toast.loading("Marking as complete...");
@@ -92,37 +97,49 @@ export default function Timeline({ events, onJoin, refreshEvents }) {
   const handleLessonComplete = async (evt, e) => {
     e.stopPropagation();
     const id = toast.loading("Marking lesson complete...");
-    try {
-      const lesson = await apiRequest(`/api/lessons/${evt.lessonId}`, {
-        withCredentials: true,
-      });
-      const moduleId = lesson.module;
-      await apiRequest("/api/progress/complete/lesson", {
-        method: "POST",
-        withCredentials: true,
-        headers: { "Content-Type": "application/json" },
-        body: {
-          userId: evt.userId,
-          moduleId,
-          lessonId: evt.lessonId,
-          eventId: evt._id,
-        },
-      });
-      toast.update(id, {
-        render: "Lesson marked as complete!",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-      });
-      refreshEvents();
-    } catch {
-      toast.update(id, {
-        render: "Failed to mark lesson.",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
-    }
+try {
+  // extract a clean string ID whether lessonId was populated or is just a string
+  const rawLessonId = evt.lessonId;
+  const lessonId =
+    typeof rawLessonId === "object" && rawLessonId?._id
+      ? rawLessonId._id
+      : rawLessonId;
+
+  // directly call complete-lesson endpoint
+  await apiRequest("/api/progress/complete/lesson", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: {
+      userId: evt.userId,
+      lessonId,
+      eventId: evt._id,
+    },
+  });
+
+  toast.update(id, {
+    render: "Lesson marked as complete!",
+    type: "success",
+    isLoading: false,
+    autoClose: 3000,
+  });
+  refreshEvents();
+} catch (err) {
+  console.error("Error marking lesson complete:", err);
+  toast.update(id, {
+    render: "Failed to mark lesson.",
+    type: "error",
+    isLoading: false,
+    autoClose: 3000,
+  });
+}
+
+  };
+
+  // Join meeting
+  const handleJoinClick = (evt, e) => {
+    e.stopPropagation();
+    if (onJoin) onJoin(evt);
+    else if (evt.roomUrl) window.open(evt.roomUrl, "_blank");
   };
 
   // Time helpers
@@ -130,7 +147,7 @@ export default function Timeline({ events, onJoin, refreshEvents }) {
     try {
       const start = parseISO(s),
         end = parseISO(e);
-      return `${format(start, "h:mm a")} - ${format(end, "h:mm a")}`;
+      return `${format(start, "h:mm a")} – ${format(end, "h:mm a")}`;
     } catch {
       return "Invalid time";
     }
@@ -148,139 +165,228 @@ export default function Timeline({ events, onJoin, refreshEvents }) {
     return isAfter(start, now) && isBefore(start, soon);
   };
   const getIcon = (type) =>
-    ({ lesson: "📚", videoChat: "🎥", task: "📝", focus: "🧠" }[type] || "📅");
+    ({
+      lesson: <BookOpen className="w-5 h-5 text-[#172746]" />,
+      videoChat: <Video className="w-5 h-5 text-[#172746]" />,
+      task: <FileText className="w-5 h-5 text-[#172746]" />,
+      focus: <Zap className="w-5 h-5 text-[#172746]" />,
+    }[type] || <CalendarIcon className="w-5 h-5 text-[#172746]" />);
 
-  // Fetch lesson details
-  useEffect(() => {
-    if (!isDialogOpen || selectedEvent?.type !== "lesson" || !selectedEvent.lessonId)
-      return;
-    const idKey = selectedEvent.lessonId;
-    if (lessonCache[idKey]) {
-      setSelectedLessonData(lessonCache[idKey]);
-      return;
+  // Fetch lesson details when dialog opens
+useEffect(() => {
+  if (
+    !isDialogOpen ||
+    selectedEvent?.type !== "lesson" ||
+    !selectedEvent.lessonId
+  ) {
+    return;
+  }
+
+  // Normalize lessonId (handle both string IDs and populated objects)
+  const rawLessonId = selectedEvent.lessonId;
+  const lessonId =
+    typeof rawLessonId === "object" && rawLessonId?._id
+      ? rawLessonId._id
+      : rawLessonId;
+
+  // If we’ve already cached this lesson, use it
+  if (lessonCache[lessonId]) {
+    setSelectedLessonData(lessonCache[lessonId]);
+    return;
+  }
+
+  (async () => {
+    try {
+      const resp = await axios.get(`/api/lessons/${lessonId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setLessonCache((c) => ({ ...c, [lessonId]: resp.data }));
+      setSelectedLessonData(resp.data);
+    } catch (err) {
+      console.error("Failed to fetch lesson details:", err);
     }
-    (async () => {
-      try {
-        const resp = await axios.get(`/api/lessons/${idKey}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setLessonCache((c) => ({ ...c, [idKey]: resp.data }));
-        setSelectedLessonData(resp.data);
-      } catch {
-        /* ignore */
-      }
-    })();
-  }, [isDialogOpen, selectedEvent, lessonCache, token]);
+  })();
+}, [isDialogOpen, selectedEvent, lessonCache, token]);
+
 
   return (
     <>
-      <Card className="w-full bg-white">
-        <CardHeader>
-          <CardTitle>Timeline</CardTitle>
-          <CardDescription>Your daily schedule</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="relative ml-5 pl-8 border-l-2 border-neutral-200">
-            {sortedEvents.length === 0 ? (
-              <div className="py-8 flex flex-col items-center justify-center text-center">
-                <p className="text-muted-foreground mb-2">No events scheduled</p>
-                <Button variant="outline" size="sm">Add New Event</Button>
-              </div>
-            ) : (
-              sortedEvents.map((evt) => {
-                const now = isCurrent(evt.start, evt.end);
-                const soon = isUpcoming(evt.start);
-                const joinable = evt.type === "videoChat" && (now || soon || evt.joinable);
-                return (
-                  <div
-                    key={evt.id}
-                    className={`mb-8 relative cursor-pointer hover:shadow-md ${
-                      now ? "scale-[1.02]" : ""
-                    } ${joinable && now ? "sticky top-4 z-10" : ""}`}
-                  >
-                    <div
-                      className={`absolute -left-[calc(2rem+1px)] top-0 w-4 h-4 rounded-full ${
-                        evt.completed ? "bg-gray-400" : "bg-primary"
-                      }`}
-                    />
-                    <Card onClick={() => openDialog(evt)} className={`${now ? "ring-2 ring-primary" : ""} ${soon ? "ring-1 ring-primary/50" : ""}`}>
-                      {now && <div className="absolute top-0 left-0 w-full h-1 bg-primary" />}
-                      <CardHeader className="pb-2 flex justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{getIcon(evt.type)}</span>
-                          <CardTitle>{evt.title}</CardTitle>
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge className="bg-green-200 text-green-800">{evt.priority}</Badge>
-                          {now && <Badge className="bg-primary text-primary-foreground">Now</Badge>}
-                          {soon && !now && <Badge className="bg-blue-100 text-blue-800">Soon</Badge>}
-                        </div>
-                      </CardHeader>
-                      <CardDescription className="mt-1">{getTimeLabel(evt.start, evt.end)}</CardDescription>
-                      {evt.description && (
-                        <CardContent className="pt-0">
-                          <p className="text-sm text-muted-foreground">{evt.description}</p>
-                        </CardContent>
-                      )}
-                      <CardFooter className="flex justify-end gap-2 pt-0">
-                        {!evt.completed && evt.type === "task" && (
-                          <Button variant="outline" size="sm" onClick={(e) => handleTaskComplete(evt, e)}>
-                            Mark Complete
-                          </Button>
-                        )}
-                        {!evt.completed && evt.type === "lesson" && (
-                          <Button variant="outline" size="sm" onClick={(e) => handleLessonComplete(evt, e)}>
-                            Mark Completed
-                          </Button>
-                        )}
-                        {joinable && (
-                          <Button size="sm" className={now ? "" : "bg-primary/80"} onClick={(e) => handleJoinClick(evt, e)}>
-                            {now ? "Join Now" : "Join Early"}
-                          </Button>
-                        )}
-                        <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); openDialog(evt); }}>
-                          View Details
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Timeline */}
+      <div className="relative">
+        <div className="absolute left-10 top-0 bottom-0 w-[2px] bg-[#172746]/20" />
 
-      <Dialog open={isDialogOpen} onOpenChange={closeDialog}>
-        <DialogContent className="fixed w-screen h-[80vh] mt-16 mb-16 overflow-y-auto bg-white p-6 shadow-lg rounded-lg">
-          <DialogHeader>
-            <DialogTitle>Event Details</DialogTitle>
-            <DialogDescription asChild>
-              <div>
-                {selectedEvent && (
-                  <>
-                    <p><strong>Title:</strong> {selectedEvent.title}</p>
-                    <p><strong>Description:</strong> {selectedEvent.description || "—"}</p>
-                    <p><strong>Type:</strong> {selectedEvent.type}</p>
-                    <hr className="my-3" />
-                  </>
-                )}
-              </div>
-            </DialogDescription>
-          </DialogHeader>
-          {selectedEvent?.type === "lesson" && (
-            selectedLessonData ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                {/* …lesson details rendering… */}
-              </div>
-            ) : (
-              <p>Loading lesson details…</p>
-            )
+        <div className="space-y-12">
+          {sortedEvents.length === 0 && (
+            <div className="py-16 text-center text-gray-400">
+              No events scheduled today.
+            </div>
           )}
-          <DialogFooter className="mt-6">
-            <Button variant="outline" onClick={closeDialog}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
+
+          {sortedEvents.map((evt) => {
+            const now = isCurrent(evt.start, evt.end);
+            const soon = isUpcoming(evt.start);
+            const joinable =
+              evt.type === "videoChat" && (now || soon || evt.joinable);
+
+            return (
+              <div key={evt.id} className="relative flex group">
+                <div
+                  className={`
+                    absolute left-6 top-2/4 -translate-y-2/4 
+                    w-4 h-4 rounded-full border-2 
+                    ${evt.completed
+                      ? "bg-gray-300 border-gray-400"
+                      : "bg-[#172746] border-white"}
+                    transition-transform group-hover:scale-110
+                  `}
+                />
+                <div className="w-20 text-right pr-4 text-sm text-gray-500 font-medium">
+                  {format(parseISO(evt.start), "h:mm a")}
+                </div>
+
+                <Card
+                  onClick={() => openDialog(evt)}
+                  className={`
+                    flex-1 p-4 bg-white rounded-2xl
+                    border-t-4 border-[#172746]
+                    shadow-[0_4px_6px_rgba(23,39,70,0.1)]
+                    transition-transform duration-200
+                    ${now ? "scale-105 ring-2 ring-[#172746]" : ""}
+                    ${soon && !now ? "ring-1 ring-[#172746]/50" : ""}
+                    hover:shadow-[0_8px_10px_rgba(23,39,70,0.15)]
+                    hover:-translate-y-1
+                  `}
+                >
+                  {now && (
+                    <div className="absolute top-0 left-0 w-full h-1 bg-[#172746]" />
+                  )}
+
+                  <CardHeader className="flex items-start justify-between pb-2">
+                    <div className="flex items-center gap-3">
+                      {getIcon(evt.type)}
+                      <CardTitle className="text-lg font-semibold text-[#172746]">
+                        {evt.title}
+                      </CardTitle>
+                    </div>
+                    <div className="flex gap-2">
+                      <Badge className="bg-green-100 text-green-800 capitalize">
+                        {evt.priority}
+                      </Badge>
+                      {now && <Badge className="bg-[#172746] text-white">Now</Badge>}
+                      {soon && !now && (
+                        <Badge className="bg-[#172746]/20 text-[#172746]">
+                          Soon
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+
+                  <CardDescription className="ml-8 text-gray-600">
+                    {getTimeLabel(evt.start, evt.end)}
+                  </CardDescription>
+
+                  {evt.description && (
+                    <CardContent className="pt-2 ml-8 text-gray-700">
+                      {evt.description}
+                    </CardContent>
+                  )}
+
+                  <CardFooter className="flex justify-end gap-2 pt-4 ml-8">
+                    {!evt.completed && evt.type === "task" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => handleTaskComplete(evt, e)}
+                      >
+                        Mark Complete
+                      </Button>
+                    )}
+                    {!evt.completed && evt.type === "lesson" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => handleLessonComplete(evt, e)}
+                      >
+                        Mark Completed
+                      </Button>
+                    )}
+                    {joinable && (
+                      <Button
+                        size="sm"
+                        className="bg-[#172746] text-white"
+                        onClick={(e) => handleJoinClick(evt, e)}
+                      >
+                        {now ? "Join Now" : "Join Early"}
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDialog(evt);
+                      }}
+                    >
+                      Details
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Centered Details Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={closeDialog}>
+        <DialogPortal>
+          <DialogOverlay className="fixed inset-0 bg-black/20" />
+          <DialogContent className="
+            fixed top-1/2 left-1/2
+            w-full max-w-2xl max-h-[90vh]
+            overflow-y-auto
+            -translate-x-1/2 -translate-y-1/2
+            bg-white rounded-2xl shadow-2xl
+            p-6
+          ">
+            <DialogHeader className="border-b border-gray-200 pb-4 mb-4">
+              <DialogTitle className="text-2xl font-semibold text-[#172746]">
+                Event Details
+              </DialogTitle>
+            </DialogHeader>
+
+            <DialogDescription className="space-y-4 text-gray-700">
+              {selectedEvent && (
+                <>
+                  <p><strong>Title:</strong> {selectedEvent.title}</p>
+                  <p><strong>Time:</strong> {getTimeLabel(selectedEvent.start, selectedEvent.end)}</p>
+                  <p>
+                    <strong>Type:</strong>{" "}
+                    <span className="capitalize">{selectedEvent.type}</span>
+                  </p>
+                  {selectedEvent.description && (
+                    <>
+                      <hr className="my-2" />
+                      <p>{selectedEvent.description}</p>
+                    </>
+                  )}
+                  {selectedEvent.type === "lesson" && !selectedLessonData && (
+                    <p className="italic text-gray-500">Loading lesson details…</p>
+                  )}
+                  {selectedLessonData && (
+                    <div>{/* render lessonData here */}</div>
+                  )}
+                </>
+              )}
+            </DialogDescription>
+
+            <DialogFooter className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-200">
+              <Button variant="outline" onClick={closeDialog}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPortal>
       </Dialog>
     </>
   );
@@ -293,10 +399,15 @@ Timeline.propTypes = {
       start: PropTypes.string.isRequired,
       end: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
-      type: PropTypes.oneOf(["lesson","videoChat","task","focus"]).isRequired,
-      priority: PropTypes.oneOf(["low","normal","high"]).isRequired,
+      type: PropTypes.oneOf(["lesson", "videoChat", "task", "focus"])
+        .isRequired,
+      priority: PropTypes.oneOf(["low", "normal", "high"]).isRequired,
       description: PropTypes.string,
-      lessonId: PropTypes.string,
+lessonId: PropTypes.oneOfType([
+  PropTypes.string,
+  PropTypes.object
+]),
+
       userId: PropTypes.string.isRequired,
       roomUrl: PropTypes.string,
       completed: PropTypes.bool,
