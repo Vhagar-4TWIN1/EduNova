@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import TranslatedSubtitles from "./TranslatedSubtitles";
 import axios from "axios";
+import StudySessionTracker from './StudySessionTracker';
 import GenerateResume from './GenerateResume'; 
 const translations = {
   fr: "fr-FR",
@@ -372,6 +373,14 @@ const handlePDFResumeGeneration = async () => {
             <GenerateResume file={pdfFile} />
           </div>
         )}
+
+
+        {lesson && (
+  <StudySessionTracker 
+    moduleId={lesson.module || lesson.moduleId} 
+    lessonId={lesson._id} 
+  />
+)}
 
 
             <textarea

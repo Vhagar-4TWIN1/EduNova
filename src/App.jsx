@@ -46,6 +46,7 @@ const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
+const About = lazy(() => import("./components/AboutUS"));
 const VideoRoom = lazy(() => import("./components/VideoRoom"));
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
@@ -161,6 +162,7 @@ function AppWithRouter({
           <Route path="/Trainers" element={<TeacherList />} />
           <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
           <Route path="/music-player" element={<MusicPlayer />} />
+             <Route path="/About" element={<About />} />
         </Route>
 
         {/* Routes du tableau de bord */}
