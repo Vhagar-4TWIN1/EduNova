@@ -1,24 +1,27 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { 
-  Timer, 
-  AlertCircle, 
-  CheckCircle, 
-  BarChart2, 
-  Award, 
-  Clock, 
+import { useNavigate } from 'react-router-dom';
+
+import {
+  Timer,
+  AlertCircle,
+  CheckCircle,
+  BarChart2,
+  Award,
+  Clock,
   Volume2,
   VolumeX
 } from 'lucide-react';
 
-const QuizPage = () => {
+const QuizPage = ({ timeLeft, setTimeLeft }) => {
+    const navigate = useNavigate();
+
   // États
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState('');
-  const [timeLeft, setTimeLeft] = useState(50 * 60); // 50 minutes
   const [isLoading, setIsLoading] = useState(true);
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
   const [audioStatus, setAudioStatus] = useState({});
@@ -95,25 +98,25 @@ const QuizPage = () => {
       try {
         setIsLoading(true);
         const response = await axios.get('http://localhost:3000/api/quiz/generate',
-  {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    }
-  });
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            }
+          });
         const API_BASE_URL = 'http://localhost:3000';
         const correctedQuestions = response.data.map(question => ({
           ...question,
-          audioUrl: question.audioUrl 
+          audioUrl: question.audioUrl
             ? `${API_BASE_URL}/${question.audioUrl.replace(/\\/g, '/')}`
             : null,
           answers: question.answers.map(answer => ({
             ...answer,
-            audioUrl: answer.audioUrl 
+            audioUrl: answer.audioUrl
               ? `${API_BASE_URL}/${answer.audioUrl.replace(/\\/g, '/')}`
               : null
           }))
         }));
-        
+
         setQuestions(correctedQuestions);
       } catch (err) {
         setError('Failed to load quiz questions');
@@ -137,7 +140,7 @@ const QuizPage = () => {
   // Gestion du timer
   useEffect(() => {
     if (submitted || timeLeft <= 0) return;
-    
+
     const timer = setInterval(() => {
       setTimeLeft(prev => prev - 1);
     }, 1000);
@@ -165,22 +168,22 @@ const QuizPage = () => {
       return;
     }
 
-   try {
-  const res = await axios.post('http://localhost:3000/api/quiz/submit', {
-    studentId,
-    responses
-  }, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    }
-  });
-  setResults(res.data);
-  setSubmitted(true);
-} catch (err) {
-  console.error('Full error:', err);
-  console.error('Error response:', err.response);
-  setError(`Submission failed: ${err.message}`);
-} finally {
+    try {
+      const res = await axios.post('http://localhost:3000/api/quiz/submit', {
+        studentId,
+        responses
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        }
+      });
+      setResults(res.data);
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Full error:', err);
+      console.error('Error response:', err.response);
+      setError(`Submission failed: ${err.message}`);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -295,12 +298,12 @@ const QuizPage = () => {
               <div className="space-y-6 max-w-2xl mx-auto">
                 {Object.entries(levelStats).map(([level, stat]) => {
                   const score = Math.round((stat.correct / stat.total) * 100);
-                  const colorClass = score >= 80 ? 'bg-blue-100 text-blue-800' 
-                                    : score >= 60 ? 'bg-blue-50 text-blue-700' 
-                                    : 'bg-blue-50 text-blue-600';
-                  const barColor = score >= 80 ? 'bg-[#172746]' 
-                                  : score >= 60 ? 'bg-blue-700' 
-                                  : 'bg-blue-500';
+                  const colorClass = score >= 80 ? 'bg-blue-100 text-blue-800'
+                    : score >= 60 ? 'bg-blue-50 text-blue-700'
+                      : 'bg-blue-50 text-blue-600';
+                  const barColor = score >= 80 ? 'bg-[#172746]'
+                    : score >= 60 ? 'bg-blue-700'
+                      : 'bg-blue-500';
                   return (
                     <div key={level} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                       <div className="flex justify-between items-center mb-4">
@@ -310,8 +313,8 @@ const QuizPage = () => {
                         </span>
                       </div>
                       <div className="w-full bg-gray-100 rounded-full h-2.5 mb-3">
-                        <div 
-                          className={`h-2.5 rounded-full ${barColor}`} 
+                        <div
+                          className={`h-2.5 rounded-full ${barColor}`}
                           style={{ width: `${score}%` }}
                         ></div>
                       </div>
@@ -330,17 +333,17 @@ const QuizPage = () => {
               <h3 className="text-xl font-semibold text-gray-800 mb-4">Feedback</h3>
               {globalScore >= 80 ? (
                 <p className="text-blue-800 max-w-2xl mx-auto">
-                  <span className="font-bold">Congratulations!</span> Your results demonstrate exceptional mastery of the concepts. 
+                  <span className="font-bold">Congratulations!</span> Your results demonstrate exceptional mastery of the concepts.
                   You may consider more advanced challenges to continue progressing.
                 </p>
               ) : globalScore >= 60 ? (
                 <p className="text-blue-700 max-w-2xl mx-auto">
-                  <span className="font-bold">Good performance!</span> You have solid understanding of the basics, 
+                  <span className="font-bold">Good performance!</span> You have solid understanding of the basics,
                   but some areas could benefit from additional review to reach excellence.
                 </p>
               ) : (
                 <p className="text-blue-600 max-w-2xl mx-auto">
-                  <span className="font-bold">Keep practicing!</span> We recommend reviewing basic concepts 
+                  <span className="font-bold">Keep practicing!</span> We recommend reviewing basic concepts
                   and using additional resources to strengthen your understanding.
                 </p>
               )}
@@ -394,15 +397,15 @@ const QuizPage = () => {
                   {timeLeft > 60 ? 'Time remaining' : 'Last minute!'}
                 </div>
               </div>
-              
+
               <div className="w-full sm:w-64">
                 <div className="flex justify-between text-sm text-blue-700 mb-1">
                   <span>Progress</span>
                   <span>{Object.keys(answers).length}/{questions.length}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-[#172746] h-2.5 rounded-full transition-all duration-300" 
+                  <div
+                    className="bg-[#172746] h-2.5 rounded-full transition-all duration-300"
                     style={{ width: `${(Object.keys(answers).length / questions.length) * 100}%` }}
                   ></div>
                 </div>
@@ -430,21 +433,20 @@ const QuizPage = () => {
                       <button
                         onClick={() => playAudio(q.audioUrl, `question-${q._id}`)}
                         disabled={!q.audioUrl || audioStatus[`question-${q._id}`] === 'error'}
-                        className={`flex items-center px-4 py-2 rounded-lg mb-2 ${
-                          !q.audioUrl 
-                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                        className={`flex items-center px-4 py-2 rounded-lg mb-2 ${!q.audioUrl
+                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                             : audioStatus[`question-${q._id}`] === 'playing'
                               ? 'bg-blue-100 text-blue-800'
                               : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                        }`}
+                          }`}
                       >
                         {audioStatus[`question-${q._id}`] === 'error' ? (
                           <VolumeX className="w-5 h-5 mr-2 text-red-500" />
                         ) : (
                           <Volume2 className="w-5 h-5 mr-2" />
                         )}
-                        {!q.audioUrl 
-                          ? 'Audio unavailable' 
+                        {!q.audioUrl
+                          ? 'Audio unavailable'
                           : audioStatus[`question-${q._id}`] === 'playing'
                             ? 'Playing...'
                             : audioStatus[`question-${q._id}`] === 'error'
@@ -452,7 +454,7 @@ const QuizPage = () => {
                               : 'Play Question'
                         }
                       </button>
-                      
+
                       {q.audioText && (
                         <p className="text-sm text-gray-500 italic">
                           <span className="font-medium">Transcript:</span> {q.audioText}
@@ -464,59 +466,57 @@ const QuizPage = () => {
                   )}
 
                   {/* Answers */}
- {/* Réponses pour questions orales */}
-<div className="space-y-3">
-  {q.answers.map((a, aIndex) => (
-    <label
-      key={a._id || `${q._id}-${aIndex}`}
-      htmlFor={`answer-${q._id}-${a._id || aIndex}`}
-      className={`block p-4 rounded-lg border cursor-pointer transition ${
-        answers[q._id] === (a._id || aIndex)
-          ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200'
-          : 'border-gray-300 hover:bg-blue-50'
-      }`}
-    >
-      <div className="flex items-center">
-        <input
-          type="radio"
-          id={`answer-${q._id}-${a._id || aIndex}`}
-          name={`question-${q._id}`}
-          checked={answers[q._id] === (a._id || aIndex)}
-          onChange={() => handleSelect(q._id, a._id || aIndex)}
-          className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-        />
+                  {/* Réponses pour questions orales */}
+                  <div className="space-y-3">
+                    {q.answers.map((a, aIndex) => (
+                      <label
+                        key={a._id || `${q._id}-${aIndex}`}
+                        htmlFor={`answer-${q._id}-${a._id || aIndex}`}
+                        className={`block p-4 rounded-lg border cursor-pointer transition ${answers[q._id] === (a._id || aIndex)
+                            ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200'
+                            : 'border-gray-300 hover:bg-blue-50'
+                          }`}
+                      >
+                        <div className="flex items-center">
+                          <input
+                            type="radio"
+                            id={`answer-${q._id}-${a._id || aIndex}`}
+                            name={`question-${q._id}`}
+                            checked={answers[q._id] === (a._id || aIndex)}
+                            onChange={() => handleSelect(q._id, a._id || aIndex)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                          />
 
-        <div className="ml-3 flex-1">
-          {a.audioUrl ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                playAudio(a.audioUrl, `answer-${q._id}-${a._id || aIndex}`);
-              }}
-              className={`flex items-center text-left w-full ${
-                audioStatus[`answer-${q._id}-${a._id || aIndex}`] === 'playing'
-                  ? 'text-blue-600'
-                  : 'text-gray-700'
-              }`}
-            >
-              {audioStatus[`answer-${q._id}-${a._id || aIndex}`] === 'error' ? (
-                <VolumeX className="w-4 h-4 mr-2 text-red-500" />
-              ) : (
-                <Volume2 className="w-4 h-4 mr-2 flex-shrink-0" />
-              )}
-              {audioStatus[`answer-${q._id}-${a._id || aIndex}`] === 'playing'
-                ? 'Playing answer...'
-                : 'Listen to answer'}
-            </button>
-          ) : (
-            <span className="text-gray-700">{a.text}</span>
-          )}
-        </div>
-      </div>
-    </label>
-  ))}
-</div>
+                          <div className="ml-3 flex-1">
+                            {a.audioUrl ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  playAudio(a.audioUrl, `answer-${q._id}-${a._id || aIndex}`);
+                                }}
+                                className={`flex items-center text-left w-full ${audioStatus[`answer-${q._id}-${a._id || aIndex}`] === 'playing'
+                                    ? 'text-blue-600'
+                                    : 'text-gray-700'
+                                  }`}
+                              >
+                                {audioStatus[`answer-${q._id}-${a._id || aIndex}`] === 'error' ? (
+                                  <VolumeX className="w-4 h-4 mr-2 text-red-500" />
+                                ) : (
+                                  <Volume2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                                )}
+                                {audioStatus[`answer-${q._id}-${a._id || aIndex}`] === 'playing'
+                                  ? 'Playing answer...'
+                                  : 'Listen to answer'}
+                              </button>
+                            ) : (
+                              <span className="text-gray-700">{a.text}</span>
+                            )}
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
 
 
 
@@ -529,11 +529,10 @@ const QuizPage = () => {
               <button
                 onClick={handleSubmit}
                 disabled={submitted || timeLeft === 0 || isLoading}
-                className={`inline-flex items-center px-8 py-4 text-lg font-semibold rounded-lg transition ${
-                  submitted || timeLeft === 0 || isLoading
+                className={`inline-flex items-center px-8 py-4 text-lg font-semibold rounded-lg transition ${submitted || timeLeft === 0 || isLoading
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-[#172746] hover:bg-blue-900 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1'
-                }`}
+                  }`}
               >
                 {isLoading ? (
                   <>
@@ -550,6 +549,19 @@ const QuizPage = () => {
                   </>
                 )}
               </button>
+              {(timeLeft === 0 || submitted) && (
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={() => navigate('/home')}
+                    className="inline-flex items-center px-6 py-3 text-md font-semibold rounded-lg transition bg-gray-600 hover:bg-gray-700 text-white shadow-md hover:shadow-lg"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Return to Home
+                  </button>
+                </div>
+              )}
               {timeLeft > 0 && timeLeft < 60 && (
                 <div className="mt-4 flex items-center justify-center text-sm text-red-600">
                   <Clock className="w-4 h-4 mr-1" />
