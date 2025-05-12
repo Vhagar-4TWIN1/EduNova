@@ -19,20 +19,20 @@ const ListModules = () => {
   const itemsPerPage = 9;
   const navigate = useNavigate();
 
-  const handleCLick = (idModule) => {
-    try {
-      const response = axios.get(`http://localhost:3000/module/${idModule}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      console.log(response.data);
-      console.log("the module idddd issss :", idModule);
-    } catch (error) {
-      console.error("Error fetching module details:", error);
-    }
-    navigate(`/moduleDetails/${idModule._id}`);
-  };
+  const handleCLick = (module) => {
+  try {
+    const response = axios.get(`http://localhost:3000/module/${module._id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    console.log(response.data);
+    console.log("the module is:", module);
+  } catch (error) {
+    console.error("Error fetching module details:", error);
+  }
+  navigate(`/moduleDetails/${module._id}`);
+};
 
   useEffect(() => {
     // Get user role from localStorage when component mounts

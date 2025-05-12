@@ -178,6 +178,15 @@ export default function Header() {
                 <a href="/badges">Badges</a>
               </li>
               
+
+            <li>
+                <a href="/About">About</a>
+              </li>
+
+
+              <li>
+                <a href="/ClassicWordGame">Game</a>
+              </li>
               <li>
                 <a href="/forum">Forum</a>
               </li>
