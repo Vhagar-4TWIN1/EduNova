@@ -11,6 +11,24 @@ export default {
         'red-100': '#fee2e2',
         'red-800': '#991b1b',
       },
+     colors: {
+        primary: '#4f46e5',
+        'primary-dark': '#3730a3',
+        accent: '#059669',
+        'accent-dark': '#047857'
+      },
+       spacing: {
+        18: '4.5rem',
+        22: '5.5rem',
+      },
+      borderRadius: {
+        lg: '1rem',
+        xl: '1.5rem'
+      },
+      fontSize: {
+        '2xs': '.65rem',
+        '3xl': '1.875rem'
+      }
     },
   },
   plugins: [],
