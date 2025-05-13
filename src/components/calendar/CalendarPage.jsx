@@ -19,6 +19,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { Calendar as CalendarIcon, RefreshCw, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -255,111 +256,124 @@ export default function CalendarPage() {
           <LanguageSelector />
         </header>
 
-        <Tabs defaultValue="calendar">
-          <TabsList className="border-b-2 border-gray-200 mb-4">
-            {["calendar","timeline","heatmap","progress","autoplan",].map((v) => (
-              <TabsTrigger key={v} value={v}>
-                {t(`navigation.${v}`)}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+<Tabs defaultValue="calendar" className="w-full">
+  <TabsList className="flex bg-[#172746]/10 rounded-xl p-1 mb-6">
+    {["calendar", "timeline", "heatmap", "progress", "autoplan"].map((v) => (
+      <TabsTrigger
+        key={v}
+        value={v}
+        className={`
+          flex-1 text-center px-4 py-2 text-sm font-medium
+          text-[#172746]
+          hover:bg-[#172746] hover:text-white
+          transition-colors duration-200
+          rounded-lg
+          data-[state=active]:bg-[#172746]
+          data-[state=active]:text-white
+        `}
+      >
+        {t(`navigation.${v}`)}
+      </TabsTrigger>
+    ))}
+  </TabsList>
 
-          <TabsContent value="calendar">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Date picker card */}
-              <Card className="bg-white shadow-md">
-                <CardHeader className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg font-semibold">
-                      Select Date
-                    </CardTitle>
-                    <CardDescription>
-                      Pick a day to view your events
-                    </CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedDate(new Date())}
-                    >
-                      Today
-                    </Button>
-                    <Button onClick={() => setOpenDialog(true)}>
-                      Add Event
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="mt-4">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    month={selectedDate}
-                    onMonthChange={setSelectedDate}
-                  />
-                </CardContent>
-              </Card>
+  {/* ─── Calendar Content ──────────────────────────────────────────────── */}
+  <TabsContent value="calendar" className="p-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Date Picker */}
+      <Card className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <CardHeader className="flex items-center justify-between bg-[#172746] p-4">
+          <div>
+            <CardTitle className="flex items-center text-xl font-bold text-white">
+              <CalendarIcon className="w-6 h-6 mr-2" />
+              Select Date
+            </CardTitle>
+            <CardDescription className="text-sm text-[#E3E8F2]">
+              Pick a day to view your events
+            </CardDescription>
+          </div>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 border-white text-white hover:bg-white hover:text-[#172746] transition"
+              onClick={() => setSelectedDate(new Date())}
+            >
+              <RefreshCw size={14} /> Today
+            </Button>
+            <Button
+              size="sm"
+              className="flex items-center gap-1 bg-white text-[#172746] hover:bg-[#F0F4FF] transition"
+              onClick={() => setOpenDialog(true)}
+            >
+              <Plus size={14} /> Add Event
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 bg-[#F7F9FB]">
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            month={selectedDate}
+            onMonthChange={setSelectedDate}
+            className="rounded-lg"
+          />
+        </CardContent>
+      </Card>
 
-              {/* Events list */}
-              <Card className="p-4 bg-white rounded-xl shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold">
-                    Events on {format(selectedDate, "MMMM d, yyyy")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
-                  {filteredEvents.length === 0 ? (
-                    <p className="text-gray-500">No events for this day.</p>
-                  ) : (
-                    filteredEvents.map((evt) => (
-                      <Card
-                        key={evt.id}
-                        className="p-4 rounded-lg hover:shadow-lg"
-                      >
-                        <CardHeader className="flex justify-between items-start pb-2">
-                          <div>
-                            <CardTitle className="text-md font-semibold">
-                              {evt.title}
-                              {evt.lessonId?.title ? ` - ${evt.lessonId?.title}` : ""}
-                            </CardTitle>
-                            <CardDescription className="text-sm text-gray-600">
-                              {format(parseISO(evt.start), "h:mm a")} –{" "}
-                              {format(parseISO(evt.end), "h:mm a")}
-                            </CardDescription>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Badge
-                              className={`${getEventTypeColor(
-                                evt.type
-                              )} capitalize`}
-                            >
-                              {evt.type}
-                            </Badge>
-                            <Badge
-                              className={`${getPriorityColor(
-                                evt.priority
-                              )} capitalize`}
-                            >
-                              {evt.priority}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        {evt.description && (
-                          <CardContent className="pt-0">
-                            <p className="text-sm text-gray-700">
-                              {evt.description}
-                            </p>
-                          </CardContent>
-                        )}
-                      </Card>
-                    ))
+      {/* Events List */}
+      <Card className="bg-white rounded-2xl shadow-lg flex flex-col">
+        <CardHeader className="border-b pb-2 mb-4 px-6">
+          <CardTitle className="text-xl font-semibold text-[#172746]">
+            Events on {format(selectedDate, "MMMM d, yyyy")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-6 pb-6 flex-1 overflow-y-auto space-y-4">
+          {filteredEvents.length === 0 ? (
+            <p className="text-[#9CA3AF] italic text-center">
+              No events for this day.
+            </p>
+          ) : (
+            filteredEvents.map((evt) => (
+              <div
+                key={evt.id}
+                className="
+                  flex items-start justify-between
+                  p-4 bg-[#F0F4FF] rounded-lg
+                  hover:shadow-md transition
+                "
+              >
+                <div className="flex-1">
+                  <h3 className="text-md font-semibold text-[#172746]">
+                    {evt.title}
+                    {evt.lessonId?.title && ` — ${evt.lessonId.title}`}
+                  </h3>
+                  <p className="text-sm text-[#4B5563] mt-1">
+                    {format(parseISO(evt.start), "h:mm a")} –{" "}
+                    {format(parseISO(evt.end), "h:mm a")}
+                  </p>
+                  {evt.description && (
+                    <p className="mt-2 text-sm text-[#6B7280]">
+                      {evt.description}
+                    </p>
                   )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
+                </div>
+                <div className="flex flex-col space-y-1 ml-4">
+                  <Badge className={`${getEventTypeColor(evt.type)} capitalize`}>
+                    {evt.type}
+                  </Badge>
+                  <Badge className={`${getPriorityColor(evt.priority)} capitalize`}>
+                    {evt.priority}
+                  </Badge>
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  </TabsContent>
           <TabsContent value="timeline">
           <Timeline events={events} refreshEvents={() => eventsQuery.refetch()} />
           </TabsContent>

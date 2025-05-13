@@ -68,7 +68,7 @@ const UserBadges = () => {
 
   return (
     <div className="container-fluid py-4">
-  <h2 className="text-center mb-4 mt-24">User BadgeUser Badges</h2>
+  <h2 className="text-center mb-4 mt-24">User Badges</h2>
   {error && <p className="text-danger text-center">{error}</p>}
 
   <div className="row gx-3 gy-4">

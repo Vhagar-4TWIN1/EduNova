@@ -5,6 +5,14 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, Legend
 } from 'recharts';
+import { Button } from '@/components/ui/button';
+
+const formatReadableDate = (rawDate) => {
+  const year = rawDate.slice(0, 4);
+  const month = rawDate.slice(4, 6);
+  const day = rawDate.slice(6, 8);
+  return `${day}/${month}/${year}`;
+};
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -17,20 +25,19 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/analytics');
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          throw new TypeError("La réponse n'est pas du JSON");
+        if (!contentType.includes('application/json')) {
+          throw new TypeError("Response is not JSON");
         }
-
         const jsonData = await response.json();
+        jsonData.sessions = jsonData.sessions.map(item => ({
+          ...item,
+          date: formatReadableDate(item.date),
+        }));
         setData(jsonData);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching analytics:", error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -41,22 +48,19 @@ const Dashboard = () => {
       try {
         const res = await axios.get('http://localhost:3000/api/performance/stats/usage');
         const { activeHours, abandonEvolution } = res.data;
-
         const hourMap = {};
         activeHours.forEach(item => {
           const hour = item._id.hour;
           hourMap[hour] = (hourMap[hour] || 0) + item.count;
         });
-
         const formattedHours = Object.entries(hourMap).map(([hour, count]) => ({
           hour: `${hour}:00`,
           count
         }));
-
         setActiveHoursData(formattedHours);
         setAbandonEvolution(abandonEvolution || []);
       } catch (err) {
-        console.error('Erreur chargement stats:', err);
+        console.error('Error loading stats:', err);
       }
     };
 
@@ -64,17 +68,50 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  if (loading) return <div>Chargement des données...</div>;
-  if (error) return <div>Erreur: {error}</div>;
-  if (!data) return <div>Aucune donnée disponible</div>;
+  if (loading) return <div className="p-4">Loading data...</div>;
+  if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
+  if (!data) return <div className="p-4">No data available</div>;
+
+  const totalUsers = data.sessions.reduce((sum, d) => sum + Number(d.users), 0);
+  const totalSessions = data.sessions.reduce((sum, d) => sum + Number(d.sessions), 0);
+  const totalViews = data.pages.reduce((sum, d) => sum + Number(d.pageViews), 0);
 
   return (
-    <div className="dashboard p-4 space-y-10">
-      <h2 className="text-2xl font-bold mb-6"> Tableau de bord Analytics</h2>
+    <div className="dashboard p-6 space-y-10">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+        <h2 className="text-3xl font-bold">📊 Analytics Dashboard</h2>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => window.location.href = '/dashboard/performance'}>🎓 Student Performance</Button>
+          <Button variant="outline" onClick={() => window.location.href = '/dashboard/invoices'}>🧾 Activity Logs</Button>
+          <Button variant="outline" onClick={() => window.location.href = '/dashboard/predict'}>🤖 Abandon Prediction</Button>
+          <Button variant="outline" onClick={() => window.location.href = '/dashboard/quizResult'}>📋 Quiz Results</Button>
+        </div>
+      </div>
 
-      <div className="charts grid gap-10">
-        <div className="chart-container bg-white p-5 rounded-xl shadow">
-          <h3 className="text-lg font-semibold mb-4"> Sessions et Utilisateurs</h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="p-4 bg-white rounded-xl shadow text-center">
+          <h4 className="text-sm text-gray-500">👥 Active Users</h4>
+          <p className="text-xl font-bold">{totalUsers}</p>
+        </div>
+        <div className="p-4 bg-white rounded-xl shadow text-center">
+          <h4 className="text-sm text-gray-500">📈 Sessions</h4>
+          <p className="text-xl font-bold">{totalSessions}</p>
+        </div>
+        <div className="p-4 bg-white rounded-xl shadow text-center">
+          <h4 className="text-sm text-gray-500">👁️ Page Views</h4>
+          <p className="text-xl font-bold">{totalViews}</p>
+        </div>
+        <div className="p-4 bg-white rounded-xl shadow text-center">
+          <h4 className="text-sm text-gray-500">⏱️ Abandon Rate</h4>
+          <p className="text-xl font-bold">
+            {abandonEvolution.length > 0 ? `${abandonEvolution.at(-1).rate.toFixed(2)}%` : "—"}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="bg-white p-5 rounded-xl shadow">
+          <h3 className="text-lg font-semibold mb-4">📆 Daily Traffic</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data.sessions}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -83,51 +120,28 @@ const Dashboard = () => {
               <YAxis yAxisId="right" orientation="right" />
               <Tooltip />
               <Legend />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="sessions"
-                stroke="#8884d8"
-                activeDot={{ r: 8 }}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="users"
-                stroke="#82ca9d"
-              />
+              <Line yAxisId="left" type="monotone" dataKey="sessions" stroke="#8884d8" name="Sessions" activeDot={{ r: 8 }} />
+              <Line yAxisId="right" type="monotone" dataKey="users" stroke="#82ca9d" name="Users" />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="chart-container bg-white p-5 rounded-xl shadow">
-          <h3 className="text-lg font-semibold mb-4"> Pages les plus vues</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.pages}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="pagePath" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="pageViews" fill="#ffc658" name="Vues" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="chart-container bg-white p-5 rounded-xl shadow">
-          <h3 className="text-lg font-semibold mb-4"> Heures les plus actives</h3>
+        <div className="bg-white p-5 rounded-xl shadow">
+          <h3 className="text-lg font-semibold mb-4">⏰ Most Active Hours</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={activeHoursData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="hour" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="count" fill="#8884d8" />
+              <Legend />
+              <Bar dataKey="count" fill="#8884d8" name="Users" />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="chart-container bg-white p-5 rounded-xl shadow">
-          <h3 className="text-lg font-semibold mb-4"> Évolution du taux d’abandon</h3>
+        <div className="bg-white p-5 rounded-xl shadow">
+          <h3 className="text-lg font-semibold mb-4">📉 Abandon Rate Over Time</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={abandonEvolution}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -135,7 +149,7 @@ const Dashboard = () => {
               <YAxis unit="%" />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="rate" stroke="#ff6b6b" strokeWidth={2} />
+              <Line type="monotone" dataKey="rate" stroke="#ff6b6b" strokeWidth={2} name="Abandon Rate" />
             </LineChart>
           </ResponsiveContainer>
         </div>
