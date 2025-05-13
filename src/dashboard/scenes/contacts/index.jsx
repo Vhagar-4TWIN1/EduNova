@@ -194,9 +194,9 @@ const QuestionList = () => {
       width: 100,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton onClick={() => handleUpdate(params.row._id)}>
+          {/* <IconButton onClick={() => handleUpdate(params.row._id)}>
             <EditIcon fontSize="small" />
-          </IconButton>
+          </IconButton> */}
           <IconButton onClick={() => handleDeleteClick(params.row._id)}>
             <DeleteIcon fontSize="small" />
           </IconButton>

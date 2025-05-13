@@ -160,8 +160,10 @@ export default function Header() {
                 <a href="/listModules">Modules</a>
               </li>
 
+              
+
               <li>
-                <a href="/quiz">Evaluation</a>
+                      <a href="/exam">Evaluation</a>
               </li>
             
               <li className="dropdown">
@@ -192,9 +194,7 @@ export default function Header() {
               </li>
 
 
-              <li>
-                <a href="/ClassicWordGame">Game</a>
-              </li>
+              
               <li>
                 <a href="/forum">Forum</a>
               </li>
@@ -226,9 +226,7 @@ export default function Header() {
                     <li>
                       <a href="/videochat">Video Call</a>
                     </li>
-                    <li>
-                      <a href="/exam">pass your exam</a>
-                    </li>
+                    
                     {localStorage.getItem("role") === "Admin" && (
                 <li>
                   <a href="/dashboard">Dashboard</a>
