@@ -68,6 +68,8 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
     let isMounted = true;
 
     const fetchSupplementaryLessons = async () => {
+      console.log("Supplementary Lessons:", supplementaryLessons);
+
       try {
         const response = await axios.get(
           `http://localhost:3000/api/study/recommendations/${module._id}`,
@@ -279,7 +281,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
     }
   };
 
-  const renderSupplementaryIcon = (type) => {
+const renderSupplementaryIcon = (type) => {
   switch(type) {
     case 'video':
       return <FaYoutube className="text-red-500 mr-2" />;
@@ -291,6 +293,8 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
       return <FaQuestionCircle className="text-yellow-500 mr-2" />;
     case 'podcast':
       return <FaPodcast className="text-purple-500 mr-2" />;
+    case 'pdf':
+      return <FaFilePdf className="text-red-500 mr-2" />;
     default:
       return <FaExternalLinkAlt className="text-gray-500 mr-2" />;
   }
@@ -598,27 +602,47 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
           {lesson.content || lesson.description || 'No content available'}
         </p>
         
-        {lesson.resourceUrl && (
-          <div className="mt-auto">
-            <a 
-              href={lesson.resourceUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className={`inline-flex items-center px-3 py-1 rounded text-sm ${
-                lesson.type === 'video' ? 'bg-red-50 text-red-700 hover:bg-red-100' :
-                lesson.type === 'article' ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' :
-                lesson.type === 'exercise' ? 'bg-green-50 text-green-700 hover:bg-green-100' :
-                'bg-purple-50 text-purple-700 hover:bg-purple-100'
-              }`}
-            >
-              <FaExternalLinkAlt className="mr-1" />
-              {lesson.type === 'video' ? 'Watch Video' : 
-               lesson.type === 'article' ? 'Read Article' : 
-               lesson.type === 'exercise' ? 'Start Exercise' : 
-               'View Resource'}
-            </a>
-          </div>
-        )}
+       {lesson.resourceUrl && (
+  <div className="mt-auto">
+  {lesson.type === 'pdf' ? (
+  <a 
+  href={`http://localhost:3000/pdf/${lesson.filePath}`} 
+  download={lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`}
+  className="inline-flex items-center px-3 py-1 rounded text-sm bg-red-50 text-red-700 hover:bg-red-100"
+  onClick={(e) => {
+    e.preventDefault();
+    const link = document.createElement('a');
+    link.href = `http://localhost:3000/pdf/${lesson.filePath}`;
+    link.setAttribute('download', lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }}
+>
+  <FaFilePdf className="mr-1" />
+  Download PDF
+</a>
+    ) : (
+      <a 
+        href={lesson.resourceUrl} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className={`inline-flex items-center px-3 py-1 rounded text-sm ${
+          lesson.type === 'video' ? 'bg-red-50 text-red-700 hover:bg-red-100' :
+          lesson.type === 'article' ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' :
+          lesson.type === 'exercise' ? 'bg-green-50 text-green-700 hover:bg-green-100' :
+          'bg-purple-50 text-purple-700 hover:bg-purple-100'
+        }`}
+      >
+        <FaExternalLinkAlt className="mr-1" />
+        {lesson.type === 'video' ? 'Watch Video' : 
+         lesson.type === 'article' ? 'Read Article' : 
+         lesson.type === 'exercise' ? 'Start Exercise' : 
+         'View Resource'}
+      </a>
+    )}
+  </div>
+)}
       </div>
     </div>
   ))}
@@ -626,12 +650,14 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
           </div>
         )}
 
+        
+
         {!module.isMoodle && role === "Teacher" && supplementaryLessons.length > 0 && (
           <div className="supplementary-section mt-8">
             <div className="section-header">
               <h2 className="supplementary-title">
                 <FaBook className="mr-2" />
-                Supplementary Resources (Teacher View)
+                Supplementary Resources 
               </h2>
             </div>
             
