@@ -44,10 +44,13 @@ const Message = lazy(() => import("./components/messga"));
 const Dashboard = lazy(() => import("./dashboard/scenes/dashboard"));
 const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
+const Predict = lazy(() => import("./dashboard/scenes/invoices/predict"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
 const About = lazy(() => import("./components/AboutUS"));
 const VideoRoom = lazy(() => import("./components/VideoRoom"));
+const AddSupplementaryLesson = lazy(() => import("./components/AddSupplementaryLesson"));
+
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
 );
@@ -147,7 +150,7 @@ function AppWithRouter({
           <Route path="/contact" element={<Contact />} />
           <Route path="/calendar" element={<CalendarPage /> } />
           <Route path="/videochat" element={<VideoRoom />} /> 
-
+          <Route path="/add-supplementary-lesson/:id" element={<AddSupplementaryLesson />} />
           <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
 
           <Route path="/quizz" element={<Quizz />} />
@@ -172,12 +175,7 @@ function AppWithRouter({
             <div className="app">
               <Sidebar isSidebar={isSidebar} className="sidebar" />
               <div className="content">
-                <div className="main-header">
-                  <Topbar
-                    setIsSidebar={setIsSidebar}
-                    onSearchChange={setSearchQuery}
-                  />
-                </div>
+                
                 <Routes>
                   <Route
                     path="/"
@@ -264,6 +262,15 @@ function AppWithRouter({
                       </PrivateRoute>
                     }
                   />
+
+                  <Route
+                    path="/predict"
+                    element={
+                        <Predict />
+                      
+                    }
+                  />
+
                   <Route
                     path="/performance"
                     element={

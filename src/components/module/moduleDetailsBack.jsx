@@ -10,7 +10,13 @@ const ModuleDetailsBack = () => {
   useEffect(() => {
     const fetchModuleDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/module/${id}`);
+        const response = await axios.get(`http://localhost:3000/module/${id}`,
+           {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+        );
         console.log("Module Details:", response.data); // Debugging
         setModule(response.data);
       } catch (error) {
