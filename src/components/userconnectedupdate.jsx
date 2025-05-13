@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import * as faceapi from "@vladmandic/face-api";
 import { countries } from "./countries";
+import { Link } from 'react-router-dom';
+
 import {
   TextField,
   Button,
@@ -736,6 +738,27 @@ const ActiveFilterIndicator = styled(Box)(({ theme }) => ({
   zIndex: 2,
 }));
 
+const BadgeContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  flexWrap: "wrap",
+  gap: "12px",
+  marginTop: "16px",
+}));
+
+const Badge = styled(Box)(({ theme }) => ({
+  width: "50px",
+  height: "50px",
+  borderRadius: "50%",
+  overflow: "hidden",
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+  "& img": {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+}));
+
 const UserProfile = () => {
   // Basic user information
   const [userData, setUserData] = useState({
@@ -850,6 +873,8 @@ const UserProfile = () => {
   // In the UserProfile component, add a state for the filter preview image
   const [filterPreviewImage, setFilterPreviewImage] = useState(null);
 
+  const [badges, setBadges] = useState([]);
+
   useEffect(() => {
     if (!token) {
       alert("Token is missing. Please log in.");
@@ -937,6 +962,25 @@ const UserProfile = () => {
         setLoading(false);
       });
   }, [token]);
+
+  useEffect(() => {
+    const fetchBadges = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+
+        const response = await axios.get(`http://localhost:3000/api/users/badges/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setBadges(response.data);
+      } catch (err) {
+        console.error("Error fetching badges:", err);
+      }
+    };
+
+    fetchBadges();
+  }, []);
 
   // Function to handle camera dialog open with improved error handling
   const handleOpenCameraDialog = async () => {
@@ -2441,6 +2485,31 @@ const UserProfile = () => {
                   />
                 )}
               </ProfileImageContainer>
+
+              {/* Display Achieved Badges */}
+              <BadgeContainer>
+  {badges.length > 0 ? (
+    badges.map((badge) => (
+      <Link
+        key={badge._id}
+        to={`/badge/${badge._id}`}
+        style={{ textDecoration: 'none' }}
+      >
+        <Badge>
+          <img
+            src={`http://localhost:3000/uploads/badges/${badge.image}`}
+            alt={badge.title}
+          />
+        </Badge>
+      </Link>
+    ))
+  ) : (
+    <Typography variant="caption" sx={{ color: "text.secondary" }}>
+      No badges achieved yet.
+    </Typography>
+  )}
+</BadgeContainer>
+
 
               <FormSection
                 component={motion.div}
