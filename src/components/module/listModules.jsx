@@ -46,7 +46,7 @@ const ListModules = () => {
       console.log("role: ", role);
 
       try {
-        if (role == "Student") {
+        if (role == "Student" || role == "Admin" ) {
           const email = localStorage.getItem("email");
           const moodleRes = await fetch(
             `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=${email}&moodlewsrestformat=json`
@@ -757,7 +757,7 @@ const ListModules = () => {
               />
             </div>
 
-            {userRole === "Teacher" && (
+            {userRole === "Teacher"|| "Admin" && (
               <button
                 className="add-module-button"
                 onClick={() => navigate("/addModule")}
@@ -815,7 +815,7 @@ const ListModules = () => {
                   </div>
                   <h3>No modules found</h3>
                   <p>Try adjusting your search or create a new module</p>
-                  {userRole === "Teacher" && (
+                  {userRole === "Teacher" || "Admin" && (
                     <button
                       className="empty-button"
                       onClick={() => navigate("/addModule")}
@@ -895,7 +895,7 @@ const ListModules = () => {
                                     </svg>
                                   </button>
 
-                                  {userRole === "Teacher" && (
+                                  {userRole === "Teacher"|| "Admin" && (
                                     <>
                                       <button
                                         className="action-icon"
