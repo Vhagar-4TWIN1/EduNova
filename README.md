@@ -1,5 +1,5 @@
 # [EduNova - AI-Powered Learning Platform](https://your-link-here.com)  
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Vhagar-4TWIN1/EduNova_Back.git)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Vhagar-4TWIN1/EduNova.git)
 
 ![EduNova Preview](Edunova.png)
 
