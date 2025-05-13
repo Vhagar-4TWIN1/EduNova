@@ -1,86 +1,87 @@
+// AboutSection.jsx
+import React from 'react';
 import { motion } from 'framer-motion';
 import './about.css';
 
-// Animation variants
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.2 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 },
-};
-
-// EduNova-specific selling points
 const points = [
   'Hands-on courses built by industry experts',
   'One-on-one mentorship tailored to your journey',
   'Custom learning paths for your career goals',
-  'Certification preparation and portfolio reviews',
+  'Certification prep & portfolio reviews',
 ];
 
-const AboutSection = () => {
-  return (
-    <section id="about" className="about-section section py-5">
-      <motion.div
-        className=" position-relative"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-        variants={containerVariants}
-        style={{ padding: ' 0 2rem' }}
-      >
-        <div className="row gy-5 align-items-center">
-          {/* Text & Features */}
-          <div className="col-lg-6">
-            <motion.h2
-              className="headline mb-3"
-              variants={itemVariants}
-            >
-              Learn. Build. Succeed with EduNova
-            </motion.h2>
-
-            <motion.p className="subtitle mb-4" variants={itemVariants}>
-              EduNova empowers you to master in-demand tech skills through
-              project-based learning, expert guidance, and a roadmap built just
-              for you.
-            </motion.p>
-
-            <motion.ul className="list-unstyled mb-4" variants={containerVariants}>
-              {points.map((text, idx) => (
-                <motion.li
-                  key={idx}
-                  className="d-flex align-items-start mb-3 feature-item"
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <i className="bi bi-check-circle-fill text-gradient me-3 fs-4" />
-                  <span>{text}</span>
-                </motion.li>
-              ))}
-            </motion.ul>
-
-            <motion.div variants={itemVariants}>
-              <button className="btn btn-gradient btn-lg">
-                Try EduNova Free for 7 Days
-              </button>
-            </motion.div>
-          </div>
-
-          {/* Illustration */}
-          <div className="col-lg-6">
-            <motion.img
-              src="/assets/img/about.jpg"
-              alt="Students learning on EduNova"
-              className="img-fluid rounded shadow-lg image-hero"
-              variants={itemVariants}
-            />
-          </div>
-        </div>
-      </motion.div>
-    </section>
-  );
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.15 } },
+};
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0 },
 };
 
-export default AboutSection;
+export default function AboutSection() {
+  return (
+    <section id="about" className="edn-about-wrapper">
+      <div className="edn-shape edn-shape--circle" />
+      <div className="edn-shape edn-shape--blob" />
+
+      <div className="edn-content-grid">
+        {/* Text card */}
+        <motion.div
+          className="edn-text-card"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={container}
+        >
+          <motion.h2 className="edn-headline" variants={item}>
+            Learn. Build. Succeed with EduNova
+          </motion.h2>
+
+          <motion.p className="edn-subtitle" variants={item}>
+            <span className="edn-highlight">EduNova</span> empowers you to master
+            in-demand tech skills through project-based learning, expert guidance,
+            and a personalized roadmap.
+          </motion.p>
+
+          <motion.ul className="edn-features-list" variants={container}>
+            {points.map((text, i) => (
+              <motion.li
+                key={i}
+                className="edn-feature-item"
+                variants={item}
+                whileHover={{ x: 4 }}
+              >
+                <i className="bi bi-check-circle-fill edn-feature-icon" />
+                <span className="edn-feature-text">{text}</span>
+              </motion.li>
+            ))}
+          </motion.ul>
+
+          <motion.div className="edn-cta-wrap" variants={item}>
+            <button className="edn-btn">
+              Join Now
+            </button>
+          </motion.div>
+        </motion.div>
+
+        {/* Egg-shape image */}
+        <motion.div
+          className="edn-image-wrapper"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={item}
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: 'spring', stiffness: 80 }}
+        >
+          <img
+            src="/assets/img/about.jpg"
+            alt="Students learning"
+            className="edn-image"
+          />
+        </motion.div>
+      </div>
+    </section>
+  );
+}

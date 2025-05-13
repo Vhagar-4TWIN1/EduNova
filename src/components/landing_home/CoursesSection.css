@@ -1,61 +1,98 @@
-.carousel-wrapper {
-    position: relative;
-    height: 100%;
-  }
-  
-  .carousel-track {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    overflow-y: hidden;
-    height: 100vh;
-    min-height: 100vh !important;
+:root {
+  --primary:    #0b1c3f;
+  --secondary:  #1a2d52;
+  --accent:     #ff6a3d;
+  --bg-light:   #f5f9ff;
+}
 
-    scrollbar-width: none;       
-    -ms-overflow-style: none;    
-  }
-  .carousel-track::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .carousel-slide {
-    flex: 0 0 calc(100% / var(--slides-per-view));
-    scroll-snap-align: start;
-    margin-right: 20px;
-  }
-  
-  .carousel-slide:last-child {
-    margin-right: 0;
-  }
-  
-  .carousel-btn {
-    position: absolute;
-    top: 45%;
-    transform: translateY(-50%);
-    background: rgba(255,255,255,0.8);
-    border: none;
-    font-size: 2rem;
-    line-height: 1;
-    padding: 0.25rem 0.75rem;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    cursor: pointer;
-    z-index: 10;
-  }
-  .carousel-btn.prev {
-    left: 0;
-  }
-  .carousel-btn.next {
-    right: 0;
-  }
-  .carousel-btn:focus {
-    outline: none;
-  }
-  
-  @media (max-width: 576px) {
-    .carousel-btn {
-      display: none;
-    }
-  }
-  
+/* Section */
+.edn-courses-section {
+  padding: 4rem 1rem;
+  background: var(--bg-light);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative wave under heading */
+.edn-courses-section::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 80px;
+  background: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1440 80' xmlns='http://www.w3.org/2000/svg'><path fill='%23ffffff' d='M0,80 C360,0 1080,160 1440,80 L1440,80 L0,80 Z'/></svg>") bottom/cover no-repeat;
+  z-index: 1;
+}
+
+/* Title */
+.edn-section-title {
+  position: relative;
+  z-index: 2;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Carousel */
+.edn-carousel-wrapper {
+  position: relative;
+  z-index: 2;
+}
+
+.edn-carousel-track {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 1rem;
+  cursor: grab;
+}
+.edn-carousel-track:active {
+  cursor: grabbing;
+}
+.edn-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+.edn-carousel-track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Slide */
+.edn-carousel-slide {
+  flex: 0 0 calc(100% / var(--slides-per-view) - 1rem);
+  scroll-snap-align: start;
+}
+
+/* Buttons */
+.edn-carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-light);
+  border: none;
+  font-size: 2rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  cursor: pointer;
+  z-index: 3;
+}
+.edn-carousel-btn.prev { left: 1rem; }
+.edn-carousel-btn.next { right: 1rem; }
+.edn-carousel-btn:focus { outline: none; }
+
+/* Hide on mobile */
+@media (max-width: 576px) {
+  .edn-carousel-btn { display: none; }
+}
+
+/* No lessons */
+.edn-no-lessons {
+  text-align: center;
+  color: #777;
+  margin-top: 2rem;
+}

@@ -1,0 +1,127 @@
+/* MetricsSection.css */
+:root {
+  --edu-navy:    #001f3f;
+  --edu-light:   #eef4ff;
+  --text-dark:   #222;
+  --text-muted:  #555;
+}
+
+.metrics-section {
+  position: relative;
+  background: var(--edu-light);
+  padding: 6rem 1rem 4rem;
+  overflow: hidden;
+}
+
+/* Background blobs */
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0,31,63,0.1);
+  z-index: 0;
+}
+.shape-1 {
+  width: 250px;
+  height: 250px;
+  top: -60px;
+  left: -40px;
+}
+.shape-2 {
+  width: 200px;
+  height: 200px;
+  bottom: -50px;
+  right: -30px;
+}
+
+/* Header */
+.metrics-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 3rem;
+  z-index: 1;
+}
+.metrics-header h2 {
+  font-size: 2.75rem;
+  color: var(--edu-navy);
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+.metrics-header p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* Grid */
+.metrics-container {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+/* Cards */
+.metric-card {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 2.5rem 1.5rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.metric-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.12);
+}
+
+/* Icon */
+.icon-wrapper {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1rem;
+  background: var(--edu-navy);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+/* Numbers & labels */
+.metric-card h3 {
+  font-size: 2.25rem;
+  color: var(--edu-navy);
+  margin: 0.5rem 0 0.75rem;
+}
+.metric-card p {
+  font-size: 1rem;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .metrics-section {
+    padding: 4rem 1rem 2rem;
+  }
+  .metrics-header h2 {
+    font-size: 2rem;
+  }
+  .metrics-container {
+    gap: 1.5rem;
+  }
+  .metric-card {
+    padding: 2rem 1rem;
+  }
+  .icon-wrapper {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+  .metric-card h3 {
+    font-size: 1.75rem;
+  }
+}
