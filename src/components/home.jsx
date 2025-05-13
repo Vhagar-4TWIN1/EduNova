@@ -5,8 +5,11 @@ import HeroSection from './landing_home/HeroSection';
 
 import AboutSection from '../components/landing_home/AboutSection';
 import CoursesSection from '../components/landing_home/CoursesSection';
-import EduNovaFAQ from './landing_home/faq';
-
+import EduNovaFAQ from '../components/landing_home/FAQ';
+import MetricsSection from './landing_home/MetricsSection';
+import NewsletterSection from './landing_home/NewsletterSection';
+import MentorsSection from './landing_home/MentorsSection';
+import VideoSection from './landing_home/VideoSection';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -59,30 +62,19 @@ export default function Home() {
   return (
     <main>
       <HeroSection />
-      <AboutSection />
+      <AboutSection />      
+     <MetricsSection />
       <div
       style={{
         maxHeight: '100vh',
         overflow: 'hidden',
       }}
     >
-      <video
-        src="/assets/video.mp4"
-        controls
-        muted
-        loop
-        style={{
-          width: '100%',
-          height: '100vh',
-          objectFit: 'cover',
-        }}
-      >
-        Sorry, your browser doesn’t support embedded videos.
-      </video>
+      <VideoSection/>
     </div>
-
-      <CoursesSection lessons={lessons} />
-    
+ <MentorsSection />
+     <CoursesSection lessons={lessons} />
+      <NewsletterSection />
       <EduNovaFAQ />
     </main>
   );

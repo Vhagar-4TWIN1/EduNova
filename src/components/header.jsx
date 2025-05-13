@@ -25,6 +25,7 @@ export default function Header() {
   const [showAITutor, setShowAITutor] = useState(false);
   const [showGenerateResume, setShowGenerateResume] = useState(false);
   const [showAvatar, setShowAvatar] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const firstName = localStorage.getItem("firstName");
   const lastName = localStorage.getItem("lastName");
@@ -104,6 +105,7 @@ export default function Header() {
 
   const toggleDropdown = () => setDropdownOpen(v => !v);
   const toggleAITutor = () => setShowAITutor(v => !v);
+  const toggleMobileNav = () => setMobileNavOpen(v => !v);
   const toggleGenerateResume = () => setShowGenerateResume(v => !v);
 
   const scrolled = scrollPos > 0;
@@ -138,9 +140,15 @@ export default function Header() {
             <img src="../assets/logolog.png" alt="EduNova" style={{ height: "1.5em" ,  }} />
             <h1 style={{ margin: 0, fontSize: "1.5rem" }}>EduNova</h1>
           </a>
-
+         <button
+           className="mobile-nav-toggle d-xl-none"
+           onClick={toggleMobileNav}
+           aria-label="Toggle navigation"
+        >
+            <i className={`bi ${mobileNavOpen ? "bi-x" : "bi-list"}`} />
+          </button>
           {/* Navigation */}
-          <nav id="navmenu" className="navmenu">
+          <nav id="navmenu" className={`navmenu d-none d-xl-flex ${mobileNavOpen ? "navmenu-mobile-open" : ""}`}>
             <ul>
               <li>
                 <a href="/home" className={pathname === "/home" ? "active" : ""}>

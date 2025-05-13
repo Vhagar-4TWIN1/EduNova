@@ -1,59 +1,96 @@
+import React from 'react';
 import { motion } from 'framer-motion';
+import './Card.css';
 
-const Card = ({ img, title, description = '', badge, footer }) => {
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+  hover: { boxShadow: '0 12px 24px rgba(0,0,0,0.15)', y: -6 },
+};
+
+const Card = ({ img, title, description = '', badge, footer, mediaPoster }) => {
+  const url = img || '';
+  const ext = url.split('.').pop().split('?')[0].toLowerCase();
+  let type = 'image';
+  if (['mp4','webm','ogg'].includes(ext)) type = 'video';
+  else if (['mp3','wav','aac','m4a','flac'].includes(ext)) type = 'audio';
+  else if (ext === 'pdf') type = 'pdf';
+
   const sentences = description
     .trim()
-    .match(/[^\.!\?]+[\.!\?]+/g)    
-    || [description];
-
+    .match(/[^\.!\?]+[\.!\?]+/g) || [description];
   const useList = sentences.length > 3;
   const displayItems = useList ? sentences.slice(0, 3) : [description];
 
   return (
     <motion.div
-      className="card h-auto w-100 shadow-sm border-0"
-      whileHover={{ y: -5, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}
+      className="edn-card"
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      whileHover="hover"
       transition={{ type: 'spring', stiffness: 300 }}
-      style={{ display: 'flex', flexDirection: 'column' }}
     >
-      {img && (
-        <div
-          className="card-img-top-wrapper"
-          style={{
-            overflow: 'hidden',
-            height: '50vh',
-            borderTopLeftRadius: '.25rem',
-            borderTopRightRadius: '.25rem',
-          }}
-        >
-          <img
-            src={img}
-            alt={title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
+      {url && (
+        <div className="edn-card-media-wrap">
+          {type === 'video' && (
+            <video
+              className="edn-card-video"
+              src={url}
+              poster={mediaPoster}
+              controls
+            />
+          )}
+          {type === 'audio' && (
+            <audio className="edn-card-audio" src={url} controls />
+          )}
+          {type === 'pdf' && (
+            <object
+              className="edn-card-pdf"
+              data={url}
+              type="application/pdf"
+            >
+              <a href={url} target="_blank" rel="noopener">
+                View PDF
+              </a>
+            </object>
+          )}
+          {type === 'image' && (
+            <>
+              <motion.img
+                src={url}
+                alt={title}
+                className="edn-card-img"
+                variants={{ hover: { scale: 1.1 } }}
+                transition={{ duration: 0.5 }}
+              />
+              <motion.div
+                className="edn-card-img-overlay"
+                variants={{ hover: { opacity: 1 } }}
+                transition={{ duration: 0.3 }}
+              >
+                <i className="bi bi-play-circle-fill overlay-icon" />
+              </motion.div>
+            </>
+          )}
         </div>
       )}
 
-      <div className="card-body d-flex flex-column">
-        {badge && <span className="badge bg-primary mb-2">{badge}</span>}
-        <h5 className="fw-semibold mb-2">{title}</h5>
-
+      <div className="edn-card-body">
+        {badge && <span className="edn-card-badge">{badge}</span>}
+        <h5 className="edn-card-title">{title}</h5>
         {useList ? (
-          <ul className="text-muted small" style={{ paddingLeft: '1rem' }}>
-            {displayItems.map((sent, idx) => (
-              <li key={idx}>{sent.trim()}</li>
+          <ul className="edn-card-list">
+            {displayItems.map((s, i) => (
+              <li key={i}>{s.trim()}</li>
             ))}
           </ul>
         ) : (
-          <p className="text-muted small flex-grow-1">{description}</p>
+          <p className="edn-card-text">{description}</p>
         )}
       </div>
 
-      {footer && (
-        <div className="card-footer bg-white d-flex justify-content-between small text-muted">
-          {footer}
-        </div>
-      )}
+      {footer && <div className="edn-card-footer">{footer}</div>}
     </motion.div>
   );
 };

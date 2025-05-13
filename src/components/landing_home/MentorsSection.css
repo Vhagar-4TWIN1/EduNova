@@ -1,0 +1,154 @@
+:root {
+  --edu-white:      #ffffff;
+  --edu-lightgrey:  #f5f7fa;
+  --edu-navy:       #001f3f;
+  --edu-accent:     #00aaff;
+  --edu-card-bg:    #ffffff;
+  --edu-shadow:     rgba(0,0,0,0.05);
+}
+
+/* Section container with curved edges */
+.mentors-section {
+  position: relative;
+  background: var(--edu-lightgrey);
+  color: var(--edu-navy);
+  padding: 6rem 1rem 4rem;
+  clip-path: polygon(0 8%, 100% 0, 100% 92%, 0% 100%);
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Decorative white wave at top */
+.mentors-section::before {
+  content: '';
+  position: absolute;
+  top: -5%;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  background: var(--edu-white);
+  clip-path: ellipse(70% 100% at 50% 0%);
+  z-index: 0;
+}
+/* Decorative white wave at bottom */
+.mentors-section::after {
+  content: '';
+  position: absolute;
+  bottom: -5%;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  background: var(--edu-white);
+  clip-path: ellipse(70% 100% at 50% 100%);
+  z-index: 0;
+}
+
+/* Header */
+.mentors-header {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+.section-title {
+  font-size: 2.75rem;
+  margin-bottom: 0.5rem;
+  color: var(--edu-navy);
+  position: relative;
+}
+/* Underline accent */
+.section-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: var(--edu-accent);
+  margin: 0.5rem auto 0;
+}
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--edu-navy);
+  opacity: 0.75;
+}
+
+/* Grid */
+.mentors-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Card */
+.mentor-card {
+  background: var(--edu-card-bg);
+  border-radius: 1rem;
+  padding: 6rem 1.5rem 2rem;
+  box-shadow: 0 8px 24px var(--edu-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+/* Hover lift */
+.mentor-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 48px var(--edu-shadow);
+}
+
+/* Avatar “badge” */
+.avatar-wrapper {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--edu-white);
+  border: 4px solid var(--edu-accent);
+  overflow: hidden;
+  box-shadow: 0 4px 16px var(--edu-shadow);
+  z-index: 2;
+}
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Name & role */
+.mentor-name {
+  margin-top: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.role-badge {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: var(--edu-accent);
+  color: var(--edu-white);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Mobile tweaks */
+@media (max-width: 576px) {
+  .mentors-section {
+    padding: 4rem 1rem 2rem;
+    clip-path: none;
+  }
+  .section-title {
+    font-size: 2rem;
+  }
+  .mentor-card {
+    padding-top: 4.5rem;
+  }
+  .avatar-wrapper {
+    width: 100px;
+    height: 100px;
+    top: -50px;
+  }
+}

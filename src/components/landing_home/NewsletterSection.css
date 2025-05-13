@@ -1,0 +1,145 @@
+:root {
+  --color-primary:       #001f3f;                   /* was --edu-navy */
+  --color-accent:        #00aaff;                   /* was --edu-accent */
+  --particle-opacity:    rgba(255,255,255,0.08);    /* was --particle */
+  --text-on-primary:     #ffffff;                   /* was --text-light */
+  --text-on-primary-muted: rgba(255,255,255,0.7);   /* was --text-muted */
+}
+
+/* Force every piece of text white */
+.newsletter-section,
+.newsletter-section * {
+  color: var(--text-on-primary) !important;
+}
+
+/* Section & abstract blobs */
+.newsletter-section {
+  position: relative;
+  padding: 8rem 1rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    #001a30 100%
+  );
+  overflow: hidden;
+}
+
+.newsletter-section::before,
+.newsletter-section::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  transform: rotate(45deg);
+}
+.newsletter-section::before {
+  width: 400px;
+  height: 400px;
+  top: -150px;
+  left: -100px;
+}
+.newsletter-section::after {
+  width: 300px;
+  height: 300px;
+  bottom: -120px;
+  right: -80px;
+}
+
+/* Placeholder color */
+.newsletter-section input::placeholder {
+  color: var(--text-on-primary-muted) !important;
+}
+
+/* Moving particle background */
+.particles {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, var(--particle-opacity) 2px, transparent 0),
+    radial-gradient(circle at 80% 70%, var(--particle-opacity) 2px, transparent 0),
+    radial-gradient(circle at 50% 50%, var(--particle-opacity) 3px, transparent 0);
+  background-size: 100% 100%;
+  animation: drift 15s linear infinite;
+  z-index: 0;
+}
+@keyframes drift {
+  from { transform: translate(0,0); }
+  to   { transform: translate(50px, -50px); }
+}
+
+/* Content wrapper */
+.newsletter-content {
+  position: relative;
+  z-index: 1;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Headline */
+.headline {
+  font-size: 2.25rem;
+  margin-bottom: 2rem;
+  line-height: 1.2;
+}
+
+/* Rotating word */
+.rotate {
+  display: inline-block;
+  transition: opacity 0.5s ease;
+}
+
+/* Frosted form card */
+.form-card {
+  display: flex;
+  overflow: hidden;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 1rem;
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+  margin: 0 auto;
+  max-width: 400px;
+}
+
+/* Input styling */
+.form-card input {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+}
+
+/* Button styling */
+.form-card button {
+  background: var(--color-accent);
+  border: none;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.form-card button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.form-card button:not(:disabled):hover {
+  background: #0088cc;
+}
+
+/* Thank-you message */
+.thankyou {
+  font-size: 1.25rem;
+  background: rgba(255,255,255,0.15);
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+  .headline { font-size: 1.75rem; }
+  .form-card { clip-path: none; }
+}
