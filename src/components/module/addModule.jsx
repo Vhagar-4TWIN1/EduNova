@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../Header';
-import Footer from '../Footer';
+import Header from '../header';
+import Footer from '../footer';
 import { useNavigate } from 'react-router-dom';
 
 import './AddModule.css';
