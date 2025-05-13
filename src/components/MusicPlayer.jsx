@@ -11,7 +11,7 @@ import {
 } from 'react-bootstrap';
 import YouTube from 'react-youtube';
 import axios from 'axios';
-import '../assets/css/MusicPlayer.css'; // Import the CSS file
+import './MusicPlayer.css'; // Import the CSS file
 
 const formatTime = (seconds) => {
   const mins = Math.floor(seconds / 60);
