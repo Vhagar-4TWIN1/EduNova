@@ -11,6 +11,7 @@ import {
 } from 'react-bootstrap';
 import YouTube from 'react-youtube';
 import axios from 'axios';
+import '../assets/css/MusicPlayer.css'; // Import the CSS file
 
 const formatTime = (seconds) => {
   const mins = Math.floor(seconds / 60);
@@ -225,7 +226,7 @@ const MusicPlayer = () => {
     loadTracks();
   }, []);
 
-   useEffect(() => {
+  useEffect(() => {
     if (!audioRef.current || !tracks.length || !userInteracted) return;
 
     const currentTrack = tracks[currentTrackIndex];
@@ -324,20 +325,43 @@ const MusicPlayer = () => {
     }
   }, [currentTrackIndex, tracks]);
 
-const downloadTrack = async (track) => {
-  try {
-    setDownloadProgress(prev => ({
-      ...prev,
-      [track.id]: { progress: 0, status: 'downloading' }
-    }));
+  const downloadTrack = async (track) => {
+    try {
+      setDownloadProgress(prev => ({
+        ...prev,
+        [track.id]: { progress: 0, status: 'downloading' }
+      }));
 
-    let response;
-    
-    if (track.isYouTube) {
-      response = await axios.post(
-        `http://localhost:3000/api/music/youtube/save/${track.id}`,
-        {},
-        {
+      let response;
+      
+      if (track.isYouTube) {
+        response = await axios.post(
+          `http://localhost:3000/api/music/youtube/save/${track.id}`,
+          {},
+          {
+            onDownloadProgress: (progressEvent) => {
+              const percentCompleted = progressEvent.total ? 
+                Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
+              setDownloadProgress(prev => ({
+                ...prev,
+                [track.id]: { progress: percentCompleted, status: 'downloading' }
+              }));
+            },
+            timeout: 120000 // 2 minute timeout
+          }
+        );
+
+        // Refresh tracks after download
+        const tracksRes = await axios.get('http://localhost:3000/api/music/tracks');
+        setTracks(tracksRes.data);
+      } else {
+        // For local files, use the full URL
+        const downloadUrl = track.url.startsWith('http') ? 
+          track.url : 
+          `http://localhost:3000${track.url}`;
+        
+        response = await axios.get(downloadUrl, {
+          responseType: 'blob',
           onDownloadProgress: (progressEvent) => {
             const percentCompleted = progressEvent.total ? 
               Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
@@ -346,63 +370,40 @@ const downloadTrack = async (track) => {
               [track.id]: { progress: percentCompleted, status: 'downloading' }
             }));
           },
-          timeout: 120000 // 2 minute timeout
-        }
-      );
+          timeout: 60000
+        });
 
-      // Refresh tracks after download
-      const tracksRes = await axios.get('http://localhost:3000/api/music/tracks');
-      setTracks(tracksRes.data);
-    } else {
-      // For local files, use the full URL
-      const downloadUrl = track.url.startsWith('http') ? 
-        track.url : 
-        `http://localhost:3000${track.url}`;
-      
-      response = await axios.get(downloadUrl, {
-        responseType: 'blob',
-        onDownloadProgress: (progressEvent) => {
-          const percentCompleted = progressEvent.total ? 
-            Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
-          setDownloadProgress(prev => ({
-            ...prev,
-            [track.id]: { progress: percentCompleted, status: 'downloading' }
-          }));
-        },
-        timeout: 60000
-      });
+        // Create offline version
+        const blob = new Blob([response.data]);
+        const objectUrl = URL.createObjectURL(blob);
 
-      // Create offline version
-      const blob = new Blob([response.data]);
-      const objectUrl = URL.createObjectURL(blob);
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        const offlineTrack = {
-          ...track,
-          offlineUrl: objectUrl,
-          offlineData: reader.result,
-          isOffline: true
+        const reader = new FileReader();
+        reader.onload = () => {
+          const offlineTrack = {
+            ...track,
+            offlineUrl: objectUrl,
+            offlineData: reader.result,
+            isOffline: true
+          };
+          setOfflineTracks(prev => [...prev.filter(t => t.id !== track.id), offlineTrack]);
         };
-        setOfflineTracks(prev => [...prev.filter(t => t.id !== track.id), offlineTrack]);
-      };
-      reader.readAsDataURL(blob);
+        reader.readAsDataURL(blob);
+      }
+
+      setDownloadProgress(prev => ({
+        ...prev,
+        [track.id]: { progress: 100, status: 'completed' }
+      }));
+
+    } catch (err) {
+      console.error("Download error:", err);
+      setError(err.response?.data?.error || err.message || "Download failed");
+      setDownloadProgress(prev => ({
+        ...prev,
+        [track.id]: { progress: 0, status: 'error', error: err.message }
+      }));
     }
-
-    setDownloadProgress(prev => ({
-      ...prev,
-      [track.id]: { progress: 100, status: 'completed' }
-    }));
-
-  } catch (err) {
-    console.error("Download error:", err);
-    setError(err.response?.data?.error || err.message || "Download failed");
-    setDownloadProgress(prev => ({
-      ...prev,
-      [track.id]: { progress: 0, status: 'error', error: err.message }
-    }));
-  }
-};
+  };
 
   const removeOfflineTrack = (trackId) => {
     const track = offlineTracks.find(t => t.id === trackId);
@@ -471,11 +472,11 @@ const downloadTrack = async (track) => {
     setError(null);
     try {
       const response = await axios.get('http://localhost:3000/api/music/youtube/search', {
-  params: { query: searchQuery },
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-  },
-});
+        params: { query: searchQuery },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
 
       setSearchResults(response.data);
     } catch (err) {
@@ -504,448 +505,386 @@ const downloadTrack = async (track) => {
   const currentTrack = tracks[currentTrackIndex] || {};
   const showProgress = !isAudioLoading && duration > 0;
 
- return (
-  <div className={`music-player-container ${darkMode ? 'bg-dark text-light' : ''}`} style={{
-    minHeight: '100vh',
-    padding: '20px',
-    display: 'flex',
-    gap: '20px',
-    width: '100%',
-    overflowX: 'hidden',
-    position: 'relative'
-  }}>
-    {/* Dark mode toggle */}
-    <Button 
-      variant="outline-secondary" 
-      onClick={() => setDarkMode(!darkMode)}
-      className="position-fixed top-0 end-0 m-3"
-      style={{ zIndex: 1000 }}
-    >
-      {darkMode ? <i className="bi bi-sun"></i> : <i className="bi bi-moon"></i>}
-    </Button>
+  return (
+    <div className={`music-player-container ${darkMode ? 'dark-mode' : ''}`}>
+      {/* Dark mode toggle */}
+      <Button 
+        variant="outline-secondary" 
+        onClick={() => setDarkMode(!darkMode)}
+        className="position-fixed top-0 end-0 m-3"
+        style={{ zIndex: 1000 }}
+      >
+        {darkMode ? <i className="bi bi-sun"></i> : <i className="bi bi-moon"></i>}
+      </Button>
 
-    {/* Left sidebar - fixed width */}
-    <div className="sidebar" style={{ 
-      width: '300px',
-      minWidth: '300px',
-      display: 'flex', 
-      flexDirection: 'column', 
-      gap: '20px',
-      position: 'sticky',
-      top: '20px',
-      height: 'fit-content',
-      overflowY: 'auto',
-      maxHeight: 'calc(100vh - 40px)'
-    }}>
-      {/* Search Section */}
-      <div className="search-section">
-        <Form.Group className="mb-3">
-          <Form.Label>Search YouTube Music</Form.Label>
-          <div className="d-flex">
-            <Form.Control
-              id="search-input"
-              type="text"
-              placeholder="Enter song name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className={darkMode ? 'bg-dark text-light' : ''}
-            />
-            <Button 
-              variant="primary" 
-              onClick={handleSearch} 
-              disabled={isSearching}
-              className="ms-2"
-            >
-              {isSearching ? <Spinner animation="border" size="sm" /> : 'Search'}
-            </Button>
-          </div>
-        </Form.Group>
-
-        {searchResults.length > 0 && (
-          <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '20px' }}>
-            <ListGroup>
-              {searchResults.map((track, idx) => (
-                <ListGroup.Item 
-                  key={idx}
-                  className={`d-flex justify-content-between align-items-center py-2 ${darkMode ? 'bg-dark text-light' : ''}`}
-                  style={{
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s ease',
-                    ':hover': {
-                      backgroundColor: darkMode ? '#2c3034' : '#f8f9fa'
-                    }
-                  }}
-                >
-                  <div className="d-flex align-items-center">
-                    <img 
-                      src={track.thumbnail} 
-                      alt={track.name} 
-                      width="50" 
-                      height="50"
-                      className="me-3 rounded"
-                      style={{ objectFit: 'cover' }}
-                    />
-                    <div>
-                      <div className="fw-bold">{track.name}</div>
-                      <small className="text-muted">YouTube • {track.duration || 'Unknown duration'}</small>
-                    </div>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline-success"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToPlaylist(track);
-                    }}
-                  >
-                    <i className="bi bi-plus"></i> Add
-                  </Button>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </div>
-        )}
-      </div>
-
-      {/* Custom Playlists Section */}
-      <div className="custom-playlists" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-        <h5>Custom Playlists</h5>
-        <div className="d-flex mb-3">
-          <Form.Control
-            type="text"
-            placeholder="New playlist name"
-            value={newPlaylistName}
-            onChange={(e) => setNewPlaylistName(e.target.value)}
-            className={`me-2 ${darkMode ? 'bg-dark text-light' : ''}`}
-          />
-          <Button variant="success" onClick={createPlaylist}>
-            Create
-          </Button>
-        </div>
-
-        {customPlaylists.length > 0 ? (
-          <ListGroup>
-            {customPlaylists.map(playlist => (
-              <ListGroup.Item 
-                key={playlist.id}
-                action
-                active={currentPlaylist?.id === playlist.id}
-                onClick={() => loadPlaylist(playlist)}
-                className={`d-flex justify-content-between align-items-center ${darkMode ? 'bg-dark text-light' : ''}`}
-              >
-                {playlist.name}
-                <span className="badge bg-secondary">{playlist.tracks.length} tracks</span>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        ) : (
-          <div className="empty-state text-center py-3">
-            <i className="bi bi-music-note-list" style={{ fontSize: '2rem', color: '#6c757d' }}></i>
-            <p className="text-muted mt-2">No playlists yet</p>
-          </div>
-        )}
-      </div>
-
-      {/* Offline Tracks Section */}
-      <div className="offline-section" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-        <h5>Offline Tracks</h5>
-        {offlineTracks.length === 0 ? (
-          <div className="empty-state text-center py-3">
-            <i className="bi bi-download" style={{ fontSize: '2rem', color: '#6c757d' }}></i>
-            <p className="text-muted mt-2">No offline tracks</p>
-          </div>
-        ) : (
-          <ListGroup>
-            {offlineTracks.map((track, index) => (
-              <ListGroup.Item 
-                key={index}
-                action
-                onClick={() => {
-                  const trackIndex = tracks.findIndex(t => t.id === track.id);
-                  if (trackIndex >= 0) {
-                    handleTrackSelect(trackIndex);
-                  }
-                }}
-                className={`track-item ${darkMode ? 'bg-dark text-light' : ''}`}
-              >
-                <div className="d-flex justify-content-between align-items-center">
-                  <span>{track.name}</span>
-                  <Button 
-                    size="sm" 
-                    variant="danger" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeOfflineTrack(track.id);
-                    }}
-                  >
-                    <i className="bi bi-trash"></i>
-                  </Button>
-                </div>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        )}
-      </div>
-    </div>
-
-    {/* Main content - flexible width */}
-    <div className="main-content" style={{
-      flex: 1,
-      minWidth: 0, // Important for flexbox overflow
-      overflow: 'hidden'
-    }}>
-      {/* Now Playing Section */}
-      <div className={`now-playing mb-4 p-4 rounded ${darkMode ? 'bg-dark text-light border border-secondary' : 'bg-light'}`} style={{
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        width: '100%'
-      }}>
-        <div className="d-flex align-items-center mb-3">
-          {currentTrack.thumbnail && (
-            <img 
-              src={currentTrack.thumbnail} 
-              alt={currentTrack.name} 
-              width="80" 
-              height="80"
-              className="me-3 rounded"
-              style={{ objectFit: 'cover' }}
-            />
-          )}
-          <div>
-            <h4 className="mb-0">
-              {currentTrack.name || "No track selected"}
-              {currentTrack.isYouTube && (
-                <span className="badge bg-danger ms-2">YouTube</span>
-              )}
-              {offlineTracks.some(t => t.id === currentTrack.id) && (
-                <span className="badge bg-success ms-2">Offline</span>
-              )}
-            </h4>
-            <small className="text-muted">
-              {currentTrack.artist || 'Unknown artist'} • {formatTime(duration)}
-            </small>
-          </div>
-        </div>
-
-        {isAudioLoading && (
-          <div className="text-center my-2">
-            <Spinner animation="border" />
-            <p>Loading track...</p>
-          </div>
-        )}
-
-        {/* YouTube Player with proper responsive container */}
-        {!currentTrack.isYouTube ? null : (
-          <div style={{
-            width: '100%',
-            aspectRatio: '16/9',
-            position: 'relative',
-            marginBottom: '20px'
-          }}>
-            <YouTube
-              videoId={currentTrack.id}
-              ref={playerRef}
-              opts={{
-                width: '100%',
-                height: '100%',
-                playerVars: {
-                  autoplay: isPlaying ? 1 : 0,
-                },
-              }}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%'
-              }}
-              onReady={(e) => {
-                if (isPlaying) e.target.playVideo();
-                setDuration(e.target.getDuration());
-              }}
-              onStateChange={(e) => {
-                if (e.data === 0) handleNext();
-              }}
-            />
-          </div>
-        )}
-
-        {/* Player Controls */}
-        <div className="player-controls d-flex flex-column align-items-center mt-3">
-          <div className="d-flex align-items-center mb-2">
-            <Button 
-              variant="link" 
-              onClick={handlePrevious}
-              disabled={tracks.length === 0}
-              style={{ fontSize: '1.5rem', color: darkMode ? '#fff' : '#000' }}
-            >
-              <i className="bi bi-skip-start-fill"></i>
-            </Button>
-            <Button 
-              variant="primary" 
-              onClick={handlePlayPause}
-              disabled={tracks.length === 0}
-              style={{ 
-                width: '60px', 
-                height: '60px',
-                borderRadius: '50%',
-                fontSize: '1.5rem',
-                margin: '0 15px'
-              }}
-            >
-              {isPlaying ? <i className="bi bi-pause-fill"></i> : <i className="bi bi-play-fill"></i>}
-            </Button>
-            <Button 
-              variant="link" 
-              onClick={handleNext}
-              disabled={tracks.length === 0}
-              style={{ fontSize: '1.5rem', color: darkMode ? '#fff' : '#000' }}
-            >
-              <i className="bi bi-skip-end-fill"></i>
-            </Button>
-          </div>
-          
-          {showProgress && (
-            <div className="w-100">
-              <div className="d-flex justify-content-between mb-1">
-                <small className="text-muted">{formatTime(currentTime)}</small>
-                <small className="text-muted">{formatTime(duration)}</small>
-              </div>
-              <input
-                type="range"
-                className="form-range"
-                min={0}
-                max={duration}
-                value={currentTime}
-                onChange={handleSeek}
-                onMouseDown={handleSeekStart}
-                onMouseUp={handleSeekEnd}
-                style={{ width: '100%', cursor: 'pointer' }}
+      {/* Left sidebar - fixed width */}
+      <div className="sidebar">
+        {/* Search Section */}
+        <div className="search-section">
+          <Form.Group className="mb-3">
+            <Form.Label>Search YouTube Music</Form.Label>
+            <div className="d-flex">
+              <Form.Control
+                id="search-input"
+                type="text"
+                placeholder="Enter song name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className={darkMode ? 'bg-dark text-light' : ''}
               />
+              <Button 
+                variant="primary" 
+                onClick={handleSearch} 
+                disabled={isSearching}
+                className="ms-2"
+              >
+                {isSearching ? <Spinner animation="border" size="sm" /> : 'Search'}
+              </Button>
             </div>
-          )}
-        </div>
-      </div>
+          </Form.Group>
 
-      {/* Current Playlist Section */}
-      <div className="playlist-section" style={{ 
-        maxHeight: 'calc(100vh - 400px)', 
-        overflowY: 'auto',
-        width: '100%'
-      }}>
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h5>Current Playlist</h5>
-          <small className="text-muted">{tracks.length} tracks</small>
-        </div>
-        
-        {tracks.length === 0 ? (
-          <div className="empty-state text-center py-5">
-            <i className="bi bi-music-note-list" style={{ fontSize: '3rem', color: '#6c757d' }}></i>
-            <h5 className="mt-3">No tracks found</h5>
-            <p className="text-muted">Add some tracks to get started</p>
-            <Button variant="outline-primary" onClick={() => document.getElementById('search-input').focus()}>
-              Search for music
-            </Button>
-          </div>
-        ) : (
-          <ListGroup>
-            {tracks.map((track, index) => {
-              const isDownloading = downloadProgress[track.id]?.status === 'downloading';
-              const downloadProgressValue = downloadProgress[track.id]?.progress || 0;
-              const isDownloaded = offlineTracks.some(t => t.id === track.id);
-
-              return (
-                <ListGroup.Item 
-                  key={index}
-                  active={index === currentTrackIndex}
-                  action
-                  onClick={() => handleTrackSelect(index)}
-                  className={`d-flex justify-content-between align-items-center py-3 ${darkMode ? 'bg-dark text-light' : ''}`}
-                  style={{
-                    transition: 'all 0.2s ease',
-                    borderLeft: index === currentTrackIndex ? '4px solid #0d6efd' : '4px solid transparent'
-                  }}
-                >
-                  <div className="d-flex align-items-center" style={{ flex: 1 }}>
-                    {track.thumbnail && (
+          {searchResults.length > 0 && (
+            <div className="search-results-container">
+              <ListGroup>
+                {searchResults.map((track, idx) => (
+                  <ListGroup.Item 
+                    key={idx}
+                    className={`d-flex justify-content-between align-items-center py-2 ${darkMode ? 'bg-dark text-light' : ''}`}
+                  >
+                    <div className="d-flex align-items-center">
                       <img 
                         src={track.thumbnail} 
                         alt={track.name} 
-                        width="40" 
-                        height="40"
-                        className="me-3 rounded" 
+                        width="50" 
+                        height="50"
+                        className="me-3 rounded"
                         style={{ objectFit: 'cover' }}
                       />
-                    )}
-                    <div>
-                      <div className={`fw-bold ${index === currentTrackIndex ? 'text-primary' : ''}`}>
-                        {track.name || `Track ${index + 1}`}
+                      <div>
+                        <div className="fw-bold">{track.name}</div>
+                        <small className="text-muted">YouTube • {track.duration || 'Unknown duration'}</small>
                       </div>
-                      <small className="text-muted">
-                        {track.artist || 'Unknown artist'} • {track.duration || formatTime(duration)}
-                      </small>
                     </div>
-                  </div>
-                  <div className="d-flex align-items-center">
-                    {track.isYouTube && (
-                      <small className="text-muted me-2">YouTube</small>
-                    )}
-                    {isDownloading ? (
-                      <div style={{ width: '100px' }}>
-                        <ProgressBar 
-                          now={downloadProgressValue} 
-                          label={`${downloadProgressValue}%`} 
-                          style={{ height: '20px' }}
-                        />
-                      </div>
-                    ) : (
-                      <Button 
-                        size="sm" 
-                        variant={isDownloaded ? "success" : "outline-primary"}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          downloadTrack(track);
-                        }}
-                        disabled={isDownloading || (isDownloaded && !track.isYouTube)}
-                        className="me-2"
-                      >
-                        {isDownloaded && !track.isYouTube ? "Downloaded" : "Download"}
-                      </Button>
-                    )}
-                    {customPlaylists.length > 0 && (
-                      <DropdownButton
-                        size="sm"
-                        variant="outline-secondary"
-                        title="+ Playlist"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {customPlaylists.map(playlist => (
-                          <Dropdown.Item 
-                            key={playlist.id}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addToCustomPlaylist(playlist.id, track);
-                            }}
-                          >
-                            {playlist.name}
-                          </Dropdown.Item>
-                        ))}
-                      </DropdownButton>
-                    )}
+                    <Button 
+                      size="sm" 
+                      variant="outline-success"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToPlaylist(track);
+                      }}
+                    >
+                      <i className="bi bi-plus"></i> Add
+                    </Button>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            </div>
+          )}
+        </div>
+
+        {/* Custom Playlists Section */}
+        <div className="custom-playlists">
+          <h5>Custom Playlists</h5>
+          <div className="d-flex mb-3">
+            <Form.Control
+              type="text"
+              placeholder="New playlist name"
+              value={newPlaylistName}
+              onChange={(e) => setNewPlaylistName(e.target.value)}
+              className={`me-2 ${darkMode ? 'bg-dark text-light' : ''}`}
+            />
+            <Button variant="success" onClick={createPlaylist}>
+              Create
+            </Button>
+          </div>
+
+          {customPlaylists.length > 0 ? (
+            <ListGroup>
+              {customPlaylists.map(playlist => (
+                <ListGroup.Item 
+                  key={playlist.id}
+                  action
+                  active={currentPlaylist?.id === playlist.id}
+                  onClick={() => loadPlaylist(playlist)}
+                  className={`d-flex justify-content-between align-items-center ${darkMode ? 'bg-dark text-light' : ''}`}
+                >
+                  {playlist.name}
+                  <span className="badge bg-secondary">{playlist.tracks.length} tracks</span>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          ) : (
+            <div className="empty-state text-center py-3">
+              <i className="bi bi-music-note-list" style={{ fontSize: '2rem', color: '#6c757d' }}></i>
+              <p className="text-muted mt-2">No playlists yet</p>
+            </div>
+          )}
+        </div>
+
+        {/* Offline Tracks Section */}
+        <div className="offline-section">
+          <h5>Offline Tracks</h5>
+          {offlineTracks.length === 0 ? (
+            <div className="empty-state text-center py-3">
+              <i className="bi bi-download" style={{ fontSize: '2rem', color: '#6c757d' }}></i>
+              <p className="text-muted mt-2">No offline tracks</p>
+            </div>
+          ) : (
+            <ListGroup>
+              {offlineTracks.map((track, index) => (
+                <ListGroup.Item 
+                  key={index}
+                  action
+                  onClick={() => {
+                    const trackIndex = tracks.findIndex(t => t.id === track.id);
+                    if (trackIndex >= 0) {
+                      handleTrackSelect(trackIndex);
+                    }
+                  }}
+                  className={`track-item ${darkMode ? 'bg-dark text-light' : ''}`}
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>{track.name}</span>
+                    <Button 
+                      size="sm" 
+                      variant="danger" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeOfflineTrack(track.id);
+                      }}
+                    >
+                      <i className="bi bi-trash"></i>
+                    </Button>
                   </div>
                 </ListGroup.Item>
-              );
-            })}
-          </ListGroup>
-        )}
+              ))}
+            </ListGroup>
+          )}
+        </div>
+      </div>
+
+      {/* Main content - flexible width */}
+      <div className="main-content">
+        {/* Now Playing Section */}
+        <div className={`now-playing ${darkMode ? 'dark-mode' : ''}`}>
+          <div className="d-flex align-items-center mb-3">
+            {currentTrack.thumbnail && (
+              <img 
+                src={currentTrack.thumbnail} 
+                alt={currentTrack.name} 
+                width="80" 
+                height="80"
+                className="me-3 rounded"
+                style={{ objectFit: 'cover' }}
+              />
+            )}
+            <div>
+              <h4 className="mb-0">
+                {currentTrack.name || "No track selected"}
+                {currentTrack.isYouTube && (
+                  <span className="badge bg-danger ms-2">YouTube</span>
+                )}
+                {offlineTracks.some(t => t.id === currentTrack.id) && (
+                  <span className="badge bg-success ms-2">Offline</span>
+                )}
+              </h4>
+              <small className="text-muted">
+                {currentTrack.artist || 'Unknown artist'} • {formatTime(duration)}
+              </small>
+            </div>
+          </div>
+
+          {isAudioLoading && (
+            <div className="text-center my-2">
+              <Spinner animation="border" />
+              <p>Loading track...</p>
+            </div>
+          )}
+
+          {/* YouTube Player with proper responsive container */}
+          {!currentTrack.isYouTube ? null : (
+            <div className="youtube-player-container">
+              <YouTube
+                videoId={currentTrack.id}
+                ref={playerRef}
+                opts={{
+                  width: '100%',
+                  height: '100%',
+                  playerVars: {
+                    autoplay: isPlaying ? 1 : 0,
+                  },
+                }}
+                onReady={(e) => {
+                  if (isPlaying) e.target.playVideo();
+                  setDuration(e.target.getDuration());
+                }}
+                onStateChange={(e) => {
+                  if (e.data === 0) handleNext();
+                }}
+              />
+            </div>
+          )}
+
+          {/* Player Controls */}
+          <div className="player-controls">
+            <div className="d-flex align-items-center mb-2">
+              <Button 
+                variant="link" 
+                onClick={handlePrevious}
+                disabled={tracks.length === 0}
+                className="control-button"
+              >
+                <i className="bi bi-skip-start-fill"></i>
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handlePlayPause}
+                disabled={tracks.length === 0}
+                className="play-pause-button"
+              >
+                {isPlaying ? <i className="bi bi-pause-fill"></i> : <i className="bi bi-play-fill"></i>}
+              </Button>
+              <Button 
+                variant="link" 
+                onClick={handleNext}
+                disabled={tracks.length === 0}
+                className="control-button"
+              >
+                <i className="bi bi-skip-end-fill"></i>
+              </Button>
+            </div>
+            
+            {showProgress && (
+              <div className="progress-container">
+                <div className="d-flex justify-content-between mb-1">
+                  <small className="text-muted">{formatTime(currentTime)}</small>
+                  <small className="text-muted">{formatTime(duration)}</small>
+                </div>
+                <input
+                  type="range"
+                  className="progress-range"
+                  min={0}
+                  max={duration}
+                  value={currentTime}
+                  onChange={handleSeek}
+                  onMouseDown={handleSeekStart}
+                  onMouseUp={handleSeekEnd}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Current Playlist Section */}
+        <div className="playlist-section">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5>Current Playlist</h5>
+            <small className="text-muted">{tracks.length} tracks</small>
+          </div>
+          
+          {tracks.length === 0 ? (
+            <div className="empty-state text-center py-5">
+              <i className="bi bi-music-note-list" style={{ fontSize: '3rem', color: '#6c757d' }}></i>
+              <h5 className="mt-3">No tracks found</h5>
+              <p className="text-muted">Add some tracks to get started</p>
+              <Button variant="outline-primary" onClick={() => document.getElementById('search-input').focus()}>
+                Search for music
+              </Button>
+            </div>
+          ) : (
+            <ListGroup>
+              {tracks.map((track, index) => {
+                const isDownloading = downloadProgress[track.id]?.status === 'downloading';
+                const downloadProgressValue = downloadProgress[track.id]?.progress || 0;
+                const isDownloaded = offlineTracks.some(t => t.id === track.id);
+
+                return (
+                  <ListGroup.Item 
+                    key={index}
+                    active={index === currentTrackIndex}
+                    action
+                    onClick={() => handleTrackSelect(index)}
+                    className={`d-flex justify-content-between align-items-center py-3 ${darkMode ? 'bg-dark text-light' : ''}`}
+                    style={{
+                      borderLeft: index === currentTrackIndex ? '4px solid #0d6efd' : '4px solid transparent'
+                    }}
+                  >
+                    <div className="d-flex align-items-center" style={{ flex: 1 }}>
+                      {track.thumbnail && (
+                        <img 
+                          src={track.thumbnail} 
+                          alt={track.name} 
+                          width="40" 
+                          height="40"
+                          className="me-3 rounded" 
+                          style={{ objectFit: 'cover' }}
+                        />
+                      )}
+                      <div>
+                        <div className={`fw-bold ${index === currentTrackIndex ? 'text-primary' : ''}`}>
+                          {track.name || `Track ${index + 1}`}
+                        </div>
+                        <small className="text-muted">
+                          {track.artist || 'Unknown artist'} • {track.duration || formatTime(duration)}
+                        </small>
+                      </div>
+                    </div>
+                    <div className="d-flex align-items-center">
+                      {track.isYouTube && (
+                        <small className="text-muted me-2">YouTube</small>
+                      )}
+                      {isDownloading ? (
+                        <div className="download-progress-container">
+                          <ProgressBar 
+                            now={downloadProgressValue} 
+                            label={`${downloadProgressValue}%`} 
+                          />
+                        </div>
+                      ) : (
+                        <Button 
+                          size="sm" 
+                          variant={isDownloaded ? "success" : "outline-primary"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            downloadTrack(track);
+                          }}
+                          disabled={isDownloading || (isDownloaded && !track.isYouTube)}
+                          className="me-2"
+                        >
+                          {isDownloaded && !track.isYouTube ? "Downloaded" : "Download"}
+                        </Button>
+                      )}
+                      {customPlaylists.length > 0 && (
+                        <DropdownButton
+                          size="sm"
+                          variant="outline-secondary"
+                          title="+ Playlist"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {customPlaylists.map(playlist => (
+                            <Dropdown.Item 
+                              key={playlist.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToCustomPlaylist(playlist.id, track);
+                              }}
+                            >
+                              {playlist.name}
+                            </Dropdown.Item>
+                          ))}
+                        </DropdownButton>
+                      )}
+                    </div>
+                  </ListGroup.Item>
+                );
+              })}
+            </ListGroup>
+          )}
+        </div>
       </div>
     </div>
-
-   
-
-
-  </div>
-);
+  );
 };
 
 export default MusicPlayer;
