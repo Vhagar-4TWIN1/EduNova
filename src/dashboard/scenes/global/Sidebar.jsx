@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme, Button } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../theme";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
-import axios from "axios";
+import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
+import CollectionsBookmarkOutlinedIcon from "@mui/icons-material/CollectionsBookmarkOutlined";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import MilitaryTechOutlinedIcon from "@mui/icons-material/MilitaryTechOutlined";
+import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
+import LeaderboardOutlinedIcon from "@mui/icons-material/LeaderboardOutlined";
+import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
+import LogoutIcon from "@mui/icons-material/Logout";
+import HomeIcon from "@mui/icons-material/Home";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -22,13 +22,11 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
   return (
     <MenuItem
       active={selected === title}
-      style={{
-        color: colors.grey[100],
-      }}
+      style={{ color: colors.grey[100] }}
       onClick={() => setSelected(title)}
       icon={icon}
     >
-      <Typography  fontSize="0.75rem">{title}</Typography>
+      <Typography fontSize="0.85rem">{title}</Typography>
       <Link to={to} />
     </MenuItem>
   );
@@ -39,48 +37,43 @@ const Sidebar = () => {
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
-
-  // Récupérer les informations de l'utilisateur depuis localStorage
   const firstName = localStorage.getItem("firstName");
   const lastName = localStorage.getItem("lastName");
   const image = localStorage.getItem("image");
-  // Utilisation de useNavigate pour naviguer après le logout
   const navigate = useNavigate();
-  const imageSrc = localStorage.getItem("image");
 
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found in localStorage");
 
-const handleLogout = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) throw new Error("Aucun token trouvé dans localStorage");
+      const response = await fetch("http://localhost:3000/api/auth/signout", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const response = await fetch('http://localhost:3000/api/auth/signout', {
-      method: 'POST', 
-      headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Logout failed");
+      }
+
+      localStorage.clear();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error.message);
+      alert("Logout error: " + error.message);
     }
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Échec de la déconnexion");
-    }
-
-    localStorage.clear();
-    window.location.href = '/';
-  } catch (error) {
-    console.error("Erreur lors de la déconnexion:", error.message);
-    alert("Erreur lors de la déconnexion : " + error.message);
-  }
-};
-
-
-
+  };
 
   return (
     <Box
       sx={{
         height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
         "& .pro-sidebar-inner": {
           background: `${colors.primary[400]} !important`,
         },
@@ -88,40 +81,30 @@ const handleLogout = async () => {
           backgroundColor: "transparent !important",
         },
         "& .pro-inner-item": {
-          padding: "5px 35px 5px 20px !important",
+          padding: "6px 35px 6px 20px !important",
         },
         "& .pro-inner-item:hover": {
-          color: "#868dfb !important",
+          color: "#00bcd4 !important",
         },
         "& .pro-menu-item.active": {
-          color: "#6870fa !important",
+          color: "#03a9f4 !important",
         },
       }}
     >
       <ProSidebar collapsed={isCollapsed}>
-        <Menu iconShape="square">
-          {/* LOGO AND MENU ICON */}
+        <Menu iconShape="circle">
           <MenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
-            icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
-            style={{
-              margin: "10px 0 20px 0",
-              color: colors.primary,
-            }}
+            
+            icon={<DashboardCustomizeIcon />}
+            style={{ margin: "10px 0 20px 0", color: colors.primary }}
           >
             {!isCollapsed && (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                ml="15px"
-              >
-                <Typography  fontSize="0.75rem" variant="h3" color={colors.grey[100]}>
-                  ADMINIS
+              <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
+                <Typography fontSize="1rem" variant="h3" color={colors.grey[100]}>
+                  ADMIN PANEL
                 </Typography>
-                <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
-                  <MenuOutlinedIcon />
-                </IconButton>
+                
               </Box>
             )}
           </MenuItem>
@@ -130,7 +113,7 @@ const handleLogout = async () => {
             <Box mb="25px">
               <Box display="flex" justifyContent="center" alignItems="center">
                 <img
-                  alt=""
+                  alt="profile"
                   width="100px"
                   height="100px"
                   src={image}
@@ -138,12 +121,7 @@ const handleLogout = async () => {
                 />
               </Box>
               <Box textAlign="center">
-                <Typography  fontSize="0.75rem"
-                  variant="h6"
-                  color={colors.grey[100]}
-                  fontWeight="bold"
-                  sx={{ m: "10px 0 0 0" }}
-                >
+                <Typography fontSize="0.85rem" variant="h6" color={colors.grey[100]} fontWeight="bold" sx={{ m: "10px 0 0 0" }}>
                   {firstName && lastName ? `${firstName} ${lastName}` : "Guest"}
                 </Typography>
               </Box>
@@ -151,153 +129,25 @@ const handleLogout = async () => {
           )}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-            <Item
-              title="Dashboard"
-              to="/dashboard"
-              icon={<HomeOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-             <Item
-              title="Home page"
-              to="/home"
-              icon={<MenuOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Typography  fontSize="0.75rem"
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Data
-            </Typography>
-           
-            <Item
-              title="Manage Team"
-              to="/dashboard/team"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Lessens List"
-              to="/dashboard/lessons"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Modules List"
-              to="/dashboard/listModulesBack"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-
-            <Item
-              title="Questions"
-              to="/dashboard/contacts"
-              icon={<ContactsOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Activity logs"
-              to="/dashboard/invoices"
-              icon={<ReceiptOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Badges"
-              to="/dashboard/badgeForm"
-              icon={<MenuOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-                          title="Performance"
-                          to="/dashboard/performance"
-                          icon={<ReceiptOutlinedIcon />}
-                          selected={selected}
-                          setSelected={setSelected}
-                        />
-            
-
-            <Typography  fontSize="0.75rem"
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Pages
-            </Typography>
-            <Item
-              title="Profile Form"
-              to="/dashboard/form"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Level"
-              to="/dashboard/Level"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Typography  fontSize="0.75rem"
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Charts
-            </Typography>
-           
-            <Item
-              title="change Password"
-              to="/dashboard/changePassword"
-              icon={<BarChartOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Pie Chart"
-              to="/dashboard/pie"
-              icon={<PieChartOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Line Chart"
-              to="/dashboard/line"
-              icon={<TimelineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Geography Chart"
-              to="/dashboard/geography"
-              icon={<MapOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+            <Item title="Dashboard" to="/dashboard" icon={<DashboardCustomizeIcon />} selected={selected} setSelected={setSelected} />
+            <Item title="Home Page" to="/home" icon={<HomeIcon />} selected={selected} setSelected={setSelected} />
+            <Item title="Manage Team" to="/dashboard/team" icon={<PeopleOutlinedIcon />} selected={selected} setSelected={setSelected} />
+            <Item title="Lessons List" to="/dashboard/lessons" icon={<LibraryBooksOutlinedIcon />} selected={selected} setSelected={setSelected} />
+            <Item title="Modules List" to="/dashboard/listModulesBack" icon={<CollectionsBookmarkOutlinedIcon />} selected={selected} setSelected={setSelected} />
+            <Item title="Questions" to="/dashboard/contacts" icon={<HelpOutlineIcon />} selected={selected} setSelected={setSelected} />
+            <Item title="Badges" to="/dashboard/badgeForm" icon={<MilitaryTechOutlinedIcon />} selected={selected} setSelected={setSelected} />
+            <Item title="Profile Form" to="/dashboard/form" icon={<AccountCircleOutlinedIcon />} selected={selected} setSelected={setSelected} />
+            <Item title="Level" to="/dashboard/Level" icon={<LeaderboardOutlinedIcon />} selected={selected} setSelected={setSelected} />
+            <Item title="Change Password" to="/dashboard/changePassword" icon={<VpnKeyOutlinedIcon />} selected={selected} setSelected={setSelected} />
           </Box>
 
-          {/* Logout Button */}
-          <Box display="flex" justifyContent="center" mt="auto" mb="20px">
+          <Box display="flex" justifyContent="center" mt={4} mb={4}>
             <Button
               variant="contained"
               color="secondary"
+              startIcon={<LogoutIcon />}
               onClick={handleLogout}
-              sx={{
-                width: "80%",
-                padding: "10px",
-                borderRadius: "10px",
-              }}
+              sx={{ width: "80%", padding: "10px", borderRadius: "10px" }}
             >
               Logout
             </Button>

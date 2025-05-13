@@ -329,7 +329,7 @@ const PostList = ({ posts }) => {
             </div>
           ) : (
             <div className="post-card" style={{ textAlign: 'center', padding: '2rem' }}>
-              No recommendations available. Complete more lessons to get personalized suggestions.
+              No recommendations available. please enroll in modules to get recommendations.
             </div>
           )}
         </div>

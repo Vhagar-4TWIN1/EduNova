@@ -1378,17 +1378,30 @@ const UserProfile = () => {
         country: userData.country,
         photo: photoPath,
       };
+      
 
-      console.log("Sending basic user data update:", basicUserData);
 
       // First update the basic user data
+      console.log("user's id:", id);
       const basicResponse = await axios.patch(
         `http://localhost:3000/api/users/${id}`,
         basicUserData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+            console.log("Sending basic user data update:", basicUserData);
 
-      console.log("Basic update response:", basicResponse.data);
+        console.error("Update error:", error);
+  if (error.response) {
+    console.error("Status:", error.response.status);
+    console.error("Data:", error.response.data);
+    console.error("Headers:", error.response.headers);
+  } else if (error.request) {
+    console.error("No response received:", error.request);
+  } else {
+    console.error("Error message:", error.message);
+  }
+
+      console.log("Basic update response:", basicResponse);
 
       // Then handle role-specific data as a separate update
       if (userData.role === "Admin") {
@@ -1498,7 +1511,7 @@ const UserProfile = () => {
             situation: refreshedUser.situation || "",
             disease: refreshedUser.disease || "",
             customDisease: refreshedUser.customDisease || "",
-            socialCase: refreshedUser.socialCase || false,
+            socialCase: refreshedUser.socialCase === "on" || false,
             learningPreference: refreshedUser.learningPreference || "video",
             interests: refreshedUser.interests || [],
           });
@@ -1525,7 +1538,7 @@ const UserProfile = () => {
       // Show error snackbar
       setSnackbarMessage(
         "Error updating profile: " +
-          (error.response?.data?.message || "Something went wrong")
+          (JSON.stringify(studentData) || "Something went wrong")
       );
       setSnackbarSeverity("error");
       setOpenSnackbar(true);

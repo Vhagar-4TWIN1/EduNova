@@ -25,7 +25,6 @@ import ChangePasswordBack from "./components/changePasswordBack.jsx";
 import ForumMain from "./components/forum/ForumMain.jsx";
 import PostDetail from "./components/forum/PostDetail.jsx";
 import MusicPlayer from './components/MusicPlayer';
-import MusicPage from './components/MusicPage';
 
 // Initialisation de AOS pour les animations
 AOS.init();
@@ -45,6 +44,7 @@ const Message = lazy(() => import("./components/messga"));
 const Dashboard = lazy(() => import("./dashboard/scenes/dashboard"));
 const Team = lazy(() => import("./dashboard/scenes/team"));
 const Invoices = lazy(() => import("./dashboard/scenes/invoices"));
+const Predict = lazy(() => import("./dashboard/scenes/invoices/predict"));
 const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
 const VideoRoom = lazy(() => import("./components/VideoRoom"));
@@ -162,7 +162,6 @@ function AppWithRouter({
           <Route path="/Trainers" element={<TeacherList />} />
           <Route path="/moduleDetails/:id" element={<ModuleDetails />} />
           <Route path="/music-player" element={<MusicPlayer />} />
-          <Route path="/music-player" element={<MusicPage />} />
         </Route>
 
         {/* Routes du tableau de bord */}
@@ -172,12 +171,7 @@ function AppWithRouter({
             <div className="app">
               <Sidebar isSidebar={isSidebar} className="sidebar" />
               <div className="content">
-                <div className="main-header">
-                  <Topbar
-                    setIsSidebar={setIsSidebar}
-                    onSearchChange={setSearchQuery}
-                  />
-                </div>
+                
                 <Routes>
                   <Route
                     path="/"
@@ -264,6 +258,15 @@ function AppWithRouter({
                       </PrivateRoute>
                     }
                   />
+
+                  <Route
+                    path="/predict"
+                    element={
+                        <Predict />
+                      
+                    }
+                  />
+
                   <Route
                     path="/performance"
                     element={

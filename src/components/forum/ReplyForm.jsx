@@ -110,7 +110,11 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
       } else {
         response = await axios.post(
           `http://localhost:3000/api/forum/posts/${postId}/reply`,
-          { content }
+          { content },{
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            }
+          }
         );
       }
 

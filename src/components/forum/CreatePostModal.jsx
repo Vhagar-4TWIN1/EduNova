@@ -18,7 +18,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
     try {
       const response = await axios.post(
   'http://localhost:3000/api/forum/posts',
-  { title, content },
+  { title, content, tags },
   {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,

@@ -203,41 +203,6 @@ const trackSocialLogin = (provider) => {
 };
 
 
-
-  const playNotificationSound = () => {
-    const audio = new Audio("/sounds/notification.wav");
-    audio.play();
-  };
-
-  const startBreakTimer = () => {
-    setInterval(() => {
-      toast.warn("⏳ Time for a break! You've been active for an hour.", {
-        position: "top-right",
-        autoClose: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      playNotificationSound();
-    }, 3600000); // 1 hour in milliseconds
-  };
-
-  const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/google";
-  };
-
-  const handleLinkedinLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/linkedin";
-  };
-
-  const handleGitHubLogin = () => {
-    window.location.href = "http://localhost:3000/oauth";
-  };
-
-  const handleFacebookLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/facebook";
-  };
-
   const playNotificationSound = () => {
     const audio = new Audio("/sounds/notification.wav");
     audio.play();

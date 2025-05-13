@@ -141,8 +141,6 @@ const Contact = () => {
     }
   };
 
-  
-
   const playNotificationSound = () => {
     const audio = new Audio("/sounds/notification.wav");
     audio.play();
