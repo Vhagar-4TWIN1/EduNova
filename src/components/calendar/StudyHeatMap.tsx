@@ -1,7 +1,20 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+"use client";
+
+import React from "react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { format, parseISO, startOfWeek, addDays } from 'date-fns';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { format, parseISO, startOfWeek, addDays } from "date-fns";
 
 interface Event {
   id: string;
@@ -13,9 +26,9 @@ interface Event {
 }
 
 interface HeatMapData {
-  x: number; // Hour (0-23)
-  y: number; // Day (0-6, Sunday-Saturday)
-  z: number; // Duration in minutes
+  x: number; // Hour 0–23
+  y: number; // Day 0–6
+  z: number; // Minutes
   events: Event[];
 }
 
@@ -24,144 +37,192 @@ interface StudyHeatMapProps {
 }
 
 export default function StudyHeatMap({ events }: StudyHeatMapProps) {
-  // Generate heat map data
-  const heatMapData = React.useMemo(() => {
-    const gridData: { [key: string]: HeatMapData } = {};
-    
-    // Initialize grid data (0-23 hours, 0-6 days)
-    for (let hour = 0; hour < 24; hour++) {
-      for (let day = 0; day < 7; day++) {
-        const key = `${day}-${hour}`;
-        gridData[key] = {
-          x: hour,
-          y: day,
-          z: 0,
-          events: [],
-        };
+  // build grid
+  const heatMapData = React.useMemo<HeatMapData[]>(() => {
+    const grid: Record<string, HeatMapData> = {};
+    for (let d = 0; d < 7; d++) {
+      for (let h = 0; h < 24; h++) {
+        grid[`${d}-${h}`] = { x: h, y: d, z: 0, events: [] };
       }
     }
-    
-    // Add events to grid data
-    events.forEach(event => {
+    events.forEach((e) => {
       try {
-        const startDate = parseISO(event.start);
-        const day = startDate.getDay(); // 0-6, Sunday-Saturday
-        const hour = startDate.getHours(); // 0-23
-        const key = `${day}-${hour}`;
-        
-        if (gridData[key]) {
-          gridData[key].z += event.durationMin;
-          gridData[key].events.push(event);
+        const dt = parseISO(e.start);
+        const key = `${dt.getDay()}-${dt.getHours()}`;
+        const cell = grid[key];
+        if (cell) {
+          cell.z += e.durationMin;
+          cell.events.push(e);
         }
-      } catch (e) {
-        console.error('Error parsing date:', e);
-      }
+      } catch {}
     });
-    
-    return Object.values(gridData);
+    return Object.values(grid);
   }, [events]);
-  
-  // Get cell color based on duration
-  const getCellColor = (duration: number) => {
-    if (duration === 0) return 'bg-neutral-100';
-    if (duration < 30) return 'bg-blue-100';
-    if (duration < 60) return 'bg-blue-200';
-    if (duration < 90) return 'bg-blue-300';
-    if (duration < 120) return 'bg-blue-400';
-    return 'bg-blue-500';
+
+  // cell styling
+  const getCellColor = (mins: number) => {
+    if (mins === 0) return "bg-neutral-100";
+    if (mins < 30) return "bg-blue-100";
+    if (mins < 60) return "bg-blue-200";
+    if (mins < 90) return "bg-blue-300";
+    if (mins < 120) return "bg-blue-400";
+    return "bg-blue-500";
   };
-  
-  // Get text color based on background color
-  const getTextColor = (duration: number) => {
-    if (duration >= 90) return 'text-white';
-    return 'text-neutral-800';
-  };
-  
-  // Generate day labels (Monday, Tuesday, etc.)
-  const dayLabels = React.useMemo(() => {
-    const today = new Date();
-    const weekStart = startOfWeek(today);
-    
-    return Array.from({ length: 7 }, (_, i) => {
-      const day = addDays(weekStart, i);
-      return format(day, 'EEE');
-    });
+  const getTextColor = (mins: number) =>
+    mins >= 90 ? "text-white" : "text-neutral-800";
+
+  // day labels
+  const days = React.useMemo(() => {
+    const start = startOfWeek(new Date());
+    return Array.from({ length: 7 }, (_, i) =>
+      format(addDays(start, i), "EEE")
+    );
   }, []);
-  
+
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Study Heat Map</CardTitle>
-        <CardDescription>View your study patterns across the week</CardDescription>
+        <CardDescription>
+          Your weekly study intensity by hour
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-[auto_repeat(24,_minmax(0,_1fr))] gap-1">
-          {/* Hour labels (column headers) */}
-          <div className="col-span-1"></div>
-          {Array.from({ length: 24 }, (_, i) => (
-            <div key={`hour-${i}`} className="text-center text-xs font-medium text-neutral-500">
-              {i === 0 ? '12am' : i === 12 ? '12pm' : i > 12 ? `${i-12}pm` : `${i}am`}
+
+      <CardContent className="overflow-auto">
+        <div
+          className="
+            grid 
+            grid-cols-[80px_repeat(24,minmax(0,1fr))] 
+            auto-rows-[40px] 
+            gap-1
+          "
+        >
+          {/* empty top-left */}
+          <div className="sticky top-0 left-0 z-20 bg-white" />
+
+          {/* hour headers */}
+          {Array.from({ length: 24 }, (_, h) => (
+            <div
+              key={h}
+              className="
+                sticky top-0 z-10 bg-white
+                text-center text-xs font-medium text-neutral-500
+              "
+            >
+              {h === 0
+                ? "12am"
+                : h === 12
+                ? "12pm"
+                : h > 12
+                ? `${h - 12}pm`
+                : `${h}am`}
             </div>
           ))}
-          
-          {/* Day rows with heat map cells */}
-          {dayLabels.map((day, dayIndex) => (
-            <React.Fragment key={`day-${dayIndex}`}>
-              {/* Day label */}
-              <div className="flex items-center justify-end pr-2 text-sm font-medium text-neutral-700">
+
+          {/* rows */}
+          {days.map((day, d) => (
+            <React.Fragment key={d}>
+              {/* day label */}
+              <div
+                className="
+                  sticky left-0 z-10 bg-white flex 
+                  items-center justify-end pr-2 
+                  text-sm font-medium text-neutral-700
+                "
+              >
                 {day}
               </div>
-              
-              {/* Hour cells for this day */}
-              {Array.from({ length: 24 }, (_, hourIndex) => {
-                const cellData = heatMapData.find(d => d.x === hourIndex && d.y === dayIndex);
-                const duration = cellData?.z || 0;
-                
+
+              {/* cells */}
+              {Array.from({ length: 24 }, (_, h) => {
+                const cell = heatMapData.find(
+                  (c) => c.x === h && c.y === d
+                )!;
                 return (
-                  <div 
-                    key={`cell-${dayIndex}-${hourIndex}`}
-                    className={`
-                      relative h-8 rounded-sm ${getCellColor(duration)} 
-                      flex items-center justify-center transition-colors
-                      hover:ring-2 hover:ring-primary hover:ring-opacity-50
-                    `}
-                    title={`${day} ${hourIndex}:00 - ${duration} minutes`}
-                  >
-                    {duration > 0 && (
-                      <span className={`text-xs font-medium ${getTextColor(duration)}`}>
-                        {duration}
-                      </span>
+                  <Popover key={`${d}-${h}`}>
+                    <PopoverTrigger asChild>
+                      <div
+                        className={`
+                          relative h-full
+                          flex items-center justify-center
+                          ${getCellColor(cell.z)}
+                          rounded-sm transition
+                          hover:ring-2 hover:ring-[#172746]
+                        `}
+                      >
+                        {cell.z > 0 && (
+                          <span
+                            className={`
+                              text-xs font-medium 
+                              ${getTextColor(cell.z)}
+                            `}
+                          >
+                            {cell.z}
+                          </span>
+                        )}
+                      </div>
+                    </PopoverTrigger>
+
+                    {cell.events.length > 0 && (
+                      <PopoverContent 
+                        align="start" 
+                        className="w-64 p-4"
+                      >
+                        <h6 className="mb-2 font-semibold text-[#172746]">
+                          {day} — {h}:00
+                        </h6>
+                        <ul className="space-y-1 max-h-48 overflow-auto">
+                          {cell.events.map((e) => (
+                            <li key={e.id}>
+                              <span className="font-medium">{e.title}</span>
+                              <span className="ml-1 text-xs text-neutral-500">
+                                ({e.durationMin}m)
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </PopoverContent>
                     )}
-                  </div>
+                  </Popover>
                 );
               })}
             </React.Fragment>
           ))}
         </div>
-        
-        <div className="mt-4 flex items-center justify-between">
+
+        {/* legend + type badges */}
+        <div className="mt-4 flex justify-between items-center">
+          {/* legend */}
           <div className="flex items-center gap-2 text-sm text-neutral-700">
             <span>Less</span>
             <div className="flex items-center gap-1">
-              <div className="h-4 w-4 rounded-sm bg-neutral-100"></div>
-              <div className="h-4 w-4 rounded-sm bg-blue-100"></div>
-              <div className="h-4 w-4 rounded-sm bg-blue-200"></div>
-              <div className="h-4 w-4 rounded-sm bg-blue-300"></div>
-              <div className="h-4 w-4 rounded-sm bg-blue-400"></div>
-              <div className="h-4 w-4 rounded-sm bg-blue-500"></div>
+              {[0, 20, 40, 60, 80, 100].map((_, i) => (
+                <div
+                  key={i}
+                  className={`
+                    h-4 w-4 rounded-sm
+                    ${getCellColor(i * 30)}
+                  `}
+                />
+              ))}
             </div>
             <span>More</span>
           </div>
-          
+
+          {/* type badges */}
           <div className="flex gap-2">
-            {['lesson', 'videoChat', 'task', 'focus'].map(type => (
-              <Badge 
+            {(
+              [
+                ["lesson", "blue"],
+                ["videoChat", "purple"],
+                ["task", "amber"],
+                ["focus", "green"],
+              ] as const
+            ).map(([type, color]) => (
+              <Badge
                 key={type}
                 className={`
-                  ${type === 'lesson' ? 'bg-blue-100 text-blue-800' : 
-                    type === 'videoChat' ? 'bg-purple-100 text-purple-800' : 
-                    type === 'task' ? 'bg-amber-100 text-amber-800' : 
-                    'bg-green-100 text-green-800'}
+                  bg-${color}-100 text-${color}-800 capitalize
                 `}
               >
                 {type}

@@ -7,6 +7,7 @@ const ExamPage = () => {
   const [violations, setViolations] = useState([]);
   const [showWarning, setShowWarning] = useState(false);
   const [warningMessage, setWarningMessage] = useState('');
+  const [timeLeft, setTimeLeft] = useState(5 * 60); // 50 minutes
 
   // Fraud detection rules
   const FRAUD_RULES = [
@@ -15,7 +16,8 @@ const ExamPage = () => {
     "No looking away from the screen",
     "No switching tabs/windows",
     "No copy/paste allowed",
-    "No speaking or communicating with others"
+    "No speaking or communicating with others",
+    "Time penalty: 30 seconds deducted for rule violation"
   ];
 
   useEffect(() => {
@@ -61,7 +63,6 @@ const ExamPage = () => {
 
         // No face detected
         if (detections.length === 0) {
-          logViolation('No face detected');
           showAlert('Attention Required', 'Please position yourself in front of the camera.');
           return;
         }
@@ -122,16 +123,14 @@ const ExamPage = () => {
     const showAlert = (title, message) => {
       setWarningMessage({ title, message });
       setShowWarning(true);
-      // Auto-dismiss after 5 seconds
-      setTimeout(() => {
-        setShowWarning(false);
-      }, 5000);
     };
 
     // Log violations
     const logViolation = (description) => {
       const timestamp = new Date().toISOString();
       setViolations(prev => [...prev, { timestamp, description }]);
+      setTimeLeft(prev => Math.max(0, prev - 30)); // Deduct 30 seconds
+
     };
 
     // Initialize monitoring
@@ -166,7 +165,8 @@ const ExamPage = () => {
         <div style={styles.examContent}>
           {/* Your exam content would go here */}
           <h2>Exam Questions Will Appear Here</h2>
-          <Quiz />
+          <Quiz timeLeft={timeLeft} 
+        setTimeLeft={setTimeLeft}  />
         </div>
 
         <div style={styles.sidePanel}>

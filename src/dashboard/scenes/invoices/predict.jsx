@@ -16,7 +16,7 @@ const Predict = () => {
   const [filter, setFilter] = useState('All');
 
   useEffect(() => {
-    axios.get('http://localhost:500/predict_all')
+    axios.get('http://localhost:5000/predict_all')
       .then(res => {
         const formatted = res.data.map(user => {
           const risk = user.dropout_probability < 30
