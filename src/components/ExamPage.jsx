@@ -123,7 +123,6 @@ const ExamPage = () => {
     const showAlert = (title, message) => {
       setWarningMessage({ title, message });
       setShowWarning(true);
-
     };
 
     // Log violations
