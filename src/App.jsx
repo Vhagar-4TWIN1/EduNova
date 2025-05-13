@@ -48,6 +48,8 @@ const Contacts = lazy(() => import("./dashboard/scenes/contacts"));
 const Badge = lazy(() => import("./components/badges"));
 const About = lazy(() => import("./components/AboutUS"));
 const VideoRoom = lazy(() => import("./components/VideoRoom"));
+const AddSupplementaryLesson = lazy(() => import("./components/AddSupplementaryLesson"));
+
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")
 );
@@ -147,7 +149,7 @@ function AppWithRouter({
           <Route path="/contact" element={<Contact />} />
           <Route path="/calendar" element={<CalendarPage /> } />
           <Route path="/videochat" element={<VideoRoom />} /> 
-
+          <Route path="/add-supplementary-lesson/:id" element={<AddSupplementaryLesson />} />
           <Route path="/moduleDetails/:type/:id" element={<ModuleDetails />} />
 
           <Route path="/quizz" element={<Quizz />} />
