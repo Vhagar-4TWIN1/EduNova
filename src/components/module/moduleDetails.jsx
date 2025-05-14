@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import StudySessionTracker from "../StudySessionTracker";
 import { FaQuestionCircle, FaPodcast } from "react-icons/fa";
 import { FaYoutube, FaFileAlt, FaRunning } from "react-icons/fa";
-
+import StudySessionTracker from '../StudySessionTracker';
 import {
   FaCheckCircle,
   FaBook,
@@ -32,15 +31,14 @@ const ModuleDetails = () => {
   const [userRole, setUserRole] = useState("student");
   const [userLearningPreference, setUserLearningPreference] = useState(null);
   const [supplementaryLessons, setSupplementaryLessons] = useState([]);
-  const [totalLessons, setTotalLessons] = useState(0);
-  const [showSupplementary, setShowSupplementary] = useState(() => {
-    try {
-      return localStorage.getItem(`showSupplementary_${id}`) === 'true';
-    } catch (e) {
-      console.error("Error accessing localStorage:", e);
-      return false;
-    }
-  });
+const [showSupplementary, setShowSupplementary] = useState(() => {
+  try {
+    return localStorage.getItem(`showSupplementary_${id}`) === 'true';
+  } catch (e) {
+    console.error("Error accessing localStorage:", e);
+    return false;
+  }
+});
   const [timeSpent, setTimeSpent] = useState(0);
   const requiredTime = 60;
 
@@ -50,21 +48,21 @@ const ModuleDetails = () => {
 
   useEffect(() => {
     if (!module?._id || role !== 'Student') return;
-    if (showSupplementary) return;
+  if (showSupplementary) return;
 
     const timer = setInterval(() => {
       setTimeSpent(prev => {
         const newTime = prev + 1;
         if (newTime >= requiredTime && !showSupplementary) {
           setShowSupplementary(true);
-          localStorage.setItem(`showSupplementary_${id}`, 'true');
+            localStorage.setItem(`showSupplementary_${id}`, 'true');
         }
         return newTime;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [module?._id, role, showSupplementary, id]);
+  }, [module?._id, role, showSupplementary , id]);
 
   useEffect(() => {
     let isMounted = true;
@@ -81,9 +79,9 @@ const ModuleDetails = () => {
             }
           }
         );
-
+        
         if (!isMounted) return;
-
+        
         if (response.data && response.data.lessons) {
           setSupplementaryLessons(response.data.lessons);
         } else {
@@ -99,7 +97,7 @@ const ModuleDetails = () => {
         }
       }
     };
-
+    
     if (module?._id) {
       fetchSupplementaryLessons();
     }
@@ -111,7 +109,7 @@ const ModuleDetails = () => {
 
   const handleDeleteSupplementary = async (id) => {
     if (!window.confirm('Are you sure you want to delete this supplementary lesson?')) return;
-
+    
     try {
       await axios.delete(`http://localhost:3000/api/study/recommendations/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -125,10 +123,11 @@ const ModuleDetails = () => {
   useEffect(() => {
     const fetchModuleLessons = async () => {
       try {
-        const savedShowSupplementary = localStorage.getItem(`showSupplementary_${id}`) === 'true';
-        if (savedShowSupplementary) {
-          setShowSupplementary(true);
-        }
+
+ const savedShowSupplementary = localStorage.getItem(`showSupplementary_${id}`) === 'true';
+      if (savedShowSupplementary) {
+        setShowSupplementary(true);
+      }
 
         const isMoodleCourse = !isNaN(id);
 
@@ -150,7 +149,7 @@ const ModuleDetails = () => {
             _id: id,
             title: `Moodle Course ${id}`,
             description: "Imported from Moodle",
-            isMoodle: true,
+            isMoodle: true
           });
           setLoading(false);
         } else {
@@ -158,28 +157,26 @@ const ModuleDetails = () => {
             await Promise.all([
               axios.get(`http://localhost:3000/module/${id}`, {
                 headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
               }),
               axios.get(`http://localhost:3000/module/modules/${id}/lessons`, {
                 headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
               }),
               axios.get(
-                `http://localhost:3000/api/progress/enrollment/${userId}/${id}`,
-                {
+                `http://localhost:3000/api/progress/enrollment/${userId}/${id}`, {
                   headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                  }
                 }
               ),
               axios.get(
-                `http://localhost:3000/api/progress/completed/${userId}/${id}`,
-                {
+                `http://localhost:3000/api/progress/completed/${userId}/${id}`, {
                   headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                  }
                 }
               ),
               axios.get(`http://localhost:3000/api/users/${userId}`, {
@@ -189,26 +186,6 @@ const ModuleDetails = () => {
 
           setModule(moduleRes.data);
           setLessons(lessonRes.data);
-          const preferredLessons = lessonRes.data.filter((lesson) => {
-            if (Array.isArray(userRes.data?.data?.learningPreference)) {
-              return userRes.data.data.learningPreference
-                .map((p) => p.toLowerCase())
-                .includes(lesson.typeLesson?.toLowerCase());
-            }
-            return (
-              lesson.typeLesson?.toLowerCase() ===
-              userRes.data?.data?.learningPreference?.toLowerCase()
-            );
-          });
-
-          setTotalLessons(preferredLessons.length);
-
-          const completedPreferred = preferredLessons.filter((lesson) =>
-            completedRes.data.completedLessons.includes(lesson._id)
-          );
-
-          setCompletedLessons(completedPreferred.map((l) => l._id));
-
           setIsEnrolled(enrollmentRes.data.enrolled);
           setCompletedLessons(completedRes.data.completedLessons);
           setUserLearningPreference(
@@ -219,22 +196,20 @@ const ModuleDetails = () => {
       } catch (error) {
         console.error("Error fetching module data:", error);
         if (error.response?.status === 404) {
-          navigate("/not-found");
+          navigate('/not-found');
         }
         setLoading(false);
       }
     };
 
-    // Track lesson duration logic
     let lessonStartTime = Date.now();
-
+    
     const trackDuration = async () => {
       const endTime = Date.now();
       const duration = Math.floor((endTime - lessonStartTime) / 1000);
 
       try {
-        await axios.post(
-          "http://localhost:3000/module/check-lessons-duration",
+        await axios.post("http://localhost:3000/module/check-lessons-duration", 
           { moduleId: id, duration },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -267,13 +242,13 @@ const ModuleDetails = () => {
 
   const renderMoodleModuleIcon = (modname) => {
     switch (modname) {
-      case "resource":
+      case 'resource':
         return <FaFilePdf className="module-icon" />;
-      case "url":
+      case 'url':
         return <FaLink className="module-icon" />;
-      case "label":
+      case 'label':
         return <FaHeading className="module-icon" />;
-      case "folder":
+      case 'folder':
         return <FaFolderOpen className="module-icon" />;
       default:
         return <FaExternalLinkAlt className="module-icon" />;
@@ -306,24 +281,24 @@ const ModuleDetails = () => {
     }
   };
 
-  const renderSupplementaryIcon = (type) => {
-    switch (type) {
-      case 'video':
-        return <FaYoutube className="text-red-500 mr-2" />;
-      case 'article':
-        return <FaFileAlt className="text-blue-500 mr-2" />;
-      case 'exercise':
-        return <FaRunning className="text-green-500 mr-2" />;
-      case 'quiz':
-        return <FaQuestionCircle className="text-yellow-500 mr-2" />;
-      case 'podcast':
-        return <FaPodcast className="text-purple-500 mr-2" />;
-      case 'pdf':
-        return <FaFilePdf className="text-red-500 mr-2" />;
-      default:
-        return <FaExternalLinkAlt className="text-gray-500 mr-2" />;
-    }
-  };
+const renderSupplementaryIcon = (type) => {
+  switch(type) {
+    case 'video':
+      return <FaYoutube className="text-red-500 mr-2" />;
+    case 'article':
+      return <FaFileAlt className="text-blue-500 mr-2" />;
+    case 'exercise':
+      return <FaRunning className="text-green-500 mr-2" />;
+    case 'quiz':
+      return <FaQuestionCircle className="text-yellow-500 mr-2" />;
+    case 'podcast':
+      return <FaPodcast className="text-purple-500 mr-2" />;
+    case 'pdf':
+      return <FaFilePdf className="text-red-500 mr-2" />;
+    default:
+      return <FaExternalLinkAlt className="text-gray-500 mr-2" />;
+  }
+};
 
   const openMoodleLesson = (url) => {
     window.open(url, "_blank");
@@ -350,7 +325,7 @@ const ModuleDetails = () => {
     );
   }
 
-  //const totalLessons = lessons.length;
+  const totalLessons = lessons.length;
   const progressPercentage =
     totalLessons > 0
       ? Math.round((completedLessons.length / totalLessons) * 100)
@@ -362,7 +337,7 @@ const ModuleDetails = () => {
         <h1>{module.title}</h1>
         <p className="module-description">{module.description}</p>
 
-        {!module.isMoodle && role !== "Teacher" && (
+        {!module.isMoodle && (
           <>
             {isEnrolled && (
               <div className="progress-container">
@@ -558,8 +533,8 @@ const ModuleDetails = () => {
             <div className="time-progress mb-4">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-gray-700">
-                  {timeSpent >= requiredTime
-                    ? 'Supplementary resources unlocked'
+                  {timeSpent >= requiredTime 
+                    ? 'Supplementary resources unlocked' 
                     : 'Unlocking supplementary resources...'}
                 </span>
                 <span className="text-sm font-semibold text-blue-600">
@@ -567,121 +542,125 @@ const ModuleDetails = () => {
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div
-                  className={`h-2.5 rounded-full ${timeSpent >= requiredTime ? 'bg-green-500' : 'bg-blue-600'
-                    }`}
-                  style={{ width: `${(Math.min(timeSpent, requiredTime) / requiredTime) * 100}%` }}
+                <div 
+                  className={`h-2.5 rounded-full ${
+                    timeSpent >= requiredTime ? 'bg-green-500' : 'bg-blue-600'
+                  }`} 
+                  style={{ width: `${(Math.min(timeSpent, requiredTime)/requiredTime)*100}%` }}
                 ></div>
               </div>
             </div>
-
+            
             <div className="section-header">
               <h2 className="supplementary-title">
                 <FaBook className="mr-2" />
                 Supplementary Resources
               </h2>
-              <button
-                onClick={() => {
-                  const newState = !showSupplementary;
-                  setShowSupplementary(newState);
-                  localStorage.setItem(`showSupplementary_${id}`, String(newState));
-                }}
-                className="text-sm text-blue-600 hover:text-blue-800"
-              >
-                {showSupplementary ? 'Hide' : 'Show'}
-              </button>
+              <button 
+    onClick={() => {
+      const newState = !showSupplementary;
+      setShowSupplementary(newState);
+      localStorage.setItem(`showSupplementary_${id}`, String(newState));
+    }}
+    className="text-sm text-blue-600 hover:text-blue-800"
+  >
+    {showSupplementary ? 'Hide' : 'Show'}
+  </button>
             </div>
-
-            <div className="supplementary-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {supplementaryLessons.map(lesson => (
-                <div key={lesson._id} className={`supplementary-card rounded-lg shadow-md p-4 ${lesson.type === 'video' ? 'border-l-4 border-red-500' :
-                    lesson.type === 'article' ? 'border-l-4 border-blue-500' :
-                      lesson.type === 'exercise' ? 'border-l-4 border-green-500' :
-                        'border-l-4 border-purple-500'
-                  }`}>
-                  <div className="supplementary-content">
-                    <div className="flex items-center mb-2">
-                      {renderSupplementaryIcon(lesson.type)}
-                      <h4 className="font-semibold">{lesson.title}</h4>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <span className={`px-2 py-1 rounded text-xs ${lesson.type === 'video' ? 'bg-red-100 text-red-800' :
-                          lesson.type === 'article' ? 'bg-blue-100 text-blue-800' :
-                            lesson.type === 'exercise' ? 'bg-green-100 text-green-800' :
-                              'bg-purple-100 text-purple-800'
-                        }`}>
-                        {lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)}
-                      </span>
-                      {lesson.duration > 0 && (
-                        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-                          {lesson.duration} min
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="text-gray-600 mb-3 text-sm">
-                      {lesson.content || lesson.description || 'No content available'}
-                    </p>
-
-                    {lesson.resourceUrl && (
-                      <div className="mt-auto">
-                        {lesson.type === 'pdf' ? (
-                          <a
-                            href={`http://localhost:3000/pdf/${lesson.filePath}`}
-                            download={lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`}
-                            className="inline-flex items-center px-3 py-1 rounded text-sm bg-red-50 text-red-700 hover:bg-red-100"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              const link = document.createElement('a');
-                              link.href = `http://localhost:3000/pdf/${lesson.filePath}`;
-                              link.setAttribute('download', lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`);
-                              document.body.appendChild(link);
-                              link.click();
-                              document.body.removeChild(link);
-                            }}
-                          >
-                            <FaFilePdf className="mr-1" />
-                            Download PDF
-                          </a>
-                        ) : (
-                          <a
-                            href={lesson.resourceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`inline-flex items-center px-3 py-1 rounded text-sm ${lesson.type === 'video' ? 'bg-red-50 text-red-700 hover:bg-red-100' :
-                                lesson.type === 'article' ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' :
-                                  lesson.type === 'exercise' ? 'bg-green-50 text-green-700 hover:bg-green-100' :
-                                    'bg-purple-50 text-purple-700 hover:bg-purple-100'
-                              }`}
-                          >
-                            <FaExternalLinkAlt className="mr-1" />
-                            {lesson.type === 'video' ? 'Watch Video' :
-                              lesson.type === 'article' ? 'Read Article' :
-                                lesson.type === 'exercise' ? 'Start Exercise' :
-                                  'View Resource'}
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            
+         <div className="supplementary-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {supplementaryLessons.map(lesson => (
+    <div key={lesson._id} className={`supplementary-card rounded-lg shadow-md p-4 ${
+      lesson.type === 'video' ? 'border-l-4 border-red-500' :
+      lesson.type === 'article' ? 'border-l-4 border-blue-500' :
+      lesson.type === 'exercise' ? 'border-l-4 border-green-500' :
+      'border-l-4 border-purple-500'
+    }`}>
+      <div className="supplementary-content">
+        <div className="flex items-center mb-2">
+          {renderSupplementaryIcon(lesson.type)}
+          <h4 className="font-semibold">{lesson.title}</h4>
+        </div>
+        
+        <div className="flex flex-wrap gap-2 mb-3">
+          <span className={`px-2 py-1 rounded text-xs ${
+            lesson.type === 'video' ? 'bg-red-100 text-red-800' :
+            lesson.type === 'article' ? 'bg-blue-100 text-blue-800' :
+            lesson.type === 'exercise' ? 'bg-green-100 text-green-800' :
+            'bg-purple-100 text-purple-800'
+          }`}>
+            {lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)}
+          </span>
+          {lesson.duration > 0 && (
+            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+              {lesson.duration} min
+            </span>
+          )}
+        </div>
+        
+        <p className="text-gray-600 mb-3 text-sm">
+          {lesson.content || lesson.description || 'No content available'}
+        </p>
+        
+       {lesson.resourceUrl && (
+  <div className="mt-auto">
+  {lesson.type === 'pdf' ? (
+  <a 
+  href={`http://localhost:3000/pdf/${lesson.filePath}`} 
+  download={lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`}
+  className="inline-flex items-center px-3 py-1 rounded text-sm bg-red-50 text-red-700 hover:bg-red-100"
+  onClick={(e) => {
+    e.preventDefault();
+    const link = document.createElement('a');
+    link.href = `http://localhost:3000/pdf/${lesson.filePath}`;
+    link.setAttribute('download', lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }}
+>
+  <FaFilePdf className="mr-1" />
+  Download PDF
+</a>
+    ) : (
+      <a 
+        href={lesson.resourceUrl} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className={`inline-flex items-center px-3 py-1 rounded text-sm ${
+          lesson.type === 'video' ? 'bg-red-50 text-red-700 hover:bg-red-100' :
+          lesson.type === 'article' ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' :
+          lesson.type === 'exercise' ? 'bg-green-50 text-green-700 hover:bg-green-100' :
+          'bg-purple-50 text-purple-700 hover:bg-purple-100'
+        }`}
+      >
+        <FaExternalLinkAlt className="mr-1" />
+        {lesson.type === 'video' ? 'Watch Video' : 
+         lesson.type === 'article' ? 'Read Article' : 
+         lesson.type === 'exercise' ? 'Start Exercise' : 
+         'View Resource'}
+      </a>
+    )}
+  </div>
+)}
+      </div>
+    </div>
+  ))}
+</div>
           </div>
         )}
 
-
+        
 
         {!module.isMoodle && role === "Teacher" && supplementaryLessons.length > 0 && (
           <div className="supplementary-section mt-8">
             <div className="section-header">
               <h2 className="supplementary-title">
                 <FaBook className="mr-2" />
-                Supplementary Resources
+                Supplementary Resources 
               </h2>
             </div>
-
+            
             <div className="supplementary-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {supplementaryLessons.map(lesson => (
                 <div key={lesson._id} className="supplementary-card bg-white rounded-lg shadow-md p-4 relative">
@@ -702,16 +681,16 @@ const ModuleDetails = () => {
                     </div>
                     <p className="text-gray-600 mb-3">{lesson.content || lesson.description || 'No content available'}</p>
                     {lesson.resourceUrl && (
-                      <a
-                        href={lesson.resourceUrl}
-                        target="_blank"
+                      <a 
+                        href={lesson.resourceUrl} 
+                        target="_blank" 
                         rel="noopener noreferrer"
                         className="resource-link inline-flex items-center text-blue-600 hover:text-blue-800"
                       >
                         <FaExternalLinkAlt className="mr-1" />
-                        {lesson.type === 'video' ? 'Watch Video' :
-                          lesson.type === 'article' ? 'Read Article' :
-                            'View Resource'}
+                        {lesson.type === 'video' ? 'Watch Video' : 
+                         lesson.type === 'article' ? 'Read Article' : 
+                         'View Resource'}
                       </a>
                     )}
                   </div>
