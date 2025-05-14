@@ -1,5 +1,4 @@
 [build]
-  install = "npm install --force"
-  command = "npm run build"
-  publish = "build"      
-  functions = "my_functions"
+  install = "echo 'skip install'"
+  command = "echo 'skip build'"
+  publish = "dist"
