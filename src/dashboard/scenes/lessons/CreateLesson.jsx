@@ -1,10 +1,9 @@
-// CreateLesson.jsx
+import React, { useState, useEffect } from "react";
 import {
+  Container,
   Box,
   Button,
-  Card,
   CardContent,
-  CardHeader,
   CardActions,
   TextField,
   Typography,
@@ -14,44 +13,41 @@ import {
   IconButton,
   MenuItem,
   useTheme,
+  Paper,
 } from "@mui/material";
-import { Upload, Delete, Add } from "@mui/icons-material";
-import { useState, useEffect } from "react";
+import {
+  Upload,
+  Delete,
+  Add,
+  ArrowBack as ArrowBackIcon,
+} from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const CreateLesson = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
 
-  const initialLecture = {
-    title: "",
-    file: null,
-    fileUrl: "",
-    public_id: "",
-  };
+  const initialLecture = { title: "", file: null };
 
-  // Lesson data now includes "module"
   const [lessonData, setLessonData] = useState({
     content: "",
     typeLesson: "",
     module: "",
   });
-
   const [lectures, setLectures] = useState([{ ...initialLecture }]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [modules, setModules] = useState([]);
 
-  // Fetch modules from /api/module when the component mounts.
   useEffect(() => {
     const fetchModules = async () => {
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get("http://localhost:3000/module", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });        // Adjust according to your API response structure:
-        setModules(response.data.modules || response.data);
+        const { data } = await axios.get("http://localhost:3000/module", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setModules(data.modules || data);
       } catch (err) {
         console.error("Error fetching modules:", err);
       }
@@ -61,7 +57,7 @@ const CreateLesson = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setLessonData({ ...lessonData, [name]: value });
+    setLessonData((prev) => ({ ...prev, [name]: value }));
   };
 
   const uploadToCloudinary = async (file) => {
@@ -70,14 +66,11 @@ const CreateLesson = () => {
     formData.append("file", file);
     formData.append("upload_preset", "edunova_preset");
 
-    const response = await axios.post(url, formData, {
-      onUploadProgress: (event) => {
-        const percent = Math.round((event.loaded * 100) / event.total);
-        setUploadProgress(percent);
-      },
+    const res = await axios.post(url, formData, {
+      onUploadProgress: (e) =>
+        setUploadProgress(Math.round((e.loaded * 100) / e.total)),
     });
-
-    return response.data;
+    return res.data;
   };
 
   const handleSubmit = async () => {
@@ -86,268 +79,343 @@ const CreateLesson = () => {
 
     try {
       setUploading(true);
-
-      for (const lecture of lectures) {
-        const uploadResult = await uploadToCloudinary(lecture.file);
-
+      for (const lec of lectures) {
+        const uploadResult = await uploadToCloudinary(lec.file);
         await axios.post(
           "http://localhost:3000/api/lessons",
           {
-            title: lecture.title,
+            title: lec.title,
             content: lessonData.content,
             typeLesson: lessonData.typeLesson,
-            module: lessonData.module, // Include selected module
+            module: lessonData.module,
             fileUrl: uploadResult.secure_url,
             public_id: uploadResult.public_id,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
       }
-
       alert("Lectures uploaded successfully ✅");
       setLectures([{ ...initialLecture }]);
       setLessonData({ content: "", typeLesson: "", module: "" });
       setUploadProgress(0);
     } catch (err) {
-      console.error(
-        "❌ Error creating lessons:",
-        err.response?.data || err.message
-      );
-      alert(err.response?.data?.error || "Error while creating lessons");
+      console.error("Error creating lessons:", err);
+      alert(err.response?.data?.error || "Something went wrong");
     } finally {
       setUploading(false);
     }
   };
 
-  // Validate that every required field is filled
   const isValid =
     lessonData.content.trim() &&
-    lessonData.typeLesson.trim() &&
+    lessonData.typeLesson &&
     lessonData.module &&
     lectures.every((l) => l.title.trim() && l.file);
 
-  const renderFilePreview = (file) => {
+  const renderPreview = (file) => {
     const url = URL.createObjectURL(file);
-    if (file.type.includes("video")) {
+    if (file.type.includes("video"))
       return (
-        <video controls src={url} width="100%" style={{ borderRadius: 8 }} />
+        <video
+          controls
+          src={url}
+          style={{
+            borderRadius: 8,
+            width: "100%",
+            boxShadow: theme.shadows[2],
+          }}
+        />
       );
-    } else if (file.type.includes("image")) {
+    if (file.type.includes("image"))
       return (
-        <img src={url} alt="preview" width="100%" style={{ borderRadius: 8 }} />
+        <img
+          src={url}
+          alt=""
+          style={{
+            borderRadius: 8,
+            width: "100%",
+            boxShadow: theme.shadows[2],
+          }}
+        />
       );
-    } else if (file.type.includes("audio")) {
+    if (file.type.includes("audio"))
       return <audio controls src={url} style={{ width: "100%" }} />;
-    } else if (file.type.includes("pdf")) {
+    if (file.type.includes("pdf"))
       return (
         <iframe
           src={url}
-          title="PDF Preview"
+          title="PDF"
           width="100%"
-          height="400px"
-          style={{ borderRadius: 8, border: "1px solid #ccc" }}
+          height="300px"
+          style={{
+            borderRadius: 8,
+            border: `1px solid ${theme.palette.divider}`,
+          }}
         />
       );
-    }
-    return <Typography variant="body2">Unsupported file type</Typography>;
+    return <Typography>Unsupported file type</Typography>;
   };
 
   return (
-    <Card
-      sx={{
-        p: 4,
-        borderRadius: 4,
-        boxShadow: theme.shadows[6],
-        background: theme.palette.background.paper,
-      }}
-    >
-      <CardHeader
-        title="🎓 Create Course Curriculum"
-        titleTypographyProps={{
-          fontSize: 26,
-          fontWeight: 700,
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      {/* Back Button */}
+      <Button
+        variant="text"
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate(-1)}
+        sx={{
+          mb: 3,
+          textTransform: "none",
+          color: theme.palette.success.main,
         }}
-        sx={{ pb: 0 }}
-      />
+      >
+        Back to Dashboard
+      </Button>
 
-      <CardContent>
-        <Stack spacing={4}>
-          <TextField
-            label="Lesson Content"
-            name="content"
-            value={lessonData.content}
-            onChange={handleChange}
-            fullWidth
-            multiline
-            rows={4}
-            variant="outlined"
-          />
-
-          {/* Module select dropdown */}
-          <TextField
-            select
-            label="Select Module"
-            name="module"
-            value={lessonData.module}
-            onChange={handleChange}
-            fullWidth
-            variant="outlined"
+      <Paper elevation={4} sx={{ borderRadius: 2, overflow: "hidden" }}>
+        {/* Header with success gradient */}
+        <Box
+          sx={{
+            background: `linear-gradient(135deg, ${theme.palette.success.light}, ${theme.palette.success.main})`,
+            p: 3,
+          }}
+        >
+          <Typography
+            variant="h4"
+            align="center"
+            color="common.white"
+            sx={{ fontWeight: 700 }}
           >
-           {modules.length === 0 ? (
-            <MenuItem disabled>Loading modules...</MenuItem>
-          ) : (
-            modules.map((moduleItem) => (
-              <MenuItem key={moduleItem._id} value={moduleItem._id}>
-                {moduleItem.title}
-              </MenuItem>
-            ))
+            🎓 Create Course Curriculum
+          </Typography>
+        </Box>
+
+        {/* Lesson Basics */}
+        <CardContent sx={{ p: 4 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{ color: theme.palette.success.dark, fontWeight: 600 }}
+          >
+            Lesson Details
+          </Typography>
+          <Stack spacing={3}>
+            <TextField
+              label="Lesson Content"
+              name="content"
+              value={lessonData.content}
+              onChange={handleChange}
+              fullWidth
+              multiline
+              rows={4}
+              variant="outlined"
+              sx={{
+                "& fieldset": {
+                  borderColor: theme.palette.success.light,
+                },
+              }}
+            />
+
+            <TextField
+              select
+              label="Select Module"
+              name="module"
+              value={lessonData.module}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              sx={{
+                "& fieldset": {
+                  borderColor: theme.palette.success.light,
+                },
+              }}
+            >
+              {modules.length === 0 ? (
+                <MenuItem disabled>Loading modules...</MenuItem>
+              ) : (
+                modules.map((m) => (
+                  <MenuItem key={m._id} value={m._id}>
+                    {m.title}
+                  </MenuItem>
+                ))
+              )}
+            </TextField>
+
+            <TextField
+              select
+              label="Type of Lesson"
+              name="typeLesson"
+              value={lessonData.typeLesson}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              sx={{
+                "& fieldset": {
+                  borderColor: theme.palette.success.light,
+                },
+              }}
+            >
+              {["video", "pdf", "audio", "photo"].map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Stack>
+        </CardContent>
+
+        <Divider />
+
+        {/* Lectures List */}
+        <CardContent sx={{ p: 4 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{ fontWeight: 600, color: theme.palette.success.main }}
+          >
+            Lectures
+          </Typography>
+          <Stack spacing={4}>
+            {lectures.map((lec, i) => (
+              <Paper
+                key={i}
+                elevation={1}
+                sx={{
+                  p: 3,
+                  borderLeft: `6px solid ${theme.palette.success.main}`,
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={600}
+                  gutterBottom
+                  sx={{ color: theme.palette.success.dark }}
+                >
+                  📘 Lecture {i + 1}
+                </Typography>
+                <Stack spacing={2}>
+                  <TextField
+                    label="Lecture Title"
+                    value={lec.title}
+                    onChange={(e) => {
+                      const updated = [...lectures];
+                      updated[i].title = e.target.value;
+                      setLectures(updated);
+                    }}
+                    fullWidth
+                    variant="outlined"
+                  />
+
+                  <Button
+                    variant="contained"
+                    color="success"
+                    component="label"
+                    startIcon={<Upload />}
+                    sx={{ textTransform: "none" }}
+                  >
+                    {lec.file ? "Change File" : "Upload File"}
+                    <input
+                      type="file"
+                      accept="video/*,image/*,application/pdf,audio/*"
+                      hidden
+                      onChange={(e) => {
+                        const updated = [...lectures];
+                        updated[i].file = e.target.files[0];
+                        setLectures(updated);
+                      }}
+                    />
+                  </Button>
+
+                  {lec.file && renderPreview(lec.file)}
+
+                  <Box textAlign="right">
+                    <IconButton
+                      color="error"
+                      onClick={() => {
+                        const filtered = lectures.filter((_, idx) => idx !== i);
+                        setLectures(
+                          filtered.length ? filtered : [{ ...initialLecture }]
+                        );
+                      }}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Box>
+                </Stack>
+              </Paper>
+            ))}
+          </Stack>
+
+          <Box textAlign="center" mt={3}>
+            <Button
+              variant="outlined"
+              color="success"
+              startIcon={<Add />}
+              onClick={() => setLectures([...lectures, { ...initialLecture }])}
+              sx={{
+                borderRadius: 2,
+                px: 4,
+                fontWeight: 500,
+                textTransform: "none",
+                "&:hover": {
+                  background: theme.palette.success.light,
+                },
+              }}
+            >
+              Add Another Lecture
+            </Button>
+          </Box>
+
+          {uploading && (
+            <Box mt={3}>
+              <LinearProgress
+                variant="determinate"
+                value={uploadProgress}
+                sx={{
+                  height: 8,
+                  borderRadius: 4,
+                  [`& .MuiLinearProgress-bar`]: {
+                    backgroundColor: theme.palette.success.main,
+                  },
+                }}
+              />
+              <Typography variant="body2" mt={1}>
+                Uploading: {uploadProgress}%
+              </Typography>
+            </Box>
           )}
+        </CardContent>
 
-          </TextField>
-
-          <TextField
-            select
-            label="Type of Lesson"
-            name="typeLesson"
-            value={lessonData.typeLesson}
-            onChange={handleChange}
-            fullWidth
-            variant="outlined"
-          >
-            <MenuItem value="video">Video</MenuItem>
-            <MenuItem value="pdf">PDF</MenuItem>
-            <MenuItem value="audio">Audio</MenuItem>
-            <MenuItem value="photo">Photo</MenuItem>
-          </TextField>
-        </Stack>
-
-        <Divider sx={{ my: 4 }} />
-
-        {lectures.map((lecture, index) => (
-          <Box
-            key={index}
+        {/* Submit */}
+        <CardActions
+          sx={{
+            justifyContent: "flex-end",
+            background: theme.palette.grey[100],
+            p: 3,
+          }}
+        >
+          <Button
+            variant="contained"
+            size="large"
+            disabled={!isValid || uploading}
+            onClick={handleSubmit}
             sx={{
-              p: 3,
-              mb: 4,
-              border: `1px solid ${theme.palette.divider}`,
               borderRadius: 3,
-              backgroundColor: theme.palette.grey[50],
+              px: 5,
+              py: 1.2,
+              fontSize: "1rem",
+              fontWeight: 600,
+              backgroundColor: theme.palette.success.main,
+              "&:hover": {
+                backgroundColor: theme.palette.success.dark,
+              },
             }}
           >
-            <Typography fontWeight={600} variant="h6" gutterBottom>
-              📘 Lecture {index + 1}
-            </Typography>
-
-            <Stack spacing={2}>
-              <TextField
-                label="Lecture Title"
-                value={lecture.title}
-                onChange={(e) => {
-                  const updated = [...lectures];
-                  updated[index].title = e.target.value;
-                  setLectures(updated);
-                }}
-                fullWidth
-              />
-
-              <Button
-                variant="outlined"
-                component="label"
-                startIcon={<Upload />}
-              >
-                {lecture.file ? "Replace File" : "Upload File"}
-                <input
-                  type="file"
-                  accept="video/*,image/*,application/pdf,audio/*"
-                  hidden
-                  onChange={(e) => {
-                    const updated = [...lectures];
-                    updated[index].file = e.target.files[0];
-                    setLectures(updated);
-                  }}
-                />
-              </Button>
-
-              {lecture.file && (
-                <Box>
-                  <Typography
-                    variant="body2"
-                    sx={{ mb: 1, fontStyle: "italic" }}
-                  >
-                    🎞️ Selected: {lecture.file.name}
-                  </Typography>
-                  {renderFilePreview(lecture.file)}
-                </Box>
-              )}
-
-              <Box display="flex" justifyContent="flex-end">
-                <IconButton
-                  color="error"
-                  onClick={() => {
-                    const updated = lectures.filter((_, i) => i !== index);
-                    setLectures(updated.length ? updated : [{ ...initialLecture }]);
-                  }}
-                >
-                  <Delete />
-                </IconButton>
-              </Box>
-            </Stack>
-          </Box>
-        ))}
-
-        <Button
-          variant="outlined"
-          startIcon={<Add />}
-          onClick={() => setLectures([...lectures, { ...initialLecture }])}
-          sx={{
-            borderRadius: 2,
-            borderColor: theme.palette.grey[300],
-            px: 4,
-            fontWeight: 500,
-            color: theme.palette.primary.main,
-            "&:hover": {
-              borderColor: theme.palette.primary.main,
-              background: theme.palette.action.hover,
-            },
-          }}
-        >
-          Add Another Lecture
-        </Button>
-
-        {uploading && (
-          <Box sx={{ mt: 3 }}>
-            <LinearProgress variant="determinate" value={uploadProgress} />
-            <Typography variant="body2" mt={1}>
-              Uploading: {uploadProgress}%
-            </Typography>
-          </Box>
-        )}
-      </CardContent>
-
-      <CardActions sx={{ justifyContent: "flex-end", p: 3 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          disabled={!isValid || uploading}
-          onClick={handleSubmit}
-          sx={{
-            borderRadius: 3,
-            px: 5,
-            py: 1.2,
-            fontSize: "1rem",
-            fontWeight: 600,
-            textTransform: "none",
-          }}
-        >
-          🚀 Submit All Lectures
-        </Button>
-      </CardActions>
-    </Card>
+            🚀 Submit All Lectures
+          </Button>
+        </CardActions>
+      </Paper>
+    </Container>
   );
 };
 

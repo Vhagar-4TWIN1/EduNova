@@ -34,34 +34,33 @@ import {
 import { Clock, RotateCw, CheckIcon } from "lucide-react";
 import { format, addDays, addHours } from "date-fns";
 
-// —— Zod schema ——
-const autoPlanFormSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  type: z.enum(["module", "videoChat", "task", "focus"]),
-  description: z.string().optional(),
-  durationMin: z
-    .number()
-    .min(15, "Duration must be at least 15 minutes")
-    .max(480, "Duration must be less than 8 hours"),
-  priority: z.enum(["low", "normal", "high"]),
-  moduleId: z.string().optional(),
-  userId: z.string(),
-  sessionLengthPreference: z.enum(["short", "long"]),
-  breakRhythm: z.object({
-    workMin: z.number().min(5, "Work must be at least 5 minutes"),
-    breakMin: z.number().min(2, "Break must be at least 2 minutes"),
-  }),
-  dueDate: z.date().optional(),
-  preferredTimeRange: z
-    .object({ start: z.date(), end: z.date() })
-    .optional(),
-}).refine(
-  (vals) => vals.type !== "module" || !!vals.moduleId,
-  { message: "Please select a module", path: ["moduleId"] }
-).refine(
-  (vals) => vals.type !== "module" || !!vals.dueDate,
-  { message: "Please pick a deadline for modules", path: ["dueDate"] }
-);
+// —— Zod schema —— 
+const autoPlanFormSchema = z
+  .object({
+    title: z.string().min(3, "Title must be at least 3 characters"),
+    type: z.enum(["module", "videoChat", "task", "focus"]),
+    description: z.string().optional(),
+    durationMin: z
+      .number()
+      .min(15, "Duration must be at least 15 minutes")
+      .max(480, "Duration must be less than 8 hours"),
+    priority: z.enum(["low", "normal", "high"]),
+    moduleId: z.string().optional(),
+    userId: z.string(),
+   
+    dueDate: z.date().optional(),
+    preferredTimeRange: z
+      .object({ start: z.date(), end: z.date() })
+      .optional(),
+  })
+  .refine(
+    (vals) => vals.type !== "module" || !!vals.moduleId,
+    { message: "Please select a module", path: ["moduleId"] }
+  )
+  .refine(
+    (vals) => vals.type !== "module" || !!vals.dueDate,
+    { message: "Please pick a deadline for modules", path: ["dueDate"] }
+  );
 
 export default function AutoPlanningForm({ onSuccess }) {
   const [showTimePreference, setShowTimePreference] = useState(false);
@@ -70,7 +69,7 @@ export default function AutoPlanningForm({ onSuccess }) {
   const queryClient = useQueryClient();
   const userId = localStorage.getItem("userId") || "";
 
-  // React Hook Form setup
+  // —— React Hook Form setup —— 
   const form = useForm({
     resolver: zodResolver(autoPlanFormSchema),
     defaultValues: {
@@ -86,7 +85,7 @@ export default function AutoPlanningForm({ onSuccess }) {
     },
   });
 
-  // fetch modules
+  // —— Fetch modules —— 
   const modulesQuery = useQuery({
     queryKey: ["module"],
     queryFn: () => apiRequest("/module"),
@@ -96,10 +95,9 @@ export default function AutoPlanningForm({ onSuccess }) {
   const modules = modulesQuery.data || [];
   const modulesLoading = modulesQuery.isLoading;
 
-  // watchers
+  // —— Watchers & filters —— 
   const selectedType = form.watch("type");
   const moduleIdValue = form.watch("moduleId");
-  const selectedModule = modules.find((m) => m._id === moduleIdValue);
   const filteredModules = useMemo(
     () =>
       modules.filter((m) =>
@@ -108,18 +106,25 @@ export default function AutoPlanningForm({ onSuccess }) {
     [modules, moduleFilter]
   );
 
-  // mutation
+  // —— Mutation —— 
   const autoSchedule = useMutation({
-    mutationFn: (data) =>
-      apiRequest("/api/scheduler/auto-schedule", {
+    mutationFn: (data) => {
+      console.log("🚀 mutationFn payload:", data);
+      return apiRequest("/api/scheduler/auto-schedule", {
         method: "POST",
         body: data,
-      }),
+      });
+    },
+    onMutate: (vars) => {
+      console.log("⏳ onMutate:", vars);
+    },
     onSuccess: (data) => {
+      console.log("✅ onSuccess:", data);
       queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       toast({
         title: "Event Auto-Scheduled",
-        description: data.message || "Your event has been intelligently scheduled.",
+        description:
+          data.message || "Your event has been intelligently scheduled.",
       });
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       form.reset();
@@ -127,7 +132,7 @@ export default function AutoPlanningForm({ onSuccess }) {
       onSuccess?.();
     },
     onError: (err) => {
-      console.error(err);
+      console.error("❌ onError:", err);
       toast({
         title: "Scheduling Failed",
         description: err.message || "An error occurred.",
@@ -136,7 +141,11 @@ export default function AutoPlanningForm({ onSuccess }) {
     },
   });
 
-  const onSubmit = (data) => autoSchedule.mutate(data);
+  // —— Submit handler —— 
+  const onSubmit = (data) => {
+    console.log("📝 onSubmit data:", data);
+    autoSchedule.mutate(data);
+  };
 
   return (
     <Card className="w-full">
@@ -152,7 +161,13 @@ export default function AutoPlanningForm({ onSuccess }) {
 
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(
+              onSubmit,
+              (errors) => console.log("❗️ Validation errors:", errors)
+            )}
+            className="space-y-4"
+          >
             {/* Title */}
             <FormField
               control={form.control}
@@ -177,23 +192,22 @@ export default function AutoPlanningForm({ onSuccess }) {
                   <FormItem className="flex-1">
                     <FormLabel>Activity Type</FormLabel>
                     <FormControl>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent className="bg-white z-50 shadow-lg">
-                          <SelectItem value="module" className="hover:bg-muted/20">
+                          <SelectItem value="module">
                             Module
                           </SelectItem>
-                          <SelectItem value="videoChat" className="hover:bg-muted/20">
+                          <SelectItem value="videoChat">
                             Video Chat
                           </SelectItem>
-                          <SelectItem value="task" className="hover:bg-muted/20">
-                            Task
-                          </SelectItem>
-                          <SelectItem value="focus" className="hover:bg-muted/20">
-                            Focus
-                          </SelectItem>
+                          <SelectItem value="task">Task</SelectItem>
+                          <SelectItem value="focus">Focus</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -208,20 +222,17 @@ export default function AutoPlanningForm({ onSuccess }) {
                   <FormItem className="flex-1">
                     <FormLabel>Priority</FormLabel>
                     <FormControl>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select priority" />
                         </SelectTrigger>
                         <SelectContent className="bg-white z-50 shadow-lg">
-                          <SelectItem value="high" className="hover:bg-muted/20">
-                            High
-                          </SelectItem>
-                          <SelectItem value="normal" className="hover:bg-muted/20">
-                            Normal
-                          </SelectItem>
-                          <SelectItem value="low" className="hover:bg-muted/20">
-                            Low
-                          </SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="low">Low</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -240,7 +251,10 @@ export default function AutoPlanningForm({ onSuccess }) {
                   <FormItem>
                     <FormLabel>Select Module</FormLabel>
                     <FormControl>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger className="h-12 rounded-md border px-4">
                           <SelectValue placeholder="Search modules..." />
                         </SelectTrigger>
@@ -249,7 +263,9 @@ export default function AutoPlanningForm({ onSuccess }) {
                             <Input
                               placeholder="Filter modules..."
                               value={moduleFilter}
-                              onChange={e => setModuleFilter(e.target.value)}
+                              onChange={(e) =>
+                                setModuleFilter(e.target.value)
+                              }
                               autoFocus
                             />
                           </div>
@@ -257,8 +273,12 @@ export default function AutoPlanningForm({ onSuccess }) {
                             {modulesLoading ? (
                               <div className="p-2">Loading…</div>
                             ) : filteredModules.length ? (
-                              filteredModules.map(m => (
-                                <SelectItem key={m._id} value={m._id} className="hover:bg-muted/20">
+                              filteredModules.map((m) => (
+                                <SelectItem
+                                  key={m._id}
+                                  value={m._id}
+                                  className="hover:bg-muted/20"
+                                >
                                   {m.title}
                                 </SelectItem>
                               ))
@@ -286,7 +306,13 @@ export default function AutoPlanningForm({ onSuccess }) {
                   <FormItem className="flex-1">
                     <FormLabel>Duration (min)</FormLabel>
                     <FormControl>
-                      <Input type="number" min={15} max={480} step={15} {...field} />
+                      <Input
+                        type="number"
+                        min={15}
+                        max={480}
+                        step={15}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -301,8 +327,14 @@ export default function AutoPlanningForm({ onSuccess }) {
                     <FormControl>
                       <Input
                         type="datetime-local"
-                        value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ""}
-                        onChange={e => field.onChange(new Date(e.target.value))}
+                        value={
+                          field.value
+                            ? format(field.value, "yyyy-MM-dd'T'HH:mm")
+                            : ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(new Date(e.target.value))
+                        }
                         className="w-full rounded-md border px-4 py-2"
                       />
                     </FormControl>
@@ -327,18 +359,18 @@ export default function AutoPlanningForm({ onSuccess }) {
               )}
             />
 
-      
-
             {/* Toggle Time Preferences */}
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setShowTimePreference(v => !v)}
+              onClick={() => setShowTimePreference((v) => !v)}
               className="flex items-center"
             >
               <Clock className="mr-2 h-4 w-4" />
-              {showTimePreference ? "Hide Time Preferences" : "Add Time Preferences"}
+              {showTimePreference
+                ? "Hide Time Preferences"
+                : "Add Time Preferences"}
             </Button>
 
             {/* Preferred Time Range */}
@@ -354,8 +386,13 @@ export default function AutoPlanningForm({ onSuccess }) {
                         <FormControl>
                           <Input
                             type="datetime-local"
-                            value={format(field.value || new Date(), "yyyy-MM-dd'T'HH:mm")}
-                            onChange={e => field.onChange(new Date(e.target.value))}
+                            value={format(
+                              field.value || new Date(),
+                              "yyyy-MM-dd'T'HH:mm"
+                            )}
+                            onChange={(e) =>
+                              field.onChange(new Date(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -371,8 +408,13 @@ export default function AutoPlanningForm({ onSuccess }) {
                         <FormControl>
                           <Input
                             type="datetime-local"
-                            value={format(field.value || addHours(new Date(), 3), "yyyy-MM-dd'T'HH:mm")}
-                            onChange={e => field.onChange(new Date(e.target.value))}
+                            value={format(
+                              field.value || addHours(new Date(), 3),
+                              "yyyy-MM-dd'T'HH:mm"
+                            )}
+                            onChange={(e) =>
+                              field.onChange(new Date(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -381,28 +423,50 @@ export default function AutoPlanningForm({ onSuccess }) {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => {
-                    const now = new Date();
-                    form.setValue("preferredTimeRange.start", now);
-                    form.setValue("preferredTimeRange.end", addHours(now, 3));
-                  }}>Today</Button>
-                  <Button variant="outline" size="sm" onClick={() => {
-                    const t = addDays(new Date(), 1);
-                    t.setHours(9,0,0,0);
-                    form.setValue("preferredTimeRange.start", t);
-                    form.setValue("preferredTimeRange.end", addHours(t, 6));
-                  }}>Tomorrow</Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const now = new Date();
+                      form.setValue("preferredTimeRange.start", now);
+                      form.setValue("preferredTimeRange.end", addHours(now, 3));
+                    }}
+                  >
+                    Today
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const t = addDays(new Date(), 1);
+                      t.setHours(9, 0, 0, 0);
+                      form.setValue("preferredTimeRange.start", t);
+                      form.setValue("preferredTimeRange.end", addHours(t, 6));
+                    }}
+                  >
+                    Tomorrow
+                  </Button>
                 </div>
               </div>
             )}
 
             {/* Submit */}
             <div className="pt-4">
-              <Button type="submit" className="w-full" disabled={autoSchedule.isLoading}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={autoSchedule.isLoading}
+              >
                 {autoSchedule.isLoading ? (
-                  <><RotateCw className="mr-2 h-4 w-4 animate-spin" />Scheduling…</>
+                  <>
+                    <RotateCw className="mr-2 h-4 w-4 animate-spin" />
+                    Scheduling…
+                  </>
                 ) : (
-                  <><CheckIcon className="mr-2 h-4 w-4" />Schedule It For Me</>
+                  <>
+                    <CheckIcon className="mr-2 h-4 w-4" />
+                    Schedule It For Me
+                  </>
                 )}
               </Button>
             </div>

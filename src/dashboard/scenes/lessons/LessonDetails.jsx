@@ -1,20 +1,24 @@
+import React, { useEffect, useState } from "react";
 import {
   Box,
-  Typography,
-  Card,
-  CardContent,
-  CardHeader,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
+  Button,
   IconButton,
   Tooltip,
+  Typography,
+  Divider,
   Stack,
   Chip,
   Paper,
-  Button,
+  Avatar,
+  Card,
+  CardContent,
+  CardHeader,
+  Tabs,
+  Tab,
+  Grid,
+  useTheme,
+  CircularProgress,
+  Skeleton,
 } from "@mui/material";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
@@ -22,141 +26,119 @@ import AudiotrackIcon from "@mui/icons-material/Audiotrack";
 import ImageIcon from "@mui/icons-material/Image";
 import DownloadIcon from "@mui/icons-material/Download";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
-const LessonDetails = () => {
+export default function LessonDetails() {
+  const theme = useTheme();
   const { id } = useParams();
   const navigate = useNavigate();
   const [lesson, setLesson] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [loadingAI, setLoadingAI] = useState(false);
-
-  const fetchLesson = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`http://localhost:3000/api/lessons/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setLesson(res.data);
-    } catch (err) {
-      console.error("Failed to load lesson:", err);
-    }
-  };
+  const [tab, setTab] = useState(0);
 
   useEffect(() => {
-    fetchLesson();
+    (async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const { data } = await axios.get(`/api/lessons/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setLesson(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id]);
 
   const generateAIAnnotations = async () => {
+    setLoadingAI(true);
     try {
-      setLoadingAI(true);
       const token = localStorage.getItem("token");
-      const res = await axios.post(
-        `http://localhost:3000/api/lessons/${id}/generate-ai-annotations`,
+      await axios.post(
+        `/api/lessons/${id}/generate-ai-annotations`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("AI annotations response:", res.data);
+      const { data } = await axios.get(`/api/lessons/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      setLesson(data);
     } catch (err) {
-      console.error("Failed to generate AI annotations:", err);
+      console.error(err);
     } finally {
       setLoadingAI(false);
-      // Re-fetch the lesson to get newly created annotations from the DB
-      await fetchLesson();
-      console.log("Annotation generation process finished and lesson re-fetched.");
     }
   };
-  
-  
-  
 
   const getFileIcon = (type) => {
     if (type.includes("pdf")) return <PictureAsPdfIcon color="error" />;
-    if (type.includes("video")) return <VideoLibraryIcon color="primary" />;
-    if (type.includes("image")) return <ImageIcon color="secondary" />;
-    if (type.includes("audio")) return <AudiotrackIcon color="success" />;
+    if (type.includes("video")) return <VideoLibraryIcon color="success" />;
+    if (type.includes("image")) return <ImageIcon color="info" />;
+    if (type.includes("audio")) return <AudiotrackIcon color="primary" />;
     return <PictureAsPdfIcon />;
   };
 
-  const renderMediaPreview = () => {
-    const url = lesson?.fileUrl;
-    if (!url) return null;
-
-    if (lesson.typeLesson === "video") {
-      return (
-        <video controls width="100%" style={{ borderRadius: 8, marginTop: 16 }}>
-          <source src={url} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      );
+  const renderPreview = () => {
+    if (!lesson?.fileUrl) return <Typography color="textSecondary">No preview available.</Typography>;
+    const url = lesson.fileUrl;
+    switch (lesson.typeLesson) {
+      case "video":
+        return (
+          <video controls width="100%" style={{ borderRadius: 8, boxShadow: theme.shadows[1] }}>
+            <source src={url} type="video/mp4" />
+          </video>
+        );
+      case "audio":
+        return (
+          <Paper variant="outlined" sx={{ p: 2, boxShadow: theme.shadows[1] }}>
+            <audio controls style={{ width: '100%' }}>
+              <source src={url} type="audio/mpeg" />
+            </audio>
+          </Paper>
+        );
+      case "image":
+      case "photo":
+        return (
+          <Box component="img" src={url} alt="media" sx={{ width: '100%', borderRadius: 2, boxShadow: theme.shadows[1] }} />
+        );
+      case "pdf": {
+        const gUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+        return (
+          <iframe
+            src={gUrl}
+            title="PDF Preview"
+            width="100%"
+            height={500}
+            style={{ border: 0, borderRadius: 8, boxShadow: theme.shadows[1] }}
+          />
+        );
+      }
+      default:
+        return <Typography>No preview for this type.</Typography>;
     }
-
-    if (lesson.typeLesson === "audio") {
-      return (
-        <audio controls style={{ width: "100%", marginTop: 16 }}>
-          <source src={url} type="audio/mpeg" />
-          Your browser does not support the audio tag.
-        </audio>
-      );
-    }
-
-    if (lesson.typeLesson === "photo" || lesson.typeLesson === "image") {
-      return (
-        <img
-          src={url}
-          alt="Lesson media"
-          style={{ maxWidth: "100%", marginTop: 16, borderRadius: 8 }}
-        />
-      );
-    }
-
-    if (lesson.typeLesson === "pdf") {
-      const googleDocsUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
-      return (
-        <iframe
-          src={googleDocsUrl}
-          title="PDF Viewer"
-          width="100%"
-          height="600"
-          style={{ marginTop: 16, borderRadius: 8, border: "none" }}
-        />
-      );
-    }
-
-    return null;
   };
+
   const renderAnnotations = () => {
     if (!lesson?.annotations?.length) {
-      return <Typography>No annotations yet.</Typography>;
+      return <Typography color="textSecondary">No annotations yet.</Typography>;
     }
-  
     return (
       <Stack spacing={2} mt={2}>
-        {lesson.annotations.map((ann, i) => (
-          <Paper key={i} sx={{ p: 2, borderLeft: "4px solid #1976d2" }}>
-            {ann.userId && (
-              <>
-                <Typography variant="subtitle2" fontWeight={600}>User ID:</Typography>
-                <Typography variant="body2" gutterBottom>{ann.userId}</Typography>
-              </>
-            )}
-            <Typography variant="subtitle2" fontWeight={600}>Highlights:</Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap">
-              {ann.highlights.map((h, idx) => (
-                <Chip
-                  key={idx}
-                  label={h.text}
-                  sx={{ backgroundColor: h.color || '#e0e0e0', color: '#000' }}
-                />
+        {lesson.annotations.map((ann, idx) => (
+          <Paper key={idx} sx={{ p: 2, borderLeft: `4px solid ${theme.palette.success.main}`, boxShadow: theme.shadows[1] }}>
+            <Typography variant="subtitle2" fontWeight={600} gutterBottom>Highlights</Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap" mb={1}>
+              {ann.highlights.map((h, i) => (
+                <Chip key={i} label={h.text} sx={{ backgroundColor: h.color || theme.palette.grey[300] }} />
               ))}
             </Stack>
-            <Typography variant="subtitle2" mt={1} fontWeight={600}>Notes:</Typography>
-            {ann.notes.map((n, j) => (
-              <Typography key={j} variant="body2" sx={{ mt: 0.5 }}>
-                • {n.content} <em style={{ fontSize: 12, color: '#888' }}>({new Date(n.createdAt).toLocaleString()})</em>
+            <Typography variant="subtitle2" fontWeight={600} gutterBottom>Notes</Typography>
+            {ann.notes.map((note, j) => (
+              <Typography key={j} variant="body2" sx={{ ml: 1 }}>
+                • {note.content} <em style={{ fontSize:12, color: theme.palette.text.secondary }}>({new Date(note.createdAt).toLocaleTimeString()})</em>
               </Typography>
             ))}
           </Paper>
@@ -164,57 +146,77 @@ const LessonDetails = () => {
       </Stack>
     );
   };
-  
-  
+
+  if (loading) {
+    return (
+      <Box m={4} textAlign="center">
+        <CircularProgress />
+        <Typography variant="body1" mt={2}>Loading lesson details...</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box m={4}>
-      <IconButton onClick={() => navigate(-1)}>
-        <ArrowBackIcon />
-      </IconButton>
+      <Stack direction="row" alignItems="center" spacing={2} mb={3}>
+        <IconButton onClick={() => navigate(-1)}><ArrowBackIcon /></IconButton>
+        <Typography variant="h5" fontWeight={600}>Lesson Details</Typography>
+      </Stack>
 
-      <Card sx={{ mt: 2, p: 3, borderRadius: 3, boxShadow: 3 }}>
+      <Card sx={{ borderRadius: 3, boxShadow: theme.shadows[3] }}>
         <CardHeader
-          title={<Typography variant="h5">{lesson?.title || "Lesson Details"}</Typography>}
-          subheader={<Typography variant="subtitle2">Type: {lesson?.typeLesson}</Typography>}
+          avatar={<Avatar sx={{ bgcolor: theme.palette.success.main }}><ImportContactsIcon /></Avatar>}
+          title={<Typography variant="h6">{lesson.title}</Typography>}
+          subheader={<Chip label={lesson.typeLesson.toUpperCase()} size="small" color="success" />}
+          action={
+            <Button
+              variant="contained"
+              size="small"
+              color="success"
+              onClick={generateAIAnnotations}
+              disabled={loadingAI}
+            >
+              {loadingAI ? 'Generating...' : 'AI Annotations'}
+            </Button>
+          }
+          sx={{ backgroundColor: theme.palette.grey[100], pb: 0 }}
         />
 
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ px: 2 }}>
+          <Tab label="Info" />
+          <Tab label="Preview" />
+          <Tab label="Annotations" />
+        </Tabs>
+
+        <Divider />
+
         <CardContent>
-          <Divider sx={{ mb: 2 }} />
-          <Typography variant="h6" gutterBottom>📚 Lesson Content:</Typography>
-          <Typography variant="body1" mb={3}>{lesson?.content}</Typography>
-
-          <Divider sx={{ my: 3 }} />
-          <Typography variant="h6" gutterBottom>📎 File Information:</Typography>
-          <List>
-            <ListItem>
-              <Tooltip title="File Type">
-                <ListItemIcon>{getFileIcon(lesson?.fileUrl || "")}</ListItemIcon>
-              </Tooltip>
-              <ListItemText
-                primary={lesson?.fileUrl?.split("/").pop() || "Unnamed File"}
-                secondary={lesson?.fileUrl}
-              />
-              <Tooltip title="Download File">
-                <IconButton onClick={() => window.open(lesson?.fileUrl, "_blank")}> <DownloadIcon /> </IconButton>
-              </Tooltip>
-            </ListItem>
-          </List>
-
-          {renderMediaPreview()}
-
-          <Divider sx={{ my: 3 }} />
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">📝 Annotations:</Typography>
-            <Button variant="outlined" size="small" onClick={generateAIAnnotations} disabled={loadingAI}>
-              {loadingAI ? "Generating..." : "Generate AI Annotations"}
-            </Button>
-          </Box>
-          {renderAnnotations()}
+          {tab === 0 && (
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={8}>
+                <Typography variant="subtitle1" fontWeight={600} gutterBottom>Content</Typography>
+                <Typography variant="body1">{lesson.content}</Typography>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Typography variant="subtitle1" fontWeight={600} gutterBottom>File</Typography>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Avatar variant="rounded" sx={{ bgcolor: theme.palette.grey[200] }}>
+                    {getFileIcon(lesson.fileUrl)}
+                  </Avatar>
+                  <Typography noWrap sx={{ flex: 1 }}>{lesson.fileUrl.split('/').pop()}</Typography>
+                  <Tooltip title="Download File">
+                    <IconButton onClick={() => window.open(lesson.fileUrl, '_blank')}>
+                      <DownloadIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              </Grid>
+            </Grid>
+          )}
+          {tab === 1 && renderPreview()}
+          {tab === 2 && renderAnnotations()}
         </CardContent>
       </Card>
     </Box>
   );
-};
-
-export default LessonDetails;
+}

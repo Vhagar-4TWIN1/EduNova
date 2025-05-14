@@ -2,12 +2,14 @@ import React, { useRef, useState, useEffect } from 'react';
 import { FaPlay, FaPause, FaChevronDown } from 'react-icons/fa';
 import { motion, useAnimation } from 'framer-motion';
 import './VideoSection.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function VideoSection() {
   const videoRef = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [isClean, setIsClean] = useState(false);
   const controls = useAnimation();
+    const navigate = useNavigate();
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -39,8 +41,10 @@ export default function VideoSection() {
     }
   };
 
-  const scrollToCourses = () =>
-    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+  const scrollToCourses = () => {
+    // instead of scrolling, go to /lesson
+    navigate('/lesson');
+  };
 
   // Toggle clean mode when user clicks/taps the video itself
   const handleVideoClick = () => setIsClean(c => !c);

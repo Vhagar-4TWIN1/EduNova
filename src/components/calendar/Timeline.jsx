@@ -36,15 +36,16 @@ import {
   Zap,
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useNavigate } from "react-router-dom";
 
 export default function Timeline({ events, onJoin, refreshEvents }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [lessonCache, setLessonCache] = useState({});
   const [selectedLessonData, setSelectedLessonData] = useState(null);
+  const navigate = useNavigate();  
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : "";
-
   // Sort events by start time
   const sortedEvents = useMemo(
     () =>
@@ -136,11 +137,9 @@ try {
   };
 
   // Join meeting
-  const handleJoinClick = (evt, e) => {
-    e.stopPropagation();
-    if (onJoin) onJoin(evt);
-    else if (evt.roomUrl) window.open(evt.roomUrl, "_blank");
-  };
+ const handleJoinClick = () => {
+navigate('/videochat');
+ };
 
   // Time helpers
   const getTimeLabel = (s, e) => {

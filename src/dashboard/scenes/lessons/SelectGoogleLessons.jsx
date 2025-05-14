@@ -1,128 +1,160 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
-  Box, Button, CircularProgress, Typography, Checkbox,
-  FormControlLabel, Stack, Paper,
+  Box,
+  Button,
+  CircularProgress,
+  Typography,
+  Checkbox,
+  FormControlLabel,
+  Stack,
+  Paper,
+  useTheme,
+  Avatar,
+  Divider,
 } from "@mui/material";
+import LessonIcon from '@mui/icons-material/MenuBook';
+import GoogleIcon from '@mui/icons-material/Google';
+import ImportContactsIcon from '@mui/icons-material/ImportContacts';
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const SelectGoogleLessons = () => {
+export default function SelectGoogleLessons() {
+  const theme = useTheme();
+  const navigate = useNavigate();
   const [lessons, setLessons] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [needsAuth, setNeedsAuth] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuthAndFetch = async () => {
+    (async () => {
       try {
         const token = localStorage.getItem("token");
-
-        const authRes = await axios.get("http://localhost:3000/api/google/check-auth", {
+        const authRes = await axios.get("/api/google/check-auth", {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
-
         if (!authRes.data.authenticated) {
           setNeedsAuth(true);
-          setLoading(false);
           return;
         }
-
-        const res = await axios.get("http://localhost:3000/api/google/lessons-temp", {
+        const res = await axios.get("/api/google/lessons-temp", {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
-
         setLessons(res.data);
       } catch (err) {
-        console.error("Error during check/fetch:", err);
+        console.error(err);
         setNeedsAuth(true);
       } finally {
         setLoading(false);
       }
-    };
-
-    checkAuthAndFetch();
+    })();
   }, []);
 
   const handleToggle = (id) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
   };
 
   const handleImport = async () => {
     const token = localStorage.getItem("token");
-
     try {
-      await axios.post("http://localhost:3000/api/google/import-lessons", {
-        lessonIds: selectedIds,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
-
-      alert("✅ Selected lessons imported!");
+      await axios.post(
+        "/api/google/import-lessons",
+        { lessonIds: selectedIds },
+        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+      );
       navigate("/dashboard/lessons");
     } catch (err) {
-      console.error("❌ Import error:", err);
+      console.error(err);
       alert("Import failed");
     }
   };
 
   const startGoogleAuth = () => {
-    window.location.href = "http://localhost:3000/api/google/auth";
+    window.location.href = "/api/google/auth";
   };
 
   if (loading) {
     return (
-      <Box p={4}>
-        <Typography variant="h5">Checking Google Authentication...</Typography>
-        <CircularProgress sx={{ mt: 2 }} />
+      <Box display="flex" flexDirection="column" alignItems="center" mt={6}>
+        <CircularProgress size={48} />
+        <Typography variant="h6" mt={2} color="textSecondary">
+          Vérification de l'authentification Google...
+        </Typography>
       </Box>
     );
   }
 
   if (needsAuth) {
     return (
-      <Box p={4} textAlign="center">
-        <Typography variant="h5" gutterBottom>Google Authentication Required</Typography>
-        <Typography paragraph>You need to authenticate to fetch lessons.</Typography>
-        <Button variant="contained" onClick={startGoogleAuth}>Connect Google Classroom</Button>
-      </Box>
+      <Paper
+        elevation={3}
+        sx={{ p: 4, maxWidth: 400, mx: "auto", textAlign: "center", mt: 6 }}
+      >
+        <Avatar sx={{ bgcolor: theme.palette.error.main, mx: "auto", mb: 2 }}>
+          <GoogleIcon />
+        </Avatar>
+        <Typography variant="h5" gutterBottom>
+          Authentification requise
+        </Typography>
+        <Typography variant="body2" mb={3}>
+          Connectez votre compte Google Classroom pour continuer.
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<GoogleIcon />}
+          color="error"
+          onClick={startGoogleAuth}
+        >
+          sign in with Google
+        </Button>
+      </Paper>
     );
   }
 
   return (
     <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        Select Lessons to Import from Google Classroom
-      </Typography>
+      <Box display="flex" alignItems="center" mb={3}>
+        <ImportContactsIcon sx={{ fontSize: 32, color: theme.palette.success.main, mr: 1 }} />
+        <Typography variant="h4">
+          Import from Google Classroom
+        </Typography>
+      </Box>
+      <Divider sx={{ mb: 3 }} />
 
       {lessons.length === 0 ? (
-        <Typography>No lessons found.</Typography>
+        <Typography variant="body1">Aucune leçon trouvée.</Typography>
       ) : (
         <Stack spacing={2}>
           {lessons.map((lesson) => (
-            <Paper key={lesson._id} sx={{ p: 2 }}>
+            <Paper
+              key={lesson._id}
+              elevation={1}
+              sx={{ display: "flex", alignItems: "center", p: 2 }}
+            >
+              <LessonIcon
+                sx={{ fontSize: 40, color: theme.palette.grey[500], mr: 2 }}
+              />
+              <Box flexGrow={1}>
+                <Typography variant="subtitle1" noWrap>
+                  {lesson.title || "Sans titre"}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" noWrap>
+                  {lesson.content || "Sans description"}
+                </Typography>
+              </Box>
               <FormControlLabel
                 control={
                   <Checkbox
                     checked={selectedIds.includes(lesson._id)}
                     onChange={() => handleToggle(lesson._id)}
+                    color="success"
                   />
                 }
-                label={
-                  <Box>
-                    <Typography fontWeight="bold">{lesson.title || "Untitled"}</Typography>
-                    <Typography variant="body2">
-                      {lesson.content || "No content"}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Type: {lesson.typeLesson || "unknown"}
-                    </Typography>
-                  </Box>
-                }
-                
+                label=""
               />
             </Paper>
           ))}
@@ -131,14 +163,13 @@ const SelectGoogleLessons = () => {
 
       <Button
         variant="contained"
-        sx={{ mt: 3 }}
+        color="success"
+        sx={{ mt: 4 }}
         disabled={selectedIds.length === 0}
         onClick={handleImport}
       >
-        Import Selected Lessons ({selectedIds.length})
+        Import selection ({selectedIds.length})
       </Button>
     </Box>
   );
-};
-
-export default SelectGoogleLessons;
+}

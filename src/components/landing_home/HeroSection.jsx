@@ -59,7 +59,7 @@ const HeroSection = () => {
                   <h1 className="display-4 fw-bold text-white">{heading}</h1>
                   <p className="lead mt-3 text-white">{sub}</p>
                   <a
-                    href="#courses"
+                    href="/listModules"
                     className="btn btn-warning mt-4 px-4 py-2 shadow"
                   >
                     Explore Lessons
