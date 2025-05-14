@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: edunova-dashboard
+    env: node
+    buildCommand: npm install --force && npm run build
+    startCommand: npm run start
