@@ -52,8 +52,8 @@ import LanguageSelector from "./LanguageSelector.jsx";
 import Timeline from "@/components/calendar/Timeline";
 import StudyHeatMap from "@/components/calendar/StudyHeatMap";
 import ProgressRings from "@/components/calendar/ProgressRings";
-import AutoPlanningForm from "@/components/calendar/AutoPlanningForm";
 import SkillTree from "@/components/calendar/SkillTree";
+import AutoPlanningForm from "./AutoPlanningForm.jsx";
 
 // --- validation schema ---
 const eventFormSchema = z.object({

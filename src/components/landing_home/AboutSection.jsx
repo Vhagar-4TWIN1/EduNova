@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import './about.css';
+import { useNavigate } from 'react-router-dom';
 
 const points = [
   'Hands-on courses built by industry experts',
@@ -20,6 +21,7 @@ const item = {
 };
 
 export default function AboutSection() {
+   const navigate = useNavigate();
   return (
     <section id="about" className="edn-about-wrapper">
       <div className="edn-shape edn-shape--circle" />
@@ -59,9 +61,12 @@ export default function AboutSection() {
           </motion.ul>
 
           <motion.div className="edn-cta-wrap" variants={item}>
-            <button className="edn-btn">
-              Join Now
-            </button>
+    <button
+      className="edn-btn"
+      onClick={() => navigate('/registration')}
+    >
+      Join Now
+    </button>
           </motion.div>
         </motion.div>
 
