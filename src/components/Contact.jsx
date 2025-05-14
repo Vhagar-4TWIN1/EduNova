@@ -83,55 +83,55 @@ const Contact = () => {
   };
 
   const verifyDiploma = async () => {
-  if (!diplomaFile) {
-    toast.error('Please upload a diploma file');
-    return;
-  }
+    if (!diplomaFile) {
+      toast.error('Please upload a diploma file');
+      return;
+    }
 
-  setIsVerifying(true);
+    setIsVerifying(true);
 
-  try {
-    const formData = new FormData();
-    formData.append('image', diplomaFile);
+    try {
+      const formData = new FormData();
+      formData.append('image', diplomaFile);
 
-    const response = await axios.post(
-      'http://localhost:3000/api/auth/verify-diploma',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      const response = await axios.post(
+        'http://localhost:3000/api/auth/verify-diploma',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
         }
-      }
-    );
+      );
 
-    if (response.data.success) {
-      setVerificationResult({
-        success: true,
-        message: 'Diploma verified successfully!',
-        info: response.data.diplomaInfo,
-        certificateURL: response.data.certificateURL
-      });
-      toast.success('Diploma verified successfully!');
-    } else {
+      if (response.data.success) {
+        setVerificationResult({
+          success: true,
+          message: 'Diploma verified successfully!',
+          info: response.data.diplomaInfo,
+          certificateURL: response.data.certificateURL
+        });
+        toast.success('Diploma verified successfully!');
+      } else {
+        setVerificationResult({
+          success: false,
+          message: response.data.message || 'Diploma verification failed',
+          errors: response.data.errors || {}
+        });
+        toast.error(response.data.message || 'Diploma verification failed');
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
       setVerificationResult({
         success: false,
-        message: response.data.message || 'Diploma verification failed',
-        errors: response.data.errors || {}
+        message: error.response?.data?.message || 'Error during diploma verification',
+        errors: error.response?.data?.errors || { system: 'Network error' }
       });
-      toast.error(response.data.message || 'Diploma verification failed');
+      toast.error(error.response?.data?.message || 'Error during diploma verification');
+    } finally {
+      setIsVerifying(false);
     }
-  } catch (error) {
-    console.error('Verification error:', error);
-    setVerificationResult({
-      success: false,
-      message: error.response?.data?.message || 'Error during diploma verification',
-      errors: error.response?.data?.errors || { system: 'Network error' }
-    });
-    toast.error(error.response?.data?.message || 'Error during diploma verification');
-  } finally {
-    setIsVerifying(false);
-  }
-};
+  };
 
   const parseJwt = (token) => {
     try {
@@ -207,74 +207,74 @@ const Contact = () => {
           }
         }
       );
-     
+
 
       if (response.data.success) {
         const token = response.data.token;
         localStorage.setItem("token", token);
-        localStorage.setItem("userId",response.data.user.id);
+        localStorage.setItem("userId", response.data.user.id);
         localStorage.setItem("firstName", response.data.user.firstName);
         localStorage.setItem("lastName", response.data.user.lastName);
         localStorage.setItem("role", response.data.user.role);
-        
+
 
         const decodedToken = parseJwt(token);
         if (!decodedToken || !decodedToken.userId) {
           alert("Invalid token.");
           return;
         }
-if (role === "Teacher"){
-         toast.info(
-          <div style={{ textAlign: 'center' }}>
-            <h3>You will pass a test to test your level</h3>
-            <div style={{ margin: '20px 0', textAlign: 'left' }}>
-              <p><strong>Instructions:</strong></p>
-              <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
-                <li>Only one person allowed in camera view</li>
-                <li>Face must be centered and visible at all times</li>
-                <li>No looking away from the screen</li>
-                <li>No switching tabs/windows</li>
-                <li>No copy/paste allowed</li>
-                <li>No speaking or communicating with others</li>
-              </ul>
-            </div>
-            <button
-              onClick={() => {
-                toast.dismiss();
-                navigate("/exam");
-                startBreakTimer();
-              }}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
-            >
-              I Understand - Start Test
-            </button>
-          </div>,
-          {
-            position: 'top-center',
-            autoClose: false,
-            closeOnClick: false,
-            closeButton: false,
-            draggable: false,
-            style: {
-              minWidth: '500px',
-              maxWidth: '600px',
-              padding: '20px'
+        if (role === "Student") {
+          toast.info(
+            <div style={{ textAlign: 'center' }}>
+              <h3>You will pass a test to test your level</h3>
+              <div style={{ margin: '20px 0', textAlign: 'left' }}>
+                <p><strong>Instructions:</strong></p>
+                <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+                  <li>Only one person allowed in camera view</li>
+                  <li>Face must be centered and visible at all times</li>
+                  <li>No looking away from the screen</li>
+                  <li>No switching tabs/windows</li>
+                  <li>No copy/paste allowed</li>
+                  <li>No speaking or communicating with others</li>
+                </ul>
+              </div>
+              <button
+                onClick={() => {
+                  toast.dismiss();
+                  navigate("/exam");
+                  startBreakTimer();
+                }}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }}
+              >
+                I Understand - Start Test
+              </button>
+            </div>,
+            {
+              position: 'top-center',
+              autoClose: false,
+              closeOnClick: false,
+              closeButton: false,
+              draggable: false,
+              style: {
+                minWidth: '500px',
+                maxWidth: '600px',
+                padding: '20px'
+              }
             }
-          }
-        );
-      }else{
-              navigate("/home");
+          );
+        } else {
+          navigate("/home");
 
-      }
+        }
         toast.success('Registration successful!', {
           position: "top-right",
           autoClose: 5000,
@@ -283,8 +283,8 @@ if (role === "Teacher"){
           pauseOnHover: true,
           draggable: true,
         });
-        
-        
+
+
         setFormData({
           firstName: "",
           lastName: "",
@@ -344,7 +344,7 @@ if (role === "Teacher"){
         position: "relative",
       }}
     >
-  <Logo 
+      <Logo
         customStyle={{
           top: '-120px',    // choose the distance from the top
           right: '0px',  // choose the distance from the right
@@ -352,7 +352,7 @@ if (role === "Teacher"){
         }}
       />
       <Footerpage />
-      
+
       <motion.div
         variants={slideIn("left", "tween", 0.7, 1)}
         style={{
@@ -367,7 +367,7 @@ if (role === "Teacher"){
         <h3 className={styles.sectionSubText} style={{ fontSize: "50px" }}>Welcome</h3>
 
         <div style={{ marginBottom: "20px" }}>
-          <button 
+          <button
             onClick={() => handleRoleChange("Student")}
             style={{
               padding: "16px 32px",
@@ -382,7 +382,7 @@ if (role === "Teacher"){
           >
             Student
           </button>
-          <button 
+          <button
             onClick={() => handleRoleChange("Teacher")}
             style={{
               padding: "16px 32px",
@@ -448,7 +448,7 @@ if (role === "Teacher"){
                   disabled={isVerifying}
                 />
               </label>
-              
+
               <button
                 type="button"
                 onClick={verifyDiploma}
