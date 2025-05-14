@@ -1,0 +1,132 @@
+{
+  "app": {
+    "title": "EduNova",
+    "subtitle": "Plataforma educativa con programación inteligente y colaboración en tiempo real"
+  },
+  "navigation": {
+    "calendar": "Calendario",
+    "timeline": "Línea de Tiempo",
+    "heatmap": "Mapa de Calor",
+    "progress": "Progreso",
+    "autoplan": "Planificación IA",
+    "skilltree": "Árbol de Habilidades",
+    "settings": "Configuración"
+  },
+  "calendar": {
+    "dateSelection": "Selección de fecha",
+    "selectDate": "Seleccione una fecha para ver eventos",
+    "today": "Hoy",
+    "addEvent": "Añadir evento",
+    "createEvent": "Crear nuevo evento",
+    "createEventDesc": "Añada un nuevo evento a su calendario. Haga clic en guardar cuando haya terminado.",
+    "viewDetails": "Ver detalles",
+    "joinMeeting": "Unirse a la reunión",
+    "loading": "Cargando eventos...",
+    "error": "Error al cargar eventos. Por favor, inténtelo de nuevo.",
+    "noEvents": "No se encontraron eventos para esta fecha. ¡Cree su primer evento!",
+    "showingEvents": "Mostrando eventos para {{date}}",
+    "allEvents": "Todos los próximos eventos"
+  },
+  "event": {
+    "title": "Título",
+    "type": "Tipo",
+    "description": "Descripción",
+    "startTime": "Hora de inicio",
+    "endTime": "Hora de finalización",
+    "priority": "Prioridad",
+    "duration": "Duración",
+    "dueDate": "Fecha límite",
+    "types": {
+      "lesson": "Lección",
+      "videoChat": "Video Chat",
+      "task": "Tarea",
+      "focus": "Sesión de enfoque"
+    },
+    "priorities": {
+      "high": "Alta - Urgente",
+      "normal": "Normal",
+      "low": "Baja - Flexible"
+    },
+    "minutes": "minutos",
+    "optionalDesc": "Descripción (opcional)",
+    "pickDate": "Elegir fecha",
+    "creating": "Creando...",
+    "create": "Crear evento",
+    "created": "Evento creado",
+    "createdDesc": "Su evento ha sido creado con éxito."
+  },
+  "autoplan": {
+    "title": "Planificación asistida por IA",
+    "subtitle": "Deje que EduNova programe inteligentemente sus actividades de aprendizaje alrededor de sus compromisos existentes",
+    "whatToLearn": "¿Qué necesita aprender?",
+    "placeholder": "Ej., React Hooks, Cálculo I, Vocabulario francés",
+    "activityType": "Tipo de actividad",
+    "duration": "Duración (minutos)",
+    "timePrefs": "Añadir preferencias de tiempo",
+    "hideTimePrefs": "Ocultar preferencias de tiempo",
+    "prefTimeRange": "Rango de tiempo preferido (Opcional)",
+    "prefTimeDesc": "EduNova intentará programar dentro de este rango primero, pero podrá sugerir alternativas si es necesario.",
+    "earliestStart": "Hora de inicio más temprana",
+    "latestEnd": "Hora de finalización más tardía",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "weekend": "Fin de semana",
+    "processingButton": "Buscando tiempo óptimo...",
+    "scheduleButton": "Programar para mí",
+    "scheduled": "Evento programado",
+    "scheduledDesc": "Su actividad de aprendizaje ha sido programada inteligentemente.",
+    "howItWorks": "Cómo funciona la planificación IA",
+    "howItWorksDesc": "Programación inteligente que se adapta a su estilo de aprendizaje",
+    "smartTime": "Selección inteligente de tiempo",
+    "smartTimeDesc": "EduNova analiza su calendario existente y encuentra el momento óptimo para sus actividades de aprendizaje, priorizando según sus preferencias y plazos.",
+    "focusBlocks": "Bloques de enfoque automáticos",
+    "focusBlocksDesc": "El sistema añade automáticamente sesiones de enfoque entre sus eventos programados para maximizar la retención y ayudarle a prepararse para las próximas lecciones.",
+    "rebalancing": "Reequilibrio de la agenda",
+    "rebalancingDesc": "Si su día se vuelve demasiado cargado, EduNova moverá inteligentemente las tareas de menor prioridad para mantener una agenda de aprendizaje equilibrada.",
+    "aiContext": "Contexto de aprendizaje generado por IA",
+    "aiContextDesc": "Cada evento programado incluye resúmenes generados por IA, prerrequisitos y consejos de estudio para mejorar su experiencia de aprendizaje."
+  },
+  "learningContext": {
+    "title": "Contexto de aprendizaje",
+    "subtitle": "Información mejorada por IA para su próxima lección",
+    "loading": "Cargando contexto de aprendizaje...",
+    "summary": "Resumen",
+    "prerequisites": "Prerrequisitos",
+    "studyTips": "Consejos de estudio"
+  },
+  "progress": {
+    "attended": "Asistido",
+    "tasks": "Tareas",
+    "streak": "Racha",
+    "completed": "Completado",
+    "of": "de",
+    "days": "días"
+  },
+  "api": {
+    "status": "Estado de la API",
+    "statusCheck": "Verificar API",
+    "checking": "Verificando...",
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "running": "La API está funcionando",
+    "successMsg": "Conectado exitosamente a la API",
+    "failedMsg": "No se pudo conectar a la API",
+    "failedTitle": "Falló la verificación del estado de la API"
+  },
+  "errors": {
+    "eventCreateFailed": "Error al crear el evento",
+    "scheduleFailed": "Error de programación"
+  },
+  "skillTree": {
+    "title": "Árbol de Habilidades",
+    "description": "Monitorice su progreso de aprendizaje y desbloquee nuevas habilidades",
+    "level": "Nivel",
+    "unlock": "Desbloquear",
+    "unlocked": "Desbloqueado",
+    "locked": "Bloqueado",
+    "unlockedAt": "Desbloqueado el",
+    "requiresCompletion": "Complete las lecciones requeridas para desbloquear",
+    "noDescription": "No hay descripción disponible",
+    "empty": "Aún no hay habilidades disponibles para este curso"
+  }
+}

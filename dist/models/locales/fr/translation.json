@@ -1,0 +1,22 @@
+{
+  "welcome": "Bienvenue dans notre application !",
+  "description": {
+    "part1": "Pour commencer, modifiez <1>src/App.js</1> et enregistrez pour recharger.",
+    "part2": "Changez la langue entre l'anglais, le français et l'espagnol en utilisant les boutons ci-dessus."
+  },
+  "lesson": {
+    "title": "Titre de la leçon",
+    "type": "Type de leçon",
+    "content": "Contenu de la leçon",
+    "file": "Fichier de la leçon"
+  },
+  "buttons": {
+    "back": "⬅ Retour aux leçons",
+    "readAloud": "🔊 Lire à haute voix",
+    "stopReading": "🔇 Arrêter la lecture"
+  },
+  "translation": {
+    "label": "🌐 Traduire en :",
+    "unavailable": "❌ Traduction indisponible. Veuillez réessayer plus tard."
+  }
+}
