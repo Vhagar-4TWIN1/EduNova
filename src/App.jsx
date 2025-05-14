@@ -51,7 +51,6 @@ const About = lazy(() => import("./components/AboutUS"));
 const VideoRoom = lazy(() => import("./components/VideoRoom"));
 const AddSupplementaryLesson = lazy(() => import("./components/AddSupplementaryLesson"));
 
-const AddSupplementaryLesson = lazy(() => import("./components/AddSupplementaryLesson"));
 
 const UpdateQuestion = lazy(() =>
   import("./dashboard/scenes/contacts/UpdateQuestion")

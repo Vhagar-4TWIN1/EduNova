@@ -1,0 +1,1 @@
+import"./vendor-gGFwV6Yc.js";import{aj as a,b as t}from"./index-CNYIw3Ap.js";const o=a(t("path",{d:"M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6zM6 6h2v12H6z"}),"FirstPage"),r=a(t("path",{d:"M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6zM16 6h2v12h-2z"}),"LastPage");export{o as F,r as L};

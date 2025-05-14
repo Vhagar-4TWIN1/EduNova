@@ -1,1 +1,0 @@
-import{x as n,al as c,j as h,a4 as i,b as r,a3 as o}from"./index-B07QrE09.js";const m=({title:e,subtitle:s})=>{const t=n(),a=c(t.palette.mode);return h(i,{mb:"50px",children:[r(o,{variant:"h2",color:a.primary[500],fontWeight:"bold",sx:{m:"0 0 5px 0"},children:e}),r(o,{variant:"h5",color:a.primary[600],children:s})]})};export{m as H};

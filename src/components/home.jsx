@@ -9,7 +9,7 @@ import MetricsSection from './landing_home/MetricsSection';
 import NewsletterSection from './landing_home/NewsletterSection';
 import MentorsSection from './landing_home/MentorsSection';
 import VideoSection from './landing_home/VideoSection';
-import StarWrapper from '../components/StarWrapper';
+import { SectionWrapper } from "../hoc";
 
 function Home() {
   const navigate = useNavigate();
@@ -75,4 +75,4 @@ function Home() {
   );
 }
 
-export default StarWrapper(Home, "home");
+export default SectionWrapper(Home, "home");
