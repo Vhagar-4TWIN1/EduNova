@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../header";
-import Footer from "../Footer";
+import Footer from "../footer";
 import AddModule from "./addModule";
-import "./ListModules.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import { jwtDecode } from "jwt-decode";
 const ListModules = () => {
