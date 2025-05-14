@@ -11,6 +11,9 @@ import NewsletterSection from './landing_home/NewsletterSection';
 import MentorsSection from './landing_home/MentorsSection';
 import VideoSection from './landing_home/VideoSection';
 
+
+
+
 export default function Home() {
   const navigate = useNavigate();
   const [lessons, setLessons] = useState([]);
@@ -33,7 +36,9 @@ export default function Home() {
       console.error('JWT decode error:', error);
     }
   };
-
+ useEffect(()=>{
+    document.title = "Home"
+  },[])
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');

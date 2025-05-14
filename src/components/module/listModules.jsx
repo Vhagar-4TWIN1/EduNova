@@ -19,6 +19,11 @@ const ListModules = () => {
   const itemsPerPage = 9;
   const navigate = useNavigate();
 
+
+  useEffect(()=>{
+      document.title = "Modules"
+    },[])
+    
   const handleCLick = (module) => {
   try {
     const response = axios.get(`http://localhost:3000/module/${module._id}`, {
