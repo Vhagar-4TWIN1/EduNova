@@ -223,7 +223,7 @@ const Contact = () => {
           alert("Invalid token.");
           return;
         }
-
+if (role === "Teacher"){
          toast.info(
           <div style={{ textAlign: 'center' }}>
             <h3>You will pass a test to test your level</h3>
@@ -271,7 +271,10 @@ const Contact = () => {
             }
           }
         );
+      }else{
+              navigate("/home");
 
+      }
         toast.success('Registration successful!', {
           position: "top-right",
           autoClose: 5000,
