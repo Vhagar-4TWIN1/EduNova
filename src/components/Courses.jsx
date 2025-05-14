@@ -37,7 +37,7 @@ const LessonsPage = () => {
   const handleCLick = async (idModule) => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/module/${idModule}`,
+        `https://edunova-back-rqxc.onrender.com/module/${idModule}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -57,7 +57,7 @@ const LessonsPage = () => {
   };
   const fetchLessons = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/lessons", {
+      const res = await axios.get("https://edunova-back-rqxc.onrender.com/api/lessons", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLessons(res.data);
@@ -88,7 +88,7 @@ const LessonsPage = () => {
   const trackPerformance = async (lessonId, lessonTitle, action) => {
     try {
       await axios.post(
-        "http://localhost:3000/api/performance/performance-track",
+        "https://edunova-back-rqxc.onrender.com/api/performance/performance-track",
         {
           userId,
           lessonId,
@@ -137,7 +137,7 @@ const LessonsPage = () => {
 
   const handleDeleteLesson = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/lessons/${id}`, {
+      await axios.delete(`https://edunova-back-rqxc.onrender.com/api/lessons/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLessons((prev) => prev.filter((lesson) => lesson._id !== id));

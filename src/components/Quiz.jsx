@@ -18,7 +18,7 @@ const Quiz = () => {
   const loadQuestions = async (type) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`http://localhost:3000/api/quiz/${type}`);
+      const response = await axios.get(`https://edunova-back-rqxc.onrender.com/api/quiz/${type}`);
       if (!response.data?.questions) throw new Error('Aucune question reçue');
       setQuestions(response.data.questions);
       setQuizType(type);
@@ -85,7 +85,7 @@ const Quiz = () => {
         }
       });
 
-      await axios.post(`http://localhost:3000/api/quiz/submit`, formData, {
+      await axios.post(`https://edunova-back-rqxc.onrender.com/api/quiz/submit`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 

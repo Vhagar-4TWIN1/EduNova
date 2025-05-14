@@ -35,7 +35,7 @@ const LessonDetails = () => {
   const fetchLesson = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`http://localhost:3000/api/lessons/${id}`, {
+      const res = await axios.get(`https://edunova-back-rqxc.onrender.com/api/lessons/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLesson(res.data);
@@ -53,7 +53,7 @@ const LessonDetails = () => {
       setLoadingAI(true);
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `http://localhost:3000/api/lessons/${id}/generate-ai-annotations`,
+        `https://edunova-back-rqxc.onrender.com/api/lessons/${id}/generate-ai-annotations`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

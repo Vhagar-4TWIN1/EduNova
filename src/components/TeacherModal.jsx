@@ -85,7 +85,7 @@ const TeacherModal = ({ teacher, onClose }) => {
         </button>
 
         <img
-          src={`http://localhost:3000/${teacher.photo}`}
+          src={`https://edunova-back-rqxc.onrender.com/${teacher.photo}`}
           alt={teacher.firstName}
           className="teacher-img1"
         />

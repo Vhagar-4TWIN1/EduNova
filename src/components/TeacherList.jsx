@@ -7,7 +7,7 @@ const TeacherList = () => {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/users").then((res) => {
+    axios.get("https://edunova-back-rqxc.onrender.com/api/users").then((res) => {
       const filtered = res.data.users.filter((u) => u.role === "Teacher");
       setTeachers(filtered);
     });
@@ -84,7 +84,7 @@ const TeacherList = () => {
             >
               <div className="teacher-img-wrapper">
                 <img
-                  src={`http://localhost:3000/${teacher.photo}`}
+                  src={`https://edunova-back-rqxc.onrender.com/${teacher.photo}`}
                   alt={teacher.firstName}
                   className="teacher-img"
                 />

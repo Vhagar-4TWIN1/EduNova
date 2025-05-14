@@ -46,14 +46,14 @@ useEffect(()=>{
         const token = localStorage.getItem('token');
         const userId = localStorage.getItem('userId');
 
-        const response = await axios.get(`http://localhost:3000/api/users/badges/${userId}`, {
+        const response = await axios.get(`https://edunova-back-rqxc.onrender.com/api/users/badges/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         
 
-        const notAchieved = await axios.get(`http://localhost:3000/api/users/unachieved-badges/${userId}`, {
+        const notAchieved = await axios.get(`https://edunova-back-rqxc.onrender.com/api/users/unachieved-badges/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -92,7 +92,7 @@ useEffect(()=>{
               </div>
             )}
             <img
-              src={`http://localhost:3000/uploads/badges/${badge.image}`}
+              src={`https://edunova-back-rqxc.onrender.com/uploads/badges/${badge.image}`}
               alt={badge.title}
               className="card-img-top rounded-badge"
             />

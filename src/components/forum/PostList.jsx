@@ -12,7 +12,7 @@ const PostList = ({ posts }) => {
   useEffect(() => {
     const fetchRecommendedPosts = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/forum/recommended',
+        const response = await axios.get('https://edunova-back-rqxc.onrender.com/api/forum/recommended',
            {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`

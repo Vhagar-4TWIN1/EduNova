@@ -26,7 +26,7 @@ const StudySessionTracker = ({ moduleId, lessonId }) => {
       try {
         console.log('Starting session for module:', moduleId, 'lesson:', lessonId);
         const res = await axios.post(
-          `http://localhost:3000/api/study/start/${moduleId}/${lessonId}`, 
+          `https://edunova-back-rqxc.onrender.com/api/study/start/${moduleId}/${lessonId}`, 
           {}, 
           {
             headers: { 
@@ -60,7 +60,7 @@ const StudySessionTracker = ({ moduleId, lessonId }) => {
       clearTimeout(timer);
       if (sessionId) {
         console.log('Cleaning up - ending session');
-        axios.post(`http://localhost:3000/api/study/end/${sessionId}`, {}, {
+        axios.post(`https://edunova-back-rqxc.onrender.com/api/study/end/${sessionId}`, {}, {
           headers: { 
             Authorization: `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
@@ -74,7 +74,7 @@ const StudySessionTracker = ({ moduleId, lessonId }) => {
     try {
       console.log('Fetching supplementary lessons for module:', moduleId);
       const res = await axios.get(
-        `http://localhost:3000/api/study/recommendations/${moduleId}`,
+        `https://edunova-back-rqxc.onrender.com/api/study/recommendations/${moduleId}`,
         {
           headers: { 
             Authorization: `Bearer ${localStorage.getItem('token')}`,

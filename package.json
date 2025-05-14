@@ -2,7 +2,7 @@
   "name": "template",
   "private": true,
   "version": "0.0.0",
-  "proxy": "http://localhost:3000",
+  "proxy": "https://edunova-back-rqxc.onrender.com",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -52,6 +52,7 @@
     "@zegocloud/zego-uikit-prebuilt": "^2.14.3-beta",
     "aos": "^2.3.4",
     "axios": "^1.7.9",
+    "babel": "^5.8.38",
     "bootstrap": "^5.3.5",
     "canvas-confetti": "^1.9.3",
     "chart.js": "^3.9.1",

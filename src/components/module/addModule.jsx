@@ -40,7 +40,7 @@ const AddModule = ({ existingModule, onClose }) => {
     try {
       if (existingModule) {
         // Update Module (PUT request)
-        await axios.put(`http://localhost:3000/module/${existingModule._id}`, formData, {
+        await axios.put(`https://edunova-back-rqxc.onrender.com/module/${existingModule._id}`, formData, {
           headers: { 'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
 
@@ -49,7 +49,7 @@ const AddModule = ({ existingModule, onClose }) => {
         navigate('/listModules');
       } else {
         // Add New Module (POST request)
-        await axios.post('http://localhost:3000/module/add', formData, {
+        await axios.post('https://edunova-back-rqxc.onrender.com/module/add', formData, {
           headers: { 'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
 

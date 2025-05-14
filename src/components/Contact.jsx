@@ -95,7 +95,7 @@ const Contact = () => {
     formData.append('image', diplomaFile);
 
     const response = await axios.post(
-      'http://localhost:3000/api/auth/verify-diploma',
+      'https://edunova-back-rqxc.onrender.com/api/auth/verify-diploma',
       formData,
       {
         headers: {
@@ -198,7 +198,7 @@ const Contact = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/api/auth/signup",
+        "https://edunova-back-rqxc.onrender.com/api/auth/signup",
         payload,
         {
           headers: {

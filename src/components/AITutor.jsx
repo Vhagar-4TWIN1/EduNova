@@ -32,7 +32,7 @@ const AITutor = ({ userId }) => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/gemini/history/${userId}`, {
+        const res = await axios.get(`https://edunova-back-rqxc.onrender.com/api/gemini/history/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -65,7 +65,7 @@ const AITutor = ({ userId }) => {
     setInput('');
 
     try {
-      const res = await axios.post('http://localhost:3000/api/gemini/ask', 
+      const res = await axios.post('https://edunova-back-rqxc.onrender.com/api/gemini/ask', 
         { question: input, userId },
         {
           headers: {

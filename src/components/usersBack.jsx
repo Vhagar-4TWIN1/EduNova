@@ -21,7 +21,7 @@ const UsersBack = () => {
         setLoading(true);
         try {
             const response = await axios.get(
-                `http://localhost:3000/api/users?page=${currentPage}&limit=${itemsPerPage}`,
+                `https://edunova-back-rqxc.onrender.com/api/users?page=${currentPage}&limit=${itemsPerPage}`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                     withCredentials: true,
@@ -45,7 +45,7 @@ const UsersBack = () => {
         e.preventDefault();
         try {
             await axios.patch(
-                `http://localhost:3000/api/users/${selectedUser._id}`,
+                `https://edunova-back-rqxc.onrender.com/api/users/${selectedUser._id}`,
                 selectedUser,
                 {
                     headers: { Authorization: `Bearer ${token}` },
@@ -77,7 +77,7 @@ const UsersBack = () => {
     const handleDelete = async (userId) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
             try {
-                await axios.delete(`http://localhost:3000/api/users/${userId}`,
+                await axios.delete(`https://edunova-back-rqxc.onrender.com/api/users/${userId}`,
                     {
                         headers: { Authorization: `Bearer ${token}` },
                     });

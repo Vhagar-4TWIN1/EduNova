@@ -34,7 +34,7 @@ const UpdateQuestionForm = () => {
   useEffect(() => {
     const fetchLevels = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/level');
+        const res = await axios.get('https://edunova-back-rqxc.onrender.com/api/level');
         setLevels(res.data.data);
       } catch {
         setError('Erreur lors du chargement des niveaux');
@@ -48,7 +48,7 @@ const UpdateQuestionForm = () => {
   useEffect(() => {
     const fetchQuestion = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/questions/${id}`);
+        const res = await axios.get(`https://edunova-back-rqxc.onrender.com/api/questions/${id}`);
         console.log("Résultat API :", res.data);
         const q = res.data;
 
@@ -202,7 +202,7 @@ const UpdateQuestionForm = () => {
         });
       }
 
-      await axios.put(`http://localhost:3000/api/questions/${id}`, formToSend, {
+      await axios.put(`https://edunova-back-rqxc.onrender.com/api/questions/${id}`, formToSend, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

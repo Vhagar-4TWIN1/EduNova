@@ -14,7 +14,7 @@ const PostDetail = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/forum/posts/${id}`);
+        const response = await axios.get(`https://edunova-back-rqxc.onrender.com/api/forum/posts/${id}`);
         setPost(response.data);
         setIsLoading(false);
       } catch (err) {
@@ -26,20 +26,20 @@ const PostDetail = () => {
   }, [id]);
   const handleUpvote = async (replyId) => {
     try {
-      await axios.post(`http://localhost:3000/api/forum/replies/${replyId}/upvote`, null, {
+      await axios.post(`https://edunova-back-rqxc.onrender.com/api/forum/replies/${replyId}/upvote`, null, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
 
-      const updatedPost = await axios.get(`http://localhost:3000/api/forum/posts/${id}`);
+      const updatedPost = await axios.get(`https://edunova-back-rqxc.onrender.com/api/forum/posts/${id}`);
       setPost(updatedPost.data);
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to upvote');
     }
   };
   const getAudioUrl = (path) => {
-    return `http://localhost:3000${path}`;
+    return `https://edunova-back-rqxc.onrender.com${path}`;
 
   }
 
@@ -514,7 +514,7 @@ const PostDetail = () => {
                     <FiMic className="voice-reply-icon" size={20} />
                     <audio
                       controls
-                      src={`http://localhost:3000${reply.voiceUrl}`}
+                      src={`https://edunova-back-rqxc.onrender.com${reply.voiceUrl}`}
                       className="audio-player"
                     />
                   </div>

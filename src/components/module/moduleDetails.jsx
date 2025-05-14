@@ -74,7 +74,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
 
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/study/recommendations/${module._id}`,
+          `https://edunova-back-rqxc.onrender.com/api/study/recommendations/${module._id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -113,7 +113,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
     if (!window.confirm('Are you sure you want to delete this supplementary lesson?')) return;
     
     try {
-      await axios.delete(`http://localhost:3000/api/study/recommendations/${id}`, {
+      await axios.delete(`https://edunova-back-rqxc.onrender.com/api/study/recommendations/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setSupplementaryLessons(prev => prev.filter(lesson => lesson._id !== id));
@@ -134,10 +134,10 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
 
         if (isMoodleCourse) {
           const moodleRes = await axios.get(
-            "http://40.127.12.101/moodle/webservice/rest/server.php",
+            "http://edunova.moodlecloud.com/moodle/webservice/rest/server.php",
             {
               params: {
-                wstoken: "46b0837fde05083b10edd2f210c2fbe7",
+                wstoken: "aeb753af3b7400cf5a7d4d8f3ce5a950",
                 wsfunction: "core_course_get_contents",
                 courseid: id,
                 moodlewsrestformat: "json",
@@ -156,18 +156,18 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
         } else {
           const [moduleRes, lessonRes, enrollmentRes, completedRes, userRes] =
             await Promise.all([
-              axios.get(`http://localhost:3000/module/${id}`, {
+              axios.get(`https://edunova-back-rqxc.onrender.com/module/${id}`, {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
               }),
-              axios.get(`http://localhost:3000/module/modules/${id}/lessons`, {
+              axios.get(`https://edunova-back-rqxc.onrender.com/module/modules/${id}/lessons`, {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
               }),
               axios.get(
-                `http://localhost:3000/api/progress/enrollment/${userId}/${id}`,
+                `https://edunova-back-rqxc.onrender.com/api/progress/enrollment/${userId}/${id}`,
                 {
                   headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -175,14 +175,14 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
                 }
               ),
               axios.get(
-                `http://localhost:3000/api/progress/completed/${userId}/${id}`,
+                `https://edunova-back-rqxc.onrender.com/api/progress/completed/${userId}/${id}`,
                 {
                   headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                   },
                 }
               ),
-              axios.get(`http://localhost:3000/api/users/${userId}`, {
+              axios.get(`https://edunova-back-rqxc.onrender.com/api/users/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` },
               }),
             ]);
@@ -234,7 +234,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
 
       try {
         await axios.post(
-          "http://localhost:3000/module/check-lessons-duration",
+          "https://edunova-back-rqxc.onrender.com/module/check-lessons-duration",
           { moduleId: id, duration },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -255,7 +255,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
 
   const handleEnroll = async () => {
     try {
-      await axios.post(`http://localhost:3000/api/progress/enroll`, {
+      await axios.post(`https://edunova-back-rqxc.onrender.com/api/progress/enroll`, {
         userId,
         moduleId: id,
       });
@@ -282,7 +282,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
 
   const handleCompleteLesson = async (lessonId) => {
     try {
-      await axios.post(`http://localhost:3000/api/progress/complete`, {
+      await axios.post(`https://edunova-back-rqxc.onrender.com/api/progress/complete`, {
         userId,
         moduleId: id,
         lessonId,
@@ -295,7 +295,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
 
   const handleDeleteLesson = async (lessonId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/lessons/${lessonId}`, {
+      await axios.delete(`https://edunova-back-rqxc.onrender.com/api/lessons/${lessonId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLessons((prev) => prev.filter((l) => l._id !== lessonId));
@@ -631,13 +631,13 @@ const renderSupplementaryIcon = (type) => {
   <div className="mt-auto">
   {lesson.type === 'pdf' ? (
   <a 
-  href={`http://localhost:3000/pdf/${lesson.filePath}`} 
+  href={`https://edunova-back-rqxc.onrender.com/pdf/${lesson.filePath}`} 
   download={lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`}
   className="inline-flex items-center px-3 py-1 rounded text-sm bg-red-50 text-red-700 hover:bg-red-100"
   onClick={(e) => {
     e.preventDefault();
     const link = document.createElement('a');
-    link.href = `http://localhost:3000/pdf/${lesson.filePath}`;
+    link.href = `https://edunova-back-rqxc.onrender.com/pdf/${lesson.filePath}`;
     link.setAttribute('download', lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`);
     document.body.appendChild(link);
     link.click();

@@ -18,7 +18,7 @@ const SelectGoogleLessons = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const authRes = await axios.get("http://localhost:3000/api/google/check-auth", {
+        const authRes = await axios.get("https://edunova-back-rqxc.onrender.com/api/google/check-auth", {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
@@ -29,7 +29,7 @@ const SelectGoogleLessons = () => {
           return;
         }
 
-        const res = await axios.get("http://localhost:3000/api/google/lessons-temp", {
+        const res = await axios.get("https://edunova-back-rqxc.onrender.com/api/google/lessons-temp", {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
@@ -54,7 +54,7 @@ const SelectGoogleLessons = () => {
     const token = localStorage.getItem("token");
 
     try {
-      await axios.post("http://localhost:3000/api/google/import-lessons", {
+      await axios.post("https://edunova-back-rqxc.onrender.com/api/google/import-lessons", {
         lessonIds: selectedIds,
       }, {
         headers: { Authorization: `Bearer ${token}` },
@@ -70,7 +70,7 @@ const SelectGoogleLessons = () => {
   };
 
   const startGoogleAuth = () => {
-    window.location.href = "http://localhost:3000/api/google/auth";
+    window.location.href = "https://edunova-back-rqxc.onrender.com/api/google/auth";
   };
 
   if (loading) {

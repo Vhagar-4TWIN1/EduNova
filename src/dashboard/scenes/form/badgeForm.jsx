@@ -36,7 +36,7 @@ const handleImageChange = (event) => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/api/badges", formData, {
+      const response = await axios.post("https://edunova-back-rqxc.onrender.com/api/badges", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

@@ -19,11 +19,11 @@ useEffect(()=>{
     const fetchData = async () => {
       try {
         // Fetch regular posts
-        const postsResponse = await axios.get('http://localhost:3000/api/forum/posts');
+        const postsResponse = await axios.get('https://edunova-back-rqxc.onrender.com/api/forum/posts');
         setPosts(postsResponse.data);
         
         // Fetch top posts
-        const topPostsResponse = await axios.get('http://localhost:3000/api/forum/topPosts');
+        const topPostsResponse = await axios.get('https://edunova-back-rqxc.onrender.com/api/forum/topPosts');
         setTopPosts(topPostsResponse.data);
         
         setIsLoading(false);

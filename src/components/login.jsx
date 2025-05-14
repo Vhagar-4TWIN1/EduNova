@@ -61,11 +61,11 @@ const Login = () => {
       if (!decoded || !decoded.userId) return;
 
       const userId = decoded.userId;
-      axios.get(`http://localhost:3000/api/users/${userId}`)
+      axios.get(`https://edunova-back-rqxc.onrender.com/api/users/${userId}`)
         .then((userResponse) => {
           const userData = userResponse.data?.data;
           if (userData?.photo) {
-            localStorage.setItem("image", `http://localhost:3000/${userData.photo}`);
+            localStorage.setItem("image", `https://edunova-back-rqxc.onrender.com/${userData.photo}`);
             navigate("/face");
           } else {
             if (decoded.role === 'Admin') {
@@ -99,7 +99,7 @@ const Login = () => {
       return;
     }
 
-    const response = await axios.post("http://localhost:3000/api/auth/signin", formData, {
+    const response = await axios.post("https://edunova-back-rqxc.onrender.com/api/auth/signin", formData, {
       headers: { "Content-Type": "application/json" },
     });
 
@@ -161,9 +161,9 @@ const Login = () => {
         return;
       }
 
-      const userResponse = await axios.get(`http://localhost:3000/api/users/${decoded.userId}`);
+      const userResponse = await axios.get(`https://edunova-back-rqxc.onrender.com/api/users/${decoded.userId}`);
       if (userResponse.data.data?.photo) {
-        localStorage.setItem("image", `http://localhost:3000/${userResponse.data.data.photo}`);
+        localStorage.setItem("image", `https://edunova-back-rqxc.onrender.com/${userResponse.data.data.photo}`);
         navigate("/face");
       } else {
         if (user.role === 'Admin') navigate("/dashboard");
@@ -222,19 +222,19 @@ const trackSocialLogin = (provider) => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/google";
+    window.location.href = "https://edunova-back-rqxc.onrender.com/api/auth/google";
   };
 
   const handleLinkedinLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/linkedin";
+    window.location.href = "https://edunova-back-rqxc.onrender.com/api/auth/linkedin";
   };
 
   const handleGitHubLogin = () => {
-    window.location.href = "http://localhost:3000/oauth";
+    window.location.href = "https://edunova-back-rqxc.onrender.com/oauth";
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/facebook";
+    window.location.href = "https://edunova-back-rqxc.onrender.com/api/auth/facebook";
   };
 
   return (

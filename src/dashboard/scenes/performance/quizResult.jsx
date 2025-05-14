@@ -13,8 +13,8 @@ const QuizResult = () => {
         const fetchData = async () => {
             try {
                 const [studentsResponse, globalStatsResponse] = await Promise.all([
-                    axios.get('http://localhost:3000/api/quiz/all-students-performance'),
-                    axios.get('http://localhost:3000/api/quiz/global-stats')
+                    axios.get('https://edunova-back-rqxc.onrender.com/api/quiz/all-students-performance'),
+                    axios.get('https://edunova-back-rqxc.onrender.com/api/quiz/global-stats')
                 ]);
 
                 setStudentsData(studentsResponse.data);

@@ -205,7 +205,7 @@ const MusicPlayer = () => {
   useEffect(() => {
     const loadTracks = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/music/tracks');
+        const response = await axios.get('https://edunova-back-rqxc.onrender.com/api/music/tracks');
         const validTracks = Array.isArray(response.data)
           ? response.data.map(track => {
               const id = track.id || 
@@ -214,7 +214,7 @@ const MusicPlayer = () => {
               return {
                 ...track,
                 id,
-                url: track.url.startsWith('http') ? track.url : `http://localhost:3000${track.url}`
+                url: track.url.startsWith('http') ? track.url : `https://edunova-back-rqxc.onrender.com${track.url}`
               };
             }).filter(track => {
               if (track.isYouTube) return true;
@@ -224,7 +224,7 @@ const MusicPlayer = () => {
   
         setTracks(validTracks);
   
-        const playlistRes = await axios.get('http://localhost:3000/api/music/youtube/playlists');
+        const playlistRes = await axios.get('https://edunova-back-rqxc.onrender.com/api/music/youtube/playlists');
         setYoutubePlaylists(playlistRes.data);
       } catch (err) {
         console.error("Failed to load tracks:", err);
@@ -278,7 +278,7 @@ const MusicPlayer = () => {
     } else {
       audio.src = currentTrack.url.startsWith('http') ? 
         currentTrack.url : 
-        `http://localhost:3000${currentTrack.url}`;
+        `https://edunova-back-rqxc.onrender.com${currentTrack.url}`;
     }
 
     audio.load();
@@ -347,7 +347,7 @@ const MusicPlayer = () => {
       
       if (track.isYouTube) {
         response = await axios.post(
-          `http://localhost:3000/api/music/youtube/save/${track.id}`,
+          `https://edunova-back-rqxc.onrender.com/api/music/youtube/save/${track.id}`,
           {},
           {
             onDownloadProgress: (progressEvent) => {
@@ -363,13 +363,13 @@ const MusicPlayer = () => {
         );
 
         // Refresh tracks after download
-        const tracksRes = await axios.get('http://localhost:3000/api/music/tracks');
+        const tracksRes = await axios.get('https://edunova-back-rqxc.onrender.com/api/music/tracks');
         setTracks(tracksRes.data);
       } else {
         // For local files, use the full URL
         const downloadUrl = track.url.startsWith('http') ? 
           track.url : 
-          `http://localhost:3000${track.url}`;
+          `https://edunova-back-rqxc.onrender.com${track.url}`;
         
         response = await axios.get(downloadUrl, {
           responseType: 'blob',
@@ -482,7 +482,7 @@ const MusicPlayer = () => {
     setIsSearching(true);
     setError(null);
     try {
-      const response = await axios.get('http://localhost:3000/api/music/youtube/search', {
+      const response = await axios.get('https://edunova-back-rqxc.onrender.com/api/music/youtube/search', {
         params: { query: searchQuery },
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,

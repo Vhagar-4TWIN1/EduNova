@@ -115,7 +115,7 @@ const handlePDFResumeGeneration = async () => {
     formData.append("file", file);
 
     const response = await axios.post(
-      "http://localhost:3000/api/gemini/generate-resume", 
+      "https://edunova-back-rqxc.onrender.com/api/gemini/generate-resume", 
       formData, 
       {
         headers: { 

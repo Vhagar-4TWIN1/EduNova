@@ -17,7 +17,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
 
     try {
       const response = await axios.post(
-  'http://localhost:3000/api/forum/posts',
+  'https://edunova-back-rqxc.onrender.com/api/forum/posts',
   { title, content, tags },
   {
     headers: {

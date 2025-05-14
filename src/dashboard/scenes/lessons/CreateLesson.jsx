@@ -46,7 +46,7 @@ const CreateLesson = () => {
     const fetchModules = async () => {
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get("http://localhost:3000/module", {
+        const response = await axios.get("https://edunova-back-rqxc.onrender.com/module", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -91,7 +91,7 @@ const CreateLesson = () => {
         const uploadResult = await uploadToCloudinary(lecture.file);
 
         await axios.post(
-          "http://localhost:3000/api/lessons",
+          "https://edunova-back-rqxc.onrender.com/api/lessons",
           {
             title: lecture.title,
             content: lessonData.content,

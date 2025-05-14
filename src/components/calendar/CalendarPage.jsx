@@ -135,7 +135,7 @@ export default function CalendarPage() {
         }
       }
       const response = await axios.post(
-        "http://localhost:3000/api/events",
+        "https://edunova-back-rqxc.onrender.com/api/events",
         {
           type:        data.type,
           title:       data.title,

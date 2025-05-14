@@ -39,7 +39,7 @@ const CreateLesson = () => {
       const upload = await uploadToCloudinary(lesson.file);
 
       await axios.post(
-        "http://localhost:3000/api/lessons",
+        "https://edunova-back-rqxc.onrender.com/api/lessons",
         {
           title: lesson.title,
           content: lesson.content,

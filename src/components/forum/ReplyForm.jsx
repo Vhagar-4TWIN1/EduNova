@@ -98,7 +98,7 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
         console.log(postId);
         
         response = await axios.post(
-          `http://localhost:3000/api/forum/posts/${postId}/reply/audio`,
+          `https://edunova-back-rqxc.onrender.com/api/forum/posts/${postId}/reply/audio`,
           formData,
           {
             headers: {
@@ -109,7 +109,7 @@ const ReplyForm = ({ postId, onReplyAdded }) => {
         );
       } else {
         response = await axios.post(
-          `http://localhost:3000/api/forum/posts/${postId}/reply`,
+          `https://edunova-back-rqxc.onrender.com/api/forum/posts/${postId}/reply`,
           { content },{
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
