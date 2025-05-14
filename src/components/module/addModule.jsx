@@ -11,7 +11,9 @@ const AddModule = ({ existingModule, onClose }) => {
   const [description, setDescription] = useState(existingModule ? existingModule.description : '');
   const [image, setImage] = useState(existingModule ? existingModule.image : null);
   const navigate = useNavigate();
-
+  useEffect(()=>{
+    document.title = "Add Module";
+    },[])
   useEffect(() => {
     if (existingModule) {
       setTitle(existingModule.title);

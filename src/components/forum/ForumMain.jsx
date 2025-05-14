@@ -12,7 +12,9 @@ const ForumMain = () => {
   const [error, setError] = useState(null);
   const [topPostsError, setTopPostsError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+useEffect(()=>{
+    document.title = "Forum";
+  },[])
   useEffect(() => {
     const fetchData = async () => {
       try {
