@@ -1422,7 +1422,7 @@ const UserProfile = () => {
         country: userData.country,
         photo: photoPath,
       };
-      
+
 
 
       // First update the basic user data
@@ -1432,18 +1432,18 @@ const UserProfile = () => {
         basicUserData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-            console.log("Sending basic user data update:", basicUserData);
+      console.log("Sending basic user data update:", basicUserData);
 
-        console.error("Update error:", error);
-  if (error.response) {
-    console.error("Status:", error.response.status);
-    console.error("Data:", error.response.data);
-    console.error("Headers:", error.response.headers);
-  } else if (error.request) {
-    console.error("No response received:", error.request);
-  } else {
-    console.error("Error message:", error.message);
-  }
+      console.error("Update error:", error);
+      if (error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+        console.error("Headers:", error.response.headers);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+      } else {
+        console.error("Error message:", error.message);
+      }
 
       console.log("Basic update response:", basicResponse);
 
@@ -1582,7 +1582,7 @@ const UserProfile = () => {
       // Show error snackbar
       setSnackbarMessage(
         "Error updating profile: " +
-          (JSON.stringify(studentData) || "Something went wrong")
+        (JSON.stringify(studentData) || "Something went wrong")
       );
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
@@ -2487,28 +2487,30 @@ const UserProfile = () => {
               </ProfileImageContainer>
 
               {/* Display Achieved Badges */}
-              <BadgeContainer>
-  {badges.length > 0 ? (
-    badges.map((badge) => (
-      <Link
-        key={badge._id}
-        to={`/badge/${badge._id}`}
-        style={{ textDecoration: 'none' }}
-      >
-        <Badge>
-          <img
-            src={`http://localhost:3000/uploads/badges/${badge.image}`}
-            alt={badge.title}
-          />
-        </Badge>
-      </Link>
-    ))
-  ) : (
-    <Typography variant="caption" sx={{ color: "text.secondary" }}>
-      No badges achieved yet.
-    </Typography>
-  )}
-</BadgeContainer>
+              {localStorage.getItem("role")  === 'Student' && (
+                <BadgeContainer>
+                  {badges.length > 0 ? (
+                    badges.map((badge) => (
+                      <Link
+                        key={badge._id}
+                        to={`/badge/${badge._id}`}
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <Badge>
+                          <img
+                            src={`http://localhost:3000/uploads/badges/${badge.image}`}
+                            alt={badge.title}
+                          />
+                        </Badge>
+                      </Link>
+                    ))
+                  ) : (
+                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                      No badges achieved yet.
+                    </Typography>
+                  )}
+                </BadgeContainer>
+              )}
 
 
               <FormSection
@@ -2716,8 +2718,8 @@ const UserProfile = () => {
                             {userData.role === "Admin"
                               ? "👑"
                               : userData.role === "Teacher"
-                              ? "👨‍🏫"
-                              : "👨‍🎓"}
+                                ? "👨‍🏫"
+                                : "👨‍🎓"}
                           </Box>
                         ),
                         style: {
@@ -2941,9 +2943,8 @@ const UserProfile = () => {
                   }
                   brightness={brightness}
                   contrast={contrast}
-                  transform={`${
-                    facingMode === "user" ? "scaleX(-1)" : "none"
-                  } scale(${zoom})`}
+                  transform={`${facingMode === "user" ? "scaleX(-1)" : "none"
+                    } scale(${zoom})`}
                 />
 
                 <CameraInstructions>

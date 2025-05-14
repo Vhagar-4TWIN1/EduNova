@@ -19,24 +19,24 @@ const ListModules = () => {
   const navigate = useNavigate();
 
 
-  useEffect(()=>{
-      document.title = "Modules"
-    },[])
-    
+  useEffect(() => {
+    document.title = "Modules"
+  }, [])
+
   const handleCLick = (module) => {
-  try {
-    const response = axios.get(`http://localhost:3000/module/${module._id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    console.log(response.data);
-    console.log("the module is:", module);
-  } catch (error) {
-    console.error("Error fetching module details:", error);
-  }
-  navigate(`/moduleDetails/${module._id}`);
-};
+    try {
+      const response = axios.get(`http://localhost:3000/module/${module._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      console.log(response.data);
+      console.log("the module is:", module);
+    } catch (error) {
+      console.error("Error fetching module details:", error);
+    }
+    navigate(`/moduleDetails/${module._id}`);
+  };
 
   useEffect(() => {
     // Get user role from localStorage when component mounts
@@ -50,25 +50,28 @@ const ListModules = () => {
       console.log("role: ", role);
 
       try {
-        if (role == "Student" || role == "Admin" ) {
+        if (role == "Student" || role == "Admin") {
           const email = localStorage.getItem("email");
+          console.log("email", email);
           const moodleRes = await fetch(
-            `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=${email}&moodlewsrestformat=json`
+            `https://edunova.moodlecloud.com/webservice/rest/server.php?wstoken=aeb753af3b7400cf5a7d4d8f3ce5a950&wsfunction=core_user_get_users&moodlewsrestformat=json&criteria[0][key]=email&criteria[0][value]=${email}`
           );
           const moodleData = await moodleRes.json();
-          
+
           const moodleUserId = moodleData?.users?.[0]?.id || '-1';
+          console.log("moodle user id", moodleUserId);
           console.log(moodleUserId);
           const moodleModules = await fetch(
-            `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_enrol_get_users_courses&userid=${moodleUserId}&moodlewsrestformat=json`
+            `https://edunova.moodlecloud.com/webservice/rest/server.php?wstoken=aeb753af3b7400cf5a7d4d8f3ce5a950&wsfunction=core_enrol_get_users_courses&moodlewsrestformat=json&userid=${moodleUserId}`
           );
           const moodleModulesData = await moodleModules.json();
-          console.log(moodleModulesData);
+          console.log("resss", moodleModulesData);
           const response = await axios.get("http://localhost:3000/module/", {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           });
+          console.log("response", response);
           const normalizedMoodleModules = moodleModulesData.map((mod) => ({
             _id: mod.id,
             title: mod.displayname || mod.shortname,
@@ -761,7 +764,7 @@ const ListModules = () => {
               />
             </div>
 
-            {userRole === "Teacher"|| "Admin" && (
+            {(localStorage.getItem("role") === "Teacher" || localStorage.getItem("role") === "Admin") && (
               <button
                 className="add-module-button"
                 onClick={() => navigate("/addModule")}
@@ -772,6 +775,7 @@ const ListModules = () => {
                 Add Module
               </button>
             )}
+
           </div>
         </header>
 
@@ -819,7 +823,7 @@ const ListModules = () => {
                   </div>
                   <h3>No modules found</h3>
                   <p>Try adjusting your search or create a new module</p>
-                  {userRole === "Teacher" || "Admin" && (
+                  {(localStorage.getItem("role") === "Teacher" || localStorage.getItem("role") === "Admin") && (
                     <button
                       className="empty-button"
                       onClick={() => navigate("/addModule")}
@@ -827,6 +831,7 @@ const ListModules = () => {
                       Create Your First Module
                     </button>
                   )}
+
                 </div>
               ) : (
                 currentItems.map((module) => (
@@ -899,7 +904,7 @@ const ListModules = () => {
                                     </svg>
                                   </button>
 
-                                  {userRole === "Teacher"|| "Admin" && (
+                                  {(localStorage.getItem("role") === "Teacher" || localStorage.getItem("role") === "Admin") && (
                                     <>
                                       <button
                                         className="action-icon"
@@ -928,6 +933,7 @@ const ListModules = () => {
                                       </button>
                                     </>
                                   )}
+
                                 </div>
                               )}
                             </div>
@@ -943,9 +949,8 @@ const ListModules = () => {
             {filteredModules.length > itemsPerPage && (
               <div className="pagination">
                 <button
-                  className={`pagination-button ${
-                    currentPage === 1 ? "disabled" : ""
-                  }`}
+                  className={`pagination-button ${currentPage === 1 ? "disabled" : ""
+                    }`}
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={currentPage === 1}
                 >
@@ -960,9 +965,8 @@ const ListModules = () => {
                     (number) => (
                       <button
                         key={number}
-                        className={`page-number ${
-                          currentPage === number ? "active" : ""
-                        }`}
+                        className={`page-number ${currentPage === number ? "active" : ""
+                          }`}
                         onClick={() => setCurrentPage(number)}
                       >
                         {number}
@@ -972,9 +976,8 @@ const ListModules = () => {
                 </div>
 
                 <button
-                  className={`pagination-button ${
-                    currentPage === totalPages ? "disabled" : ""
-                  }`}
+                  className={`pagination-button ${currentPage === totalPages ? "disabled" : ""
+                    }`}
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                 >

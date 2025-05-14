@@ -79,29 +79,29 @@ export default function Header() {
   }, [navigate]);
 
   const handleLogout = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) throw new Error("Aucun token trouvé dans localStorage");
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error("Aucun token trouvé dans localStorage");
 
-    const response = await fetch('http://localhost:3000/api/auth/signout', {
-      method: 'POST', 
-      headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      const response = await fetch('http://localhost:3000/api/auth/signout', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Échec de la déconnexion");
+      }
+
+      localStorage.clear();
+      window.location.href = '/';
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error.message);
+      alert("Erreur lors de la déconnexion : " + error.message);
     }
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Échec de la déconnexion");
-    }
-
-    localStorage.clear();
-    window.location.href = '/';
-  } catch (error) {
-    console.error("Erreur lors de la déconnexion:", error.message);
-    alert("Erreur lors de la déconnexion : " + error.message);
-  }
-};
+  };
 
   const toggleDropdown = () => setDropdownOpen(v => !v);
   const toggleAITutor = () => setShowAITutor(v => !v);
@@ -137,14 +137,14 @@ export default function Header() {
         <div className="container-fluid container-xl position-relative d-flex align-items-center">
           {/* Logo */}
           <a href="/home" className={logoClasses} style={{ textDecoration: "none" }}>
-            <img src="../assets/logolog.png" alt="EduNova" style={{ height: "1.5em" ,  }} />
+            <img src="../assets/logolog.png" alt="EduNova" style={{ height: "1.5em", }} />
             <h1 style={{ margin: 0, fontSize: "1.5rem" }}>EduNova</h1>
           </a>
-         <button
-           className="mobile-nav-toggle d-xl-none"
-           onClick={toggleMobileNav}
-           aria-label="Toggle navigation"
-        >
+          <button
+            className="mobile-nav-toggle d-xl-none"
+            onClick={toggleMobileNav}
+            aria-label="Toggle navigation"
+          >
             <i className={`bi ${mobileNavOpen ? "bi-x" : "bi-list"}`} />
           </button>
           {/* Navigation */}
@@ -155,15 +155,15 @@ export default function Header() {
                   Home
                 </a>
               </li>
-             
+
               <li>
                 <a href="/listModules">Modules</a>
               </li>
 
-              
 
-            
-            
+
+
+
               <li className="dropdown">
                 <a href="#">
                   <span>Game</span>{" "}
@@ -176,21 +176,23 @@ export default function Header() {
                   <li>
                     <a href="/quizz">Quiz Game</a>
                   </li>
-                  
+
                 </ul>
               </li>
-          
-              <li>
-                <a href="/badges">Badges</a>
-              </li>
-              
 
-            <li>
+              {localStorage.getItem("role") === "Student" && (
+                <li>
+                  <a href="/badges">Badges</a>
+                </li>
+              )}
+
+
+              <li>
                 <a href="/About">About</a>
               </li>
 
 
-              
+
               <li>
                 <a href="/forum">Forum</a>
               </li>
@@ -211,8 +213,8 @@ export default function Header() {
                       <a href="/update">Profile</a>
                     </li>
                     <li className="dropdown-item">
-                <a href="/lesson">Courses</a>
-              </li>
+                      <a href="/lesson">Courses</a>
+                    </li>
                     <li>
                       <a href="/calendar">Calendar</a>
                     </li>
@@ -222,18 +224,18 @@ export default function Header() {
                     <li>
                       <a href="/videochat">Video Call</a>
                     </li>
-                    
+
                     {localStorage.getItem("role") === "Admin" && (
-                <li>
-                  <a href="/dashboard">Dashboard</a>
-                </li>
-              )}
+                      <li>
+                        <a href="/dashboard">Dashboard</a>
+                      </li>
+                    )}
                     <li>
                       <button className="dropdown-item" onClick={toggleAITutor}>
                         <i className="bi bi-robot" /> AI Tutor
                       </button>
                     </li>
-                  
+
                     <li>
                       <button className="dropdown-item" onClick={toggleGenerateResume}>
                         <i className="bi bi-file-earmark-person" /> Generate Resume
@@ -275,7 +277,7 @@ export default function Header() {
             alignItems: 'center'
           }}>
             <h5 style={{ margin: 0 }}>AI Learning Assistant</h5>
-            <button 
+            <button
               onClick={toggleAITutor}
               style={{
                 background: 'transparent',
@@ -319,7 +321,7 @@ export default function Header() {
             alignItems: 'center'
           }}>
             <h5 style={{ margin: 0 }}>Generate Resume</h5>
-            <button 
+            <button
               onClick={toggleGenerateResume}
               style={{
                 background: 'transparent',
@@ -338,5 +340,5 @@ export default function Header() {
         </div>
       )}
     </>
- );
+  );
 }

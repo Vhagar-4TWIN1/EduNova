@@ -33,14 +33,14 @@ const ModuleDetails = () => {
   const [userLearningPreference, setUserLearningPreference] = useState(null);
   const [supplementaryLessons, setSupplementaryLessons] = useState([]);
   const [totalLessons, setTotalLessons] = useState(0);
-const [showSupplementary, setShowSupplementary] = useState(() => {
-  try {
-    return localStorage.getItem(`showSupplementary_${id}`) === 'true';
-  } catch (e) {
-    console.error("Error accessing localStorage:", e);
-    return false;
-  }
-});
+  const [showSupplementary, setShowSupplementary] = useState(() => {
+    try {
+      return localStorage.getItem(`showSupplementary_${id}`) === 'true';
+    } catch (e) {
+      console.error("Error accessing localStorage:", e);
+      return false;
+    }
+  });
   const [timeSpent, setTimeSpent] = useState(0);
   const requiredTime = 60;
 
@@ -50,21 +50,21 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
 
   useEffect(() => {
     if (!module?._id || role !== 'Student') return;
-  if (showSupplementary) return;
+    if (showSupplementary) return;
 
     const timer = setInterval(() => {
       setTimeSpent(prev => {
         const newTime = prev + 1;
         if (newTime >= requiredTime && !showSupplementary) {
           setShowSupplementary(true);
-            localStorage.setItem(`showSupplementary_${id}`, 'true');
+          localStorage.setItem(`showSupplementary_${id}`, 'true');
         }
         return newTime;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [module?._id, role, showSupplementary , id]);
+  }, [module?._id, role, showSupplementary, id]);
 
   useEffect(() => {
     let isMounted = true;
@@ -81,9 +81,9 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
             }
           }
         );
-        
+
         if (!isMounted) return;
-        
+
         if (response.data && response.data.lessons) {
           setSupplementaryLessons(response.data.lessons);
         } else {
@@ -99,7 +99,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
         }
       }
     };
-    
+
     if (module?._id) {
       fetchSupplementaryLessons();
     }
@@ -111,7 +111,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
 
   const handleDeleteSupplementary = async (id) => {
     if (!window.confirm('Are you sure you want to delete this supplementary lesson?')) return;
-    
+
     try {
       await axios.delete(`http://localhost:3000/api/study/recommendations/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -122,7 +122,7 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
     }
   };
 
- useEffect(() => {
+  useEffect(() => {
     const fetchModuleLessons = async () => {
       try {
         const savedShowSupplementary = localStorage.getItem(`showSupplementary_${id}`) === 'true';
@@ -134,10 +134,10 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
 
         if (isMoodleCourse) {
           const moodleRes = await axios.get(
-            "http://40.127.12.101/moodle/webservice/rest/server.php",
+            "https://edunova.moodlecloud.com/webservice/rest/server.php",
             {
               params: {
-                wstoken: "46b0837fde05083b10edd2f210c2fbe7",
+                wstoken: "aeb753af3b7400cf5a7d4d8f3ce5a950",
                 wsfunction: "core_course_get_contents",
                 courseid: id,
                 moodlewsrestformat: "json",
@@ -306,24 +306,24 @@ const [showSupplementary, setShowSupplementary] = useState(() => {
     }
   };
 
-const renderSupplementaryIcon = (type) => {
-  switch(type) {
-    case 'video':
-      return <FaYoutube className="text-red-500 mr-2" />;
-    case 'article':
-      return <FaFileAlt className="text-blue-500 mr-2" />;
-    case 'exercise':
-      return <FaRunning className="text-green-500 mr-2" />;
-    case 'quiz':
-      return <FaQuestionCircle className="text-yellow-500 mr-2" />;
-    case 'podcast':
-      return <FaPodcast className="text-purple-500 mr-2" />;
-    case 'pdf':
-      return <FaFilePdf className="text-red-500 mr-2" />;
-    default:
-      return <FaExternalLinkAlt className="text-gray-500 mr-2" />;
-  }
-};
+  const renderSupplementaryIcon = (type) => {
+    switch (type) {
+      case 'video':
+        return <FaYoutube className="text-red-500 mr-2" />;
+      case 'article':
+        return <FaFileAlt className="text-blue-500 mr-2" />;
+      case 'exercise':
+        return <FaRunning className="text-green-500 mr-2" />;
+      case 'quiz':
+        return <FaQuestionCircle className="text-yellow-500 mr-2" />;
+      case 'podcast':
+        return <FaPodcast className="text-purple-500 mr-2" />;
+      case 'pdf':
+        return <FaFilePdf className="text-red-500 mr-2" />;
+      default:
+        return <FaExternalLinkAlt className="text-gray-500 mr-2" />;
+    }
+  };
 
   const openMoodleLesson = (url) => {
     window.open(url, "_blank");
@@ -558,8 +558,8 @@ const renderSupplementaryIcon = (type) => {
             <div className="time-progress mb-4">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-gray-700">
-                  {timeSpent >= requiredTime 
-                    ? 'Supplementary resources unlocked' 
+                  {timeSpent >= requiredTime
+                    ? 'Supplementary resources unlocked'
                     : 'Unlocking supplementary resources...'}
                 </span>
                 <span className="text-sm font-semibold text-blue-600">
@@ -567,125 +567,121 @@ const renderSupplementaryIcon = (type) => {
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  className={`h-2.5 rounded-full ${
-                    timeSpent >= requiredTime ? 'bg-green-500' : 'bg-blue-600'
-                  }`} 
-                  style={{ width: `${(Math.min(timeSpent, requiredTime)/requiredTime)*100}%` }}
+                <div
+                  className={`h-2.5 rounded-full ${timeSpent >= requiredTime ? 'bg-green-500' : 'bg-blue-600'
+                    }`}
+                  style={{ width: `${(Math.min(timeSpent, requiredTime) / requiredTime) * 100}%` }}
                 ></div>
               </div>
             </div>
-            
+
             <div className="section-header">
               <h2 className="supplementary-title">
                 <FaBook className="mr-2" />
                 Supplementary Resources
               </h2>
-              <button 
-    onClick={() => {
-      const newState = !showSupplementary;
-      setShowSupplementary(newState);
-      localStorage.setItem(`showSupplementary_${id}`, String(newState));
-    }}
-    className="text-sm text-blue-600 hover:text-blue-800"
-  >
-    {showSupplementary ? 'Hide' : 'Show'}
-  </button>
+              <button
+                onClick={() => {
+                  const newState = !showSupplementary;
+                  setShowSupplementary(newState);
+                  localStorage.setItem(`showSupplementary_${id}`, String(newState));
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                {showSupplementary ? 'Hide' : 'Show'}
+              </button>
             </div>
-            
-         <div className="supplementary-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-  {supplementaryLessons.map(lesson => (
-    <div key={lesson._id} className={`supplementary-card rounded-lg shadow-md p-4 ${
-      lesson.type === 'video' ? 'border-l-4 border-red-500' :
-      lesson.type === 'article' ? 'border-l-4 border-blue-500' :
-      lesson.type === 'exercise' ? 'border-l-4 border-green-500' :
-      'border-l-4 border-purple-500'
-    }`}>
-      <div className="supplementary-content">
-        <div className="flex items-center mb-2">
-          {renderSupplementaryIcon(lesson.type)}
-          <h4 className="font-semibold">{lesson.title}</h4>
-        </div>
-        
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className={`px-2 py-1 rounded text-xs ${
-            lesson.type === 'video' ? 'bg-red-100 text-red-800' :
-            lesson.type === 'article' ? 'bg-blue-100 text-blue-800' :
-            lesson.type === 'exercise' ? 'bg-green-100 text-green-800' :
-            'bg-purple-100 text-purple-800'
-          }`}>
-            {lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)}
-          </span>
-          {lesson.duration > 0 && (
-            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-              {lesson.duration} min
-            </span>
-          )}
-        </div>
-        
-        <p className="text-gray-600 mb-3 text-sm">
-          {lesson.content || lesson.description || 'No content available'}
-        </p>
-        
-       {lesson.resourceUrl && (
-  <div className="mt-auto">
-  {lesson.type === 'pdf' ? (
-  <a 
-  href={`http://localhost:3000/pdf/${lesson.filePath}`} 
-  download={lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`}
-  className="inline-flex items-center px-3 py-1 rounded text-sm bg-red-50 text-red-700 hover:bg-red-100"
-  onClick={(e) => {
-    e.preventDefault();
-    const link = document.createElement('a');
-    link.href = `http://localhost:3000/pdf/${lesson.filePath}`;
-    link.setAttribute('download', lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }}
->
-  <FaFilePdf className="mr-1" />
-  Download PDF
-</a>
-    ) : (
-      <a 
-        href={lesson.resourceUrl} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className={`inline-flex items-center px-3 py-1 rounded text-sm ${
-          lesson.type === 'video' ? 'bg-red-50 text-red-700 hover:bg-red-100' :
-          lesson.type === 'article' ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' :
-          lesson.type === 'exercise' ? 'bg-green-50 text-green-700 hover:bg-green-100' :
-          'bg-purple-50 text-purple-700 hover:bg-purple-100'
-        }`}
-      >
-        <FaExternalLinkAlt className="mr-1" />
-        {lesson.type === 'video' ? 'Watch Video' : 
-         lesson.type === 'article' ? 'Read Article' : 
-         lesson.type === 'exercise' ? 'Start Exercise' : 
-         'View Resource'}
-      </a>
-    )}
-  </div>
-)}
-      </div>
-    </div>
-  ))}
-</div>
+
+            <div className="supplementary-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {supplementaryLessons.map(lesson => (
+                <div key={lesson._id} className={`supplementary-card rounded-lg shadow-md p-4 ${lesson.type === 'video' ? 'border-l-4 border-red-500' :
+                    lesson.type === 'article' ? 'border-l-4 border-blue-500' :
+                      lesson.type === 'exercise' ? 'border-l-4 border-green-500' :
+                        'border-l-4 border-purple-500'
+                  }`}>
+                  <div className="supplementary-content">
+                    <div className="flex items-center mb-2">
+                      {renderSupplementaryIcon(lesson.type)}
+                      <h4 className="font-semibold">{lesson.title}</h4>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className={`px-2 py-1 rounded text-xs ${lesson.type === 'video' ? 'bg-red-100 text-red-800' :
+                          lesson.type === 'article' ? 'bg-blue-100 text-blue-800' :
+                            lesson.type === 'exercise' ? 'bg-green-100 text-green-800' :
+                              'bg-purple-100 text-purple-800'
+                        }`}>
+                        {lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)}
+                      </span>
+                      {lesson.duration > 0 && (
+                        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                          {lesson.duration} min
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-gray-600 mb-3 text-sm">
+                      {lesson.content || lesson.description || 'No content available'}
+                    </p>
+
+                    {lesson.resourceUrl && (
+                      <div className="mt-auto">
+                        {lesson.type === 'pdf' ? (
+                          <a
+                            href={`http://localhost:3000/pdf/${lesson.filePath}`}
+                            download={lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`}
+                            className="inline-flex items-center px-3 py-1 rounded text-sm bg-red-50 text-red-700 hover:bg-red-100"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              const link = document.createElement('a');
+                              link.href = `http://localhost:3000/pdf/${lesson.filePath}`;
+                              link.setAttribute('download', lesson.originalFileName || `${lesson.title.replace(/\s+/g, '_')}.pdf`);
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                            }}
+                          >
+                            <FaFilePdf className="mr-1" />
+                            Download PDF
+                          </a>
+                        ) : (
+                          <a
+                            href={lesson.resourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`inline-flex items-center px-3 py-1 rounded text-sm ${lesson.type === 'video' ? 'bg-red-50 text-red-700 hover:bg-red-100' :
+                                lesson.type === 'article' ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' :
+                                  lesson.type === 'exercise' ? 'bg-green-50 text-green-700 hover:bg-green-100' :
+                                    'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                              }`}
+                          >
+                            <FaExternalLinkAlt className="mr-1" />
+                            {lesson.type === 'video' ? 'Watch Video' :
+                              lesson.type === 'article' ? 'Read Article' :
+                                lesson.type === 'exercise' ? 'Start Exercise' :
+                                  'View Resource'}
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        
+
 
         {!module.isMoodle && role === "Teacher" && supplementaryLessons.length > 0 && (
           <div className="supplementary-section mt-8">
             <div className="section-header">
               <h2 className="supplementary-title">
                 <FaBook className="mr-2" />
-                Supplementary Resources 
+                Supplementary Resources
               </h2>
             </div>
-            
+
             <div className="supplementary-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {supplementaryLessons.map(lesson => (
                 <div key={lesson._id} className="supplementary-card bg-white rounded-lg shadow-md p-4 relative">
@@ -706,16 +702,16 @@ const renderSupplementaryIcon = (type) => {
                     </div>
                     <p className="text-gray-600 mb-3">{lesson.content || lesson.description || 'No content available'}</p>
                     {lesson.resourceUrl && (
-                      <a 
-                        href={lesson.resourceUrl} 
-                        target="_blank" 
+                      <a
+                        href={lesson.resourceUrl}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="resource-link inline-flex items-center text-blue-600 hover:text-blue-800"
                       >
                         <FaExternalLinkAlt className="mr-1" />
-                        {lesson.type === 'video' ? 'Watch Video' : 
-                         lesson.type === 'article' ? 'Read Article' : 
-                         'View Resource'}
+                        {lesson.type === 'video' ? 'Watch Video' :
+                          lesson.type === 'article' ? 'Read Article' :
+                            'View Resource'}
                       </a>
                     )}
                   </div>
