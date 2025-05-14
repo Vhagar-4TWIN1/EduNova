@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const ChangePassword = () => {
+  
     const navigate = useNavigate();
 
   const [inputs, setInputs] = useState({
