@@ -1,6 +1,10 @@
 services:
-  - type: web
-    name: edunova-dashboard
-    env: node
-    buildCommand: npm install --force && npm run build
-    startCommand: npm run start
+  - type: static
+    name: edunova-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: "^/(?!.*\\.).*"
+        destination: "/index.html"

@@ -21,7 +21,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': { target: 'https://edunova-back-rqxc.onrender.com', changeOrigin: true },
-      '/ws':  { target: 'ws://localhost:3000', ws: true }
+      '/ws':  { target: 'ws://edunova-back-rqxc.onrender.com', ws: true }
     }
   }
 })
