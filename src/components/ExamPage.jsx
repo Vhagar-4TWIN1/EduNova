@@ -8,7 +8,9 @@ const ExamPage = () => {
   const [showWarning, setShowWarning] = useState(false);
   const [warningMessage, setWarningMessage] = useState('');
   const [timeLeft, setTimeLeft] = useState(5 * 60); // 50 minutes
-
+useEffect(()=>{
+    document.title = "Exam"
+  },[])
   // Fraud detection rules
   const FRAUD_RULES = [
     "Only one person allowed in camera view",
