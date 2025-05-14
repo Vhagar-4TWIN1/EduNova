@@ -162,9 +162,7 @@ export default function Header() {
 
               
 
-              <li>
-                      <a href="/exam">Evaluation</a>
-              </li>
+            
             
               <li className="dropdown">
                 <a href="#">
@@ -181,9 +179,7 @@ export default function Header() {
                   
                 </ul>
               </li>
-              <li>
-                    <a href="/Trainers">Trainers</a>
-                  </li>
+          
               <li>
                 <a href="/badges">Badges</a>
               </li>

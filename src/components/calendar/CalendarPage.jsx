@@ -85,6 +85,9 @@ export default function CalendarPage() {
     },
   });
 
+  useEffect(()=>{
+      document.title = "Calendar"
+    },[])
  
   const userId = localStorage.getItem("userId");
 

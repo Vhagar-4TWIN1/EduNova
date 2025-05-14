@@ -10,7 +10,9 @@ const ClassicWordGame = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [animateMessage, setAnimateMessage] = useState(false);
-
+ useEffect(()=>{
+    document.title = "ClassicWordGame"
+  },[])
   useEffect(() => {
     if (message) {
       setAnimateMessage(true);
