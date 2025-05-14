@@ -285,25 +285,7 @@ return (
           textAlign: "center",
         }}
       >
-        <h1 style={{ fontSize: "2rem", fontWeight: "bold", color: "#1f2937" }}>
-          📘 {lesson.title}
-        </h1>
-        <div style={{ marginTop: "1rem", marginBottom: "1.5rem" }}>
-          <button
-            onClick={openStickyNoteModal}
-            style={{
-              padding: "0.6rem 1.2rem",
-              backgroundColor: "#3b82f6",
-              color: "#fff",
-              border: "none",
-              borderRadius: "0.5rem",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
-          >
-            📝 Open Sticky Notes
-          </button>
-        </div>
+      
 
 
 
@@ -858,7 +840,7 @@ return (
         onClick={() => {
           const modId = moduleId || lesson.moduleId || lesson.module || lesson._id;
           console.log("Going back to module:", modId);
-          navigate(`/moduleDetails/course/${modId}`);
+          navigate(`/home`);
         }}
         style={{
           backgroundColor: "#4ade80",
@@ -871,7 +853,7 @@ return (
           marginTop: "1.5rem",
         }}
       >
-        {t("buttons.back")}
+        {t("Go back")}
       </button>
     </div>
   </div>
