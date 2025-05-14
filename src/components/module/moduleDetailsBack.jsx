@@ -10,7 +10,7 @@ const ModuleDetailsBack = () => {
   useEffect(() => {
     const fetchModuleDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/module/${id}`,
+        const response = await axios.get(`https://edunova-back-rqxc.onrender.com/module/${id}`,
            {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,

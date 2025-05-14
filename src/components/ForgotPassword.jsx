@@ -29,7 +29,7 @@ const ForgotPassword = () => {
   const sendEmail = async (e) => {
     e.preventDefault();
     try {
-      await axios.patch("http://localhost:3000/api/auth/send-forgot-password-code", {
+      await axios.patch("https://edunova-back-rqxc.onrender.com/api/auth/send-forgot-password-code", {
         email: formData.email,
       });
       alert("📨 A verification code has been sent to your email.");
@@ -47,7 +47,7 @@ const ForgotPassword = () => {
   const resetPassword = async (e) => {
     e.preventDefault();
     try {
-      await axios.patch("http://localhost:3000/api/auth/verify-forgot-password-code", formData);
+      await axios.patch("https://edunova-back-rqxc.onrender.com/api/auth/verify-forgot-password-code", formData);
       alert("✅ Your password has been successfully changed.");
       navigate("/");
     } catch (error) {

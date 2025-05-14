@@ -51,7 +51,7 @@ const ActivityLogs = () => {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Missing token. Please log in again.');
 
-      const response = await axios.get('http://localhost:3000/api/auth/activity-logs', {
+      const response = await axios.get('https://edunova-back-rqxc.onrender.com/api/auth/activity-logs', {
         headers: { Authorization: `Bearer ${token}` },
       });
 

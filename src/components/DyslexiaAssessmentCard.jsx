@@ -86,7 +86,7 @@ const DyslexiaAssessmentCard = () => {
   const getAIInsight = async (text) => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/ai/dyslexia-feedback",
+        "https://edunova-back-rqxc.onrender.com/api/ai/dyslexia-feedback",
         {
           transcript: text,
         }

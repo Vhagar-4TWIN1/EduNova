@@ -58,7 +58,7 @@ const QuestionForm = ({ editMode = false }) => {
   useEffect(() => {
     const fetchLevels = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/level');
+        const response = await axios.get('https://edunova-back-rqxc.onrender.com/api/level');
         setLevels(response.data.data);
         
         if (!editMode && response.data.data.length > 0) {
@@ -79,7 +79,7 @@ const QuestionForm = ({ editMode = false }) => {
     if (editMode && id && levels.length > 0) {
       const fetchQuestion = async () => {
         try {
-          const response = await axios.get(`http://localhost:3000/api/questions/${id}`);
+          const response = await axios.get(`https://edunova-back-rqxc.onrender.com/api/questions/${id}`);
           const question = response.data;
           
           setFormData({
@@ -251,11 +251,11 @@ const QuestionForm = ({ editMode = false }) => {
       // Envoi au backend
       let response;
       if (editMode && id) {
-        response = await axios.put(`http://localhost:3000/api/questions/${id}`, formDataToSend, {
+        response = await axios.put(`https://edunova-back-rqxc.onrender.com/api/questions/${id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
-        response = await axios.post('http://localhost:3000/api/questions', formDataToSend, {
+        response = await axios.post('https://edunova-back-rqxc.onrender.com/api/questions', formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       }

@@ -34,7 +34,7 @@ const LessonsDashboard = ({ searchQuery }) => {
   const fetchLessons = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:3000/api/lessons", {
+      const res = await axios.get("https://edunova-back-rqxc.onrender.com/api/lessons", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLessons(res.data || []);
@@ -69,7 +69,7 @@ const LessonsDashboard = ({ searchQuery }) => {
     const token = localStorage.getItem("token");
     for (const id of selectionModel) {
       try {
-        await axios.delete(`http://localhost:3000/api/lessons/${id}`, {
+        await axios.delete(`https://edunova-back-rqxc.onrender.com/api/lessons/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } catch (error) {
@@ -102,7 +102,7 @@ const LessonsDashboard = ({ searchQuery }) => {
       }
 
       await axios.patch(
-        `http://localhost:3000/api/lessons/${editingLesson._id}`,
+        `https://edunova-back-rqxc.onrender.com/api/lessons/${editingLesson._id}`,
         { ...editForm, fileUrl: uploadUrl, public_id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -116,7 +116,7 @@ const LessonsDashboard = ({ searchQuery }) => {
   const downloadTTS = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`http://localhost:3000/api/lessons/${id}/tts`, {
+      const response = await axios.get(`https://edunova-back-rqxc.onrender.com/api/lessons/${id}/tts`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: "blob",
       });

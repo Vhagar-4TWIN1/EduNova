@@ -34,7 +34,7 @@ const LevelManagement = () => {
   const fetchLevels = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:3000/api/level");
+      const response = await axios.get("https://edunova-back-rqxc.onrender.com/api/level");
       setLevels(response.data.data);
       setError(null);
     } catch (err) {
@@ -46,7 +46,7 @@ const LevelManagement = () => {
 
   const handleCreateLevel = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/api/level", newLevel);
+      const response = await axios.post("https://edunova-back-rqxc.onrender.com/api/level", newLevel);
       setLevels([...levels, response.data.data]);
       setNewLevel({ name: "", description: "" });
       setSuccess("Level created successfully");
@@ -58,7 +58,7 @@ const LevelManagement = () => {
   const handleUpdateLevel = async () => {
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/level/${editLevel._id}`,
+        `https://edunova-back-rqxc.onrender.com/api/level/${editLevel._id}`,
         editLevel
       );
       setLevels(levels.map(l => l._id === editLevel._id ? response.data.data : l));
@@ -71,7 +71,7 @@ const LevelManagement = () => {
 
   const handleDeleteLevel = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/level/${id}`);
+      await axios.delete(`https://edunova-back-rqxc.onrender.com/api/level/${id}`);
       setLevels(levels.filter(l => l._id !== id));
       setSuccess("Level deleted successfully");
     } catch (err) {

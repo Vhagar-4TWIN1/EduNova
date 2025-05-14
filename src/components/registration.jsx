@@ -43,7 +43,7 @@ const Registration = () => {
             console.log("Authorization code received from LinkedIn:", code);
             setLoading(true);
 
-            axios.post("http://localhost:3000/api/auth/linkedinAuth", { code })
+            axios.post("https://edunova-back-rqxc.onrender.com/api/auth/linkedinAuth", { code })
                 .then((response) => {
                     console.log("LinkedIn OAuth response:", response.data);
                     if (response.data.token) {
@@ -129,7 +129,7 @@ const Registration = () => {
 
             console.log("Signing up with data:", signupData);
             
-            const response = await axios.post("http://localhost:3000/api/auth/signup", signupData);
+            const response = await axios.post("https://edunova-back-rqxc.onrender.com/api/auth/signup", signupData);
             
             if (response.data.success) {
                 console.log("Registration successful:", response.data);

@@ -54,7 +54,7 @@ const AddLesson = () => {
     if (publicId) formData.append("public_id", publicId);
 
     try {
-      await axios.post("http://localhost:3000/api/lessons", formData, {
+      await axios.post("https://edunova-back-rqxc.onrender.com/api/lessons", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -76,7 +76,7 @@ const AddLesson = () => {
   const handleAutoCorrect = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/languageTool",
+        "https://edunova-back-rqxc.onrender.com/api/languageTool",
         {
           text: lessonData.content,
         }

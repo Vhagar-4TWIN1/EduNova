@@ -3,7 +3,7 @@
 import { QueryClient } from "@tanstack/react-query";
 
 const BASE = import.meta.env.DEV
-  ? "http://localhost:3000"
+  ? "https://edunova-back-rqxc.onrender.com"
   : window.location.origin;
 
 async function throwIfResNotOk(res) {

@@ -39,7 +39,7 @@ const QuestionList = () => {
     const fetchQuestions = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:3000/api/questions");
+        const response = await fetch("https://edunova-back-rqxc.onrender.com/api/questions");
 
         if (!response.ok) {
           throw new Error(`HTTP Error: ${response.status}`);
@@ -79,7 +79,7 @@ const QuestionList = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/questions/${selectedId}`, {
+      const response = await fetch(`https://edunova-back-rqxc.onrender.com/api/questions/${selectedId}`, {
         method: "DELETE",
       });
 
@@ -116,7 +116,7 @@ const QuestionList = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch("http://localhost:3000/api/questions/import", {
+      const response = await fetch("https://edunova-back-rqxc.onrender.com/api/questions/import", {
         method: "POST",
         body: formData,
       });

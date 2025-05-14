@@ -45,7 +45,7 @@ const Team = ({ searchQuery }) => {
   const fetchUsers = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/api/users?page=1&limit=100"
+        "https://edunova-back-rqxc.onrender.com/api/users?page=1&limit=100"
       );
       if (res.data && Array.isArray(res.data.users)) {
         const filteredUsers = res.data.users.filter(
@@ -77,7 +77,7 @@ const Team = ({ searchQuery }) => {
       if (!confirm) return;
 
       for (const id of selectionModel) {
-        await axios.delete(`http://localhost:3000/api/users/${id}`);
+        await axios.delete(`https://edunova-back-rqxc.onrender.com/api/users/${id}`);
       }
 
       setSelectionModel([]);
@@ -93,7 +93,7 @@ const Team = ({ searchQuery }) => {
 
   const handleAddUserSubmit = async () => {
     try {
-      await axios.post("http://localhost:3000/api/auth/signup", newUser);
+      await axios.post("https://edunova-back-rqxc.onrender.com/api/auth/signup", newUser);
       setAddUserModalOpen(false);
       fetchUsers();
     } catch (error) {
@@ -125,7 +125,7 @@ const Team = ({ searchQuery }) => {
   const handleFormSubmit = async () => {
     try {
       await axios.patch(
-        `http://localhost:3000/api/users/${editingUser._id}`,
+        `https://edunova-back-rqxc.onrender.com/api/users/${editingUser._id}`,
         editForm
       );
       setEditingUser(null);
@@ -142,7 +142,7 @@ const Team = ({ searchQuery }) => {
     if (!confirm) return;
 
     try {
-      await axios.patch(`http://localhost:3000/api/users/${user._id}/promote`);
+      await axios.patch(`https://edunova-back-rqxc.onrender.com/api/users/${user._id}/promote`);
       fetchUsers();
     } catch (error) {
       console.error("Promote to admin failed:", error);

@@ -15,7 +15,7 @@ const BadgeDetail = () => {
         const token = localStorage.getItem('token');
         console.log("Token: ", token);
         console.log("Badge ID: ", badgeId.id);
-        const response = await axios.get(`http://localhost:3000/api/badges/${badgeId.id}`, {
+        const response = await axios.get(`https://edunova-back-rqxc.onrender.com/api/badges/${badgeId.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setBadgeDetail(response.data.badge);
@@ -37,7 +37,7 @@ const BadgeDetail = () => {
         <div className="card shadow-lg p-5 rounded-lg" style={{ maxWidth: '1920px', margin: '0 auto' }}>
           <div className="text-center mb-1">
             <img
-              src={`http://localhost:3000/uploads/badges/${badgeDetail.image}`}
+              src={`https://edunova-back-rqxc.onrender.com/uploads/badges/${badgeDetail.image}`}
               alt={badgeDetail.title}
               className="rounded-circle border border-1 border-primary"
               style={{ width: '500px', height: '500px', objectFit: 'cover' }}

@@ -38,7 +38,7 @@ const QuizPage = ({ timeLeft, setTimeLeft }) => {
 
       let audioUrl = audioPath.replace(/\\/g, '/');
       if (!audioUrl.startsWith('http') && !audioUrl.startsWith('/') && !audioUrl.startsWith('blob:')) {
-        audioUrl = `http://localhost:3000/${audioUrl}`;
+        audioUrl = `https://edunova-back-rqxc.onrender.com/${audioUrl}`;
       }
 
       if (!audioUrl.toLowerCase().endsWith('.wav')) {
@@ -97,13 +97,13 @@ const QuizPage = ({ timeLeft, setTimeLeft }) => {
     const fetchQuestions = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:3000/api/quiz/generate',
+        const response = await axios.get('https://edunova-back-rqxc.onrender.com/api/quiz/generate',
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
             }
           });
-        const API_BASE_URL = 'http://localhost:3000';
+        const API_BASE_URL = 'https://edunova-back-rqxc.onrender.com';
         const correctedQuestions = response.data.map(question => ({
           ...question,
           audioUrl: question.audioUrl
@@ -169,7 +169,7 @@ const QuizPage = ({ timeLeft, setTimeLeft }) => {
     }
 
     try {
-      const res = await axios.post('http://localhost:3000/api/quiz/submit', {
+      const res = await axios.post('https://edunova-back-rqxc.onrender.com/api/quiz/submit', {
         studentId,
         responses
       }, {

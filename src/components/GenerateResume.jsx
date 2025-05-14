@@ -39,7 +39,7 @@ const GenerateResume = () => {
   
   const handleDownload = async () => {
     try {
-      const url = `http://localhost:3000${state.resumeLink}`; // Full URL to backend
+      const url = `https://edunova-back-rqxc.onrender.com${state.resumeLink}`; // Full URL to backend
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -89,7 +89,7 @@ const GenerateResume = () => {
       formData.append('userId', userId);
 
       // Correct endpoint for resume generation
-      const response = await axios.post('http://localhost:3000/api/gemini/generate-resume', formData, {
+      const response = await axios.post('https://edunova-back-rqxc.onrender.com/api/gemini/generate-resume', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${localStorage.getItem('token')}`

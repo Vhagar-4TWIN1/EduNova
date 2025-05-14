@@ -47,7 +47,7 @@ const Sidebar = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found in localStorage");
 
-      const response = await fetch("http://localhost:3000/api/auth/signout", {
+      const response = await fetch("https://edunova-back-rqxc.onrender.com/api/auth/signout", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

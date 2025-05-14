@@ -25,7 +25,7 @@ const ListModules = () => {
     
   const handleCLick = (module) => {
   try {
-    const response = axios.get(`http://localhost:3000/module/${module._id}`, {
+    const response = axios.get(`https://edunova-back-rqxc.onrender.com/module/${module._id}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -53,18 +53,18 @@ const ListModules = () => {
         if (role == "Student" || role == "Admin" ) {
           const email = localStorage.getItem("email");
           const moodleRes = await fetch(
-            `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=${email}&moodlewsrestformat=json`
+            `http://edunova.moodlecloud.com/moodle/webservice/rest/server.php?wstoken=aeb753af3b7400cf5a7d4d8f3ce5a950&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=${email}&moodlewsrestformat=json`
           );
           const moodleData = await moodleRes.json();
           
           const moodleUserId = moodleData?.users?.[0]?.id || '-1';
           console.log(moodleUserId);
           const moodleModules = await fetch(
-            `http://40.127.12.101/moodle/webservice/rest/server.php?wstoken=46b0837fde05083b10edd2f210c2fbe7&wsfunction=core_enrol_get_users_courses&userid=${moodleUserId}&moodlewsrestformat=json`
+            `http://edunova.moodlecloud.com/moodle/webservice/rest/server.php?wstoken=aeb753af3b7400cf5a7d4d8f3ce5a950&wsfunction=core_enrol_get_users_courses&userid=${moodleUserId}&moodlewsrestformat=json`
           );
           const moodleModulesData = await moodleModules.json();
           console.log(moodleModulesData);
-          const response = await axios.get("http://localhost:3000/module/", {
+          const response = await axios.get("https://edunova-back-rqxc.onrender.com/module/", {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
@@ -89,7 +89,7 @@ const ListModules = () => {
           setLoading(false);
         } else {
           const response = await axios.get(
-            `http://localhost:3000/module/modules/`,
+            `https://edunova-back-rqxc.onrender.com/module/modules/`,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -131,7 +131,7 @@ const ListModules = () => {
     if (!window.confirm("Are you sure you want to delete this module?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/module/${moduleId}`, {
+      await axios.delete(`https://edunova-back-rqxc.onrender.com/module/${moduleId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -159,7 +159,7 @@ const ListModules = () => {
     setSelectedModule(null);
     try {
       const response = await axios.get(
-        `http://localhost:3000/module/modules/`,
+        `https://edunova-back-rqxc.onrender.com/module/modules/`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

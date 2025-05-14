@@ -900,7 +900,7 @@ const UserProfile = () => {
     setId(userId);
 
     axios
-      .get(`http://localhost:3000/api/users/${userId}`, {
+      .get(`https://edunova-back-rqxc.onrender.com/api/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -922,7 +922,7 @@ const UserProfile = () => {
 
           // Set profile image if available
           if (user.photo) {
-            setPreviewUrl(`http://localhost:3000/${user.photo}`);
+            setPreviewUrl(`https://edunova-back-rqxc.onrender.com/${user.photo}`);
             console.log("the photo is ", user.photo);
           }
 
@@ -969,7 +969,7 @@ const UserProfile = () => {
         const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
 
-        const response = await axios.get(`http://localhost:3000/api/users/badges/${userId}`, {
+        const response = await axios.get(`https://edunova-back-rqxc.onrender.com/api/users/badges/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -1338,7 +1338,7 @@ const UserProfile = () => {
       formData.append("profile", imageFile);
 
       const response = await axios.post(
-        "http://localhost:3000/api/users/upload-profile",
+        "https://edunova-back-rqxc.onrender.com/api/users/upload-profile",
         formData,
         {
           headers: {
@@ -1428,7 +1428,7 @@ const UserProfile = () => {
       // First update the basic user data
       console.log("user's id:", id);
       const basicResponse = await axios.patch(
-        `http://localhost:3000/api/users/${id}`,
+        `https://edunova-back-rqxc.onrender.com/api/users/${id}`,
         basicUserData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -1459,7 +1459,7 @@ const UserProfile = () => {
 
         // Use the specialized admin fields endpoint
         const adminResponse = await axios.patch(
-          `http://localhost:3000/api/users/${id}/admin-fields`,
+          `https://edunova-back-rqxc.onrender.com/api/users/${id}/admin-fields`,
           adminSpecificData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -1481,7 +1481,7 @@ const UserProfile = () => {
 
         // Use the specialized teacher fields endpoint
         const teacherResponse = await axios.patch(
-          `http://localhost:3000/api/users/${id}/teacher-fields`,
+          `https://edunova-back-rqxc.onrender.com/api/users/${id}/teacher-fields`,
           teacherSpecificData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -1504,7 +1504,7 @@ const UserProfile = () => {
 
         // Use the specialized student fields endpoint
         const studentResponse = await axios.patch(
-          `http://localhost:3000/api/users/${id}/student-fields`,
+          `https://edunova-back-rqxc.onrender.com/api/users/${id}/student-fields`,
           studentSpecificData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -1514,7 +1514,7 @@ const UserProfile = () => {
 
       // Fetch the latest user data to make sure we have the most up-to-date information
       const refreshResponse = await axios.get(
-        `http://localhost:3000/api/users/${id}`,
+        `https://edunova-back-rqxc.onrender.com/api/users/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -1602,7 +1602,7 @@ const UserProfile = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:3000/api/users/${id}`, {
+      await axios.delete(`https://edunova-back-rqxc.onrender.com/api/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -1842,7 +1842,7 @@ const UserProfile = () => {
                       );
 
                       // Upload to backend
-                      fetch("http://localhost:3000/api/users/upload-diplomas", {
+                      fetch("https://edunova-back-rqxc.onrender.com/api/users/upload-diplomas", {
                         method: "POST",
                         headers: {
                           Authorization: `Bearer ${localStorage.getItem(
@@ -1882,7 +1882,7 @@ const UserProfile = () => {
                     >
                       {modifying ? (
                         <a
-                          href={`http://localhost:3000/${file}`}
+                          href={`https://edunova-back-rqxc.onrender.com/${file}`}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -1899,7 +1899,7 @@ const UserProfile = () => {
                           size="small"
                           onClick={() => {
                             fetch(
-                              "http://localhost:3000/api/users/delete-diploma",
+                              "https://edunova-back-rqxc.onrender.com/api/users/delete-diploma",
                               {
                                 method: "POST",
                                 headers: {
@@ -1964,7 +1964,7 @@ const UserProfile = () => {
                       formData.append("workCertificate", file);
 
                       fetch(
-                        "http://localhost:3000/api/users/upload-work-certificate",
+                        "https://edunova-back-rqxc.onrender.com/api/users/upload-work-certificate",
                         {
                           method: "POST",
                           headers: {
@@ -2004,7 +2004,7 @@ const UserProfile = () => {
                     >
                       {modifying ? (
                         <a
-                          href={`http://localhost:3000/${teacherData.workCertificate}`}
+                          href={`https://edunova-back-rqxc.onrender.com/${teacherData.workCertificate}`}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -2021,7 +2021,7 @@ const UserProfile = () => {
                           size="small"
                           onClick={() => {
                             fetch(
-                              "http://localhost:3000/api/users/delete-file",
+                              "https://edunova-back-rqxc.onrender.com/api/users/delete-file",
                               {
                                 method: "POST",
                                 headers: {
@@ -2497,7 +2497,7 @@ const UserProfile = () => {
       >
         <Badge>
           <img
-            src={`http://localhost:3000/uploads/badges/${badge.image}`}
+            src={`https://edunova-back-rqxc.onrender.com/uploads/badges/${badge.image}`}
             alt={badge.title}
           />
         </Badge>

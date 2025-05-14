@@ -17,7 +17,7 @@ const SecurityGate = () => {
           ? TEST_IP
           : (await axios.get("https://api.ipify.org?format=json")).data.ip;
 
-        const res = await axios.get("http://localhost:3000/api/ip/check-ip", {
+        const res = await axios.get("https://edunova-back-rqxc.onrender.com/api/ip/check-ip", {
           params: { ip },
         });
 

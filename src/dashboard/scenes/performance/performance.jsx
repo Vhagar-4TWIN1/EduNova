@@ -40,7 +40,7 @@ const Performance = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `http://localhost:3000/api/performance/performance?range=${timeRange}`,
+          `https://edunova-back-rqxc.onrender.com/api/performance/performance?range=${timeRange}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setPerformanceData(res.data || []);

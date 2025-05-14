@@ -20,7 +20,7 @@ const ListModulesBack = () => {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/module/",
+        const response = await axios.get("https://edunova-back-rqxc.onrender.com/module/",
           {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -62,7 +62,7 @@ const ListModulesBack = () => {
     if (!window.confirm("Are you sure you want to delete this module?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/module/${moduleId}`);
+      await axios.delete(`https://edunova-back-rqxc.onrender.com/module/${moduleId}`);
       setModules((prevModules) =>
         prevModules.filter((module) => module._id !== moduleId)
       );
@@ -87,7 +87,7 @@ const ListModulesBack = () => {
     setCurrentPage(1); // Reset to first page after update
 
     try {
-      const response = await axios.get("http://localhost:3000/module/");
+      const response = await axios.get("https://edunova-back-rqxc.onrender.com/module/");
       setModules(response.data);
       setFilteredModules(response.data);
     } catch (error) {

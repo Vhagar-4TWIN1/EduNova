@@ -24,7 +24,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/analytics');
+        const response = await fetch('https://edunova-back-rqxc.onrender.com/api/analytics');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get('content-type');
         if (!contentType.includes('application/json')) {
@@ -46,7 +46,7 @@ const Dashboard = () => {
 
     const fetchStats = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/performance/stats/usage');
+        const res = await axios.get('https://edunova-back-rqxc.onrender.com/api/performance/stats/usage');
         const { activeHours, abandonEvolution } = res.data;
         const hourMap = {};
         activeHours.forEach(item => {

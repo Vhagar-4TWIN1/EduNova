@@ -44,7 +44,7 @@ const ChangePasswordBack = () => {
 
     try {
       const response = await axios.patch(
-        'http://localhost:3000/api/auth/changePassword',
+        'https://edunova-back-rqxc.onrender.com/api/auth/changePassword',
         inputs,
         {
           headers: {
