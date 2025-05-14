@@ -9,6 +9,10 @@ const UserBadges = () => {
   const [error, setError] = useState(null);
   const [unachievedBadges, setUnachievedBadges] = useState([]);
   const navigate = useNavigate();
+useEffect(()=>{
+    document.title = "Badge"
+  },[])
+
   fetch('http://localhost/moodle/webservice/rest/server.php?wstoken=7ccfd931c34a195d815957a0759ce508&wsfunction=core_user_get_users&criteria[0][key]=email&criteria[0][value]=oussamaawledsalem98724@gmail.com&moodlewsrestformat=json')
   .then(res => res.json())
   .then(data => {

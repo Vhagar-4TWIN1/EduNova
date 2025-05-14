@@ -48,6 +48,10 @@ export default function App() {
   const emotionIntervalRef = useRef(null);
   const videoElementRef = useRef(null);
 
+
+  useEffect(()=>{
+      document.title = "Video Room"
+    },[])
   // Load Face-API models
   useEffect(() => {
     const loadModels = async () => {

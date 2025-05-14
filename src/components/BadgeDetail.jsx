@@ -6,7 +6,9 @@ const BadgeDetail = () => {
   const  badgeId  = useParams(); // Get badgeId from the URL
   const [badgeDetail, setBadgeDetail] = useState(null);
   const [error, setError] = useState(null);
-
+ useEffect(()=>{
+    document.title = "Badge"
+  },[])
   useEffect(() => {
     const fetchBadgeDetail = async () => {
       try {

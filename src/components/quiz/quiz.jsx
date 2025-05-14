@@ -13,6 +13,9 @@ const Quiz = () => {
 
   const API_KEY = 'OeewoAURpKKYNiQdh5E9WMzaypg0aIf0PbqNY4se';
 
+   useEffect(()=>{
+    document.title = "Quiz"
+  },[])
   const categories = [
     { value: 'Linux', label: 'Linux' },
     { value: 'DevOps', label: 'DevOps' },

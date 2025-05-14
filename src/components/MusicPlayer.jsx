@@ -13,6 +13,9 @@ import YouTube from 'react-youtube';
 import axios from 'axios';
 import './MusicPlayer.css'; // Import the CSS file
 
+
+
+
 const formatTime = (seconds) => {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
@@ -44,6 +47,12 @@ const MusicPlayer = () => {
   const playerRef = useRef(null);
   const progressInterval = useRef(null);
 
+
+
+  useEffect(()=>{
+    document.title = "Music"
+  },[])
+  
   // Helper function to convert data URI to Blob
   const dataURItoBlob = (dataURI) => {
     const byteString = atob(dataURI.split(',')[1]);
@@ -190,6 +199,8 @@ const MusicPlayer = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handlePlayPause, handleNext, handlePrevious]);
 
+
+  
   // Load tracks
   useEffect(() => {
     const loadTracks = async () => {
