@@ -1,4 +1,4 @@
-import { HashRouter  as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter   as Router, Routes, Route } from "react-router-dom";
 import { useState, lazy, Suspense, useEffect } from "react"; // Import lazy, Suspense, et useEffect
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./dashboard/theme";

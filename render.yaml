@@ -7,5 +7,5 @@ services:
     routes:
       - type: filesystem
       - type: rewrite
-        source: "^/(?!.*\\.).*"
+        source: "/(.*)"
         destination: "/index.html"
