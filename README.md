@@ -76,7 +76,7 @@ npm run dev
 
 ## 🔗 Useful Links
 
-- [LinkedIn Post]([https://linkedin.com/your-post](https://www.linkedin.com/posts/ben-amor-yosr_integratedproject-technologies-aiforgood-activity-7329861112223387648-btvQ?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEQLZqgBIQoHP2VsyL8p-KOytXdv6ArBh4U))
+- [LinkedIn Post](https://www.linkedin.com/posts/ben-amor-yosr_integratedproject-technologies-aiforgood-activity-7329861112223387648-btvQ?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEQLZqgBIQoHP2VsyL8p-KOytXdv6ArBh4U)
 - [Esprit School of Engineering](https://esprit.tn)
 
 ---
