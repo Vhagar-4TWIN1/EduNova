@@ -25,7 +25,7 @@
 
 ## 📸 Demo
 
-![EduNova Demo](Demo.mp4)
+🎬 Coming soon!  
 
 ---
 
