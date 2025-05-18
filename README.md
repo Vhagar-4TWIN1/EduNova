@@ -25,8 +25,7 @@
 
 ## 📸 Demo
 
-🎬 Coming soon!  
-Request early access via our official [EduNova Site](https://your-link-here.com)
+![EduNova Demo](Demo.mp4)
 
 ---
 
@@ -73,16 +72,11 @@ npm install --force
 npm run dev
 ```
 
-## 📬 Get in Touch
-
-- 🌐 [Official Website](https://your-link-here.com)
-- 📧 [Contact Us](https://your-link-here.com/contact)
-
 ---
 
 ## 🔗 Useful Links
 
-- [LinkedIn Post](https://linkedin.com/your-post)
+- [LinkedIn Post]([https://linkedin.com/your-post](https://www.linkedin.com/posts/ben-amor-yosr_integratedproject-technologies-aiforgood-activity-7329861112223387648-btvQ?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEQLZqgBIQoHP2VsyL8p-KOytXdv6ArBh4U))
 - [Esprit School of Engineering](https://esprit.tn)
 
 ---
